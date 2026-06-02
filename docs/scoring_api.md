@@ -61,6 +61,27 @@ The **user-facing number is `evidence_weighted_similarity`** (also `score_pct` /
 returns a genuine **four-class Naive Bayes posterior** as a *derived, calibration-pending* output
 (`class_posteriors` over general/nonagenarian/centenarian/supercentenarian). See `MODEL_CARD.md`.
 
+### Relative-longevity context (optional)
+
+Pass `context={"country", "sex", "age", "bio_age_delta", "allow_uncalibrated_odds"}` to attach a
+`longevity_context` block. It does **not** change the similarity score. It separates two things by
+evidence status:
+
+- `population_baseline` — **validated open demography** (HMD life tables): life expectancy at 60/65
+  and P(reach 100 | alive at 65/80) for that country × sex. e.g. ~7.6% of Japanese women alive at 65
+  reach 100 (2024).
+- `phenotype_band` + `trajectory_statement` — a **calibration-pending** placement of the profile
+  relative to a typical-centenarian trajectory (`below_typical` → `exceptional`).
+- `biological_age_context` — if `bio_age_delta` (DNAmAge − chronological, e.g. from `clocks.py`) is
+  supplied, a younger/older note.
+- `illustrative_relative_odds` — emitted **only** with `allow_uncalibrated_odds=True`, stamped
+  `illustrative_not_validated`. No personal odds are produced by default.
+
+```python
+score(3, l2_answers, clinical=clin,
+      context={"country": "Japan", "sex": "F", "age": 72, "bio_age_delta": -12})
+```
+
 ## Response (JSON-serializable dict)
 
 | field | meaning |

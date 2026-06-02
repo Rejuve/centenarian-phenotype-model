@@ -36,6 +36,7 @@ import yaml
 
 from .naive_bayes import posterior_summary
 from .domains import compute_domains
+from .longevity import relative_longevity
 from .validation import (ValidationError, _empty_report, finalize, validate_clinical,
                          validate_quiz_answers)
 
@@ -287,7 +288,7 @@ def get_quiz(layer: int) -> dict:
 
 
 def score(layer: int, answers: dict, clinical: dict | None = None, strict: bool = True,
-          posterior_kwargs: dict | None = None) -> dict:
+          posterior_kwargs: dict | None = None, context: dict | None = None) -> dict:
     """Score a profile at the given layer. See module docstring for the contract.
 
     layer 1 -> tier-1 teaser answers; layer 2 -> tier-2 app-survey answers;
@@ -297,6 +298,11 @@ def score(layer: int, answers: dict, clinical: dict | None = None, strict: bool 
     out-of-range option indices, and alignments outside [0,1] raise ValidationError (-> 422).
     strict=False (research/debug): the same issues are downgraded to a structured `warnings` block
     and the bad inputs are dropped.
+
+    context (optional): {country, sex, age, bio_age_delta, allow_uncalibrated_odds}. When supplied,
+    attaches a `longevity_context` block — the *validated* population survival baseline for that
+    country x sex (HMD life tables) plus a *calibration-pending* phenotype trajectory band. Does NOT
+    change the similarity score.
     """
     if layer not in (1, 2, 3):
         raise ValueError(f"layer must be 1, 2 or 3 (got {layer!r})")
@@ -354,6 +360,13 @@ def score(layer: int, answers: dict, clinical: dict | None = None, strict: bool 
             "DNA-methylation clocks and telomere length to move confidence toward ~80%."]
     else:
         result["pro_unlock_opportunities"] = []
+
+    # --- relative-longevity context (validated demography + calibration-pending phenotype band) ---
+    if context:
+        result["longevity_context"] = relative_longevity(
+            result["score_pct"], country=context.get("country"), sex=context.get("sex"),
+            age=context.get("age", 65), bio_age_delta=context.get("bio_age_delta"),
+            allow_uncalibrated_odds=bool(context.get("allow_uncalibrated_odds", False)))
 
     result["warnings"] = report
     result["model_version"] = {f"tier{layer if layer < 3 else 2}": MODEL_VERSIONS[2 if layer >= 2 else 1]}

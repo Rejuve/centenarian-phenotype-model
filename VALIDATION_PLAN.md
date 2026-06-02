@@ -4,6 +4,22 @@
 (see `MODEL_CARD.md` §10). This plan defines how validation will be done and what evidence is
 required before any "validated" claim can be made.*
 
+## 0a. Endpoint & validation standards
+
+The model is evolving from "similarity to verified centenarians" toward a **relative
+healthspan/longevity** statement: is this profile consistent with outliving the typical survival
+trajectory for the person's own country/sex, with less age-related decline, and higher odds of
+reaching 100 on the current trajectory (chronic-disease risk included)?
+
+- **Validated anchor (already in the package):** population survival baselines by country × sex from
+  HMD life tables (`longevity_baselines.yaml`). This is the demographic denominator and the
+  calibration target.
+- **Gold standard cohort:** an individual measured in a common age range (≈60–75) and followed to
+  100+ — even sparse. This is what calibrates "phenotype at 65 → odds of reaching 100."
+- **Platinum standard:** longitudinal data from youth to 100+ (rare today).
+- **Interim anchor:** *reduced biological age at any chronological age* (clocks + age/sex-adjusted
+  markers) plus exposomic/lifestyle patterns — measurable at any age without waiting decades.
+
 ## 0. Why a plan and not results
 
 The deployed v1 scorer is an **evidence-weighted alignment** model assembled from a curated evidence

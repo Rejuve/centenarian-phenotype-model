@@ -79,11 +79,16 @@ Per-factor proximity is scored on a 0–100 scale and aggregated into an overall
 with per-feature subscores, interpretive `domain_scores`, and the class posteriors all exposed so
 that contributing factors are visible.
 
-Country-level exposomic context is applied at scoring time, outside the scoring core: country-specific
-centenarian density replaces the global prior, a Blue Zone adjustment is applied as auditable
-configuration, and Human Mortality Database quality warnings widen the confidence interval rather than
-shifting the central estimate. *(This context layer is specified but not yet wired into the deployable
-package — see `VALIDATION_PLAN.md` / `AUDIT_FIXES.md`.)*
+**Relative-longevity baseline (wired in).** A validated demographic anchor is computed by Step G
+(`scripts/pipeline/step_g_longevity_baselines.py`) from Human Mortality Database period life tables
+and bundled as `centenarian_phenotype/models/longevity_baselines.yaml` (123 country × sex rows): life
+expectancy at 60/65 and P(reach 90/100 | alive at 65/80). `centenarian_phenotype.longevity` exposes
+this so a score can be framed *relative to the person's own country and sex* (e.g. ~7.6% of Japanese
+women alive at 65 reach 100, 2024). The population baseline is **validated demography**; the mapping
+from phenotype score → personal survival trajectory is **calibration-pending** and kept separate
+(see `MODEL_CARD.md` §4, `VALIDATION_PLAN.md`). The remaining country exposomic adjustments
+(centenarian-density prior, Blue Zone configuration, HMD quality-warning CI widening) are specified
+but not yet wired in.
 
 ### 3.2 Feature discovery
 

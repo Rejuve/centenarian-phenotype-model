@@ -45,6 +45,9 @@ class ScoreRequest(BaseModel):
     clinical: Optional[dict[str, float]] = Field(
         None, description="Layer 3 only: measured feature -> alignment in [0,1]")
     strict: bool = Field(True, description="reject unknown/out-of-range inputs (422) vs warn")
+    context: Optional[dict[str, Any]] = Field(
+        None, description="optional {country, sex, age, bio_age_delta} for a relative-longevity "
+                          "context (validated population baseline + calibration-pending band)")
 
 
 def _resolve_origins(layers: tuple[int, ...], cors_origins: Optional[list[str]]) -> list[str]:
@@ -95,7 +98,8 @@ def create_app(layers=(1, 2, 3), cors_origins: Optional[list[str]] = None,
 
     def _score(layer: int, body: ScoreRequest) -> dict[str, Any]:
         try:
-            return score(layer, body.answers, clinical=body.clinical, strict=body.strict)
+            return score(layer, body.answers, clinical=body.clinical, strict=body.strict,
+                         context=body.context)
         except ValidationError as e:
             raise HTTPException(status_code=422, detail={"error": "input validation failed",
                                                          "report": e.report})

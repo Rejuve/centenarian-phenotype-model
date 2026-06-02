@@ -49,6 +49,9 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 - Completeness split (model depth vs response completeness vs evidence confidence) + usability flag.
 - Versioned, referenced raw-value → alignment mappers for the core Tier-3 panel.
 - Extensible biological-age clock interface (`clocks.py`) with a panel output and scoreable-only feed.
+- **Relative-longevity context (`longevity.py` + Step G):** validated HMD population survival
+  baselines by country × sex (123 rows bundled), with a calibration-pending phenotype trajectory band
+  kept strictly separate. Threaded into `score(..., context=...)` without changing the similarity number.
 - Tracked enriched source registry + prioritized freely-available candidate sources toward validation.
 - Phenotype decomposition (`domain_scores`) and the full product output bundle.
 - L2/L3 CORS hardening; per-layer route isolation; versioned `/v1` routes.

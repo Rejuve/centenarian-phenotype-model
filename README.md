@@ -4,7 +4,7 @@ An open-source model that scores how similar a person's lifestyle, biomarker, an
 
 > **This is a similarity score, not a lifespan predictor.** The output is "your profile is *X%* similar to verified centenarians" — never a predicted age at death. Higher confidence requires deeper data, and your result can change as more data is added. This is not medical advice or diagnosis.
 
-**Model status (read this first):** the deployed v1 scorer is an **evidence-weighted alignment** model built from a curated evidence corpus — *not* the output of a supervised training run, and *not* yet externally validated. It additionally returns a **four-class Naive Bayes posterior** (general population / nonagenarian / centenarian / supercentenarian) as a *derived, calibration-pending* output. A fully calibrated Naive Bayes and external validation are the **planned v2**. See [`MODEL_CARD.md`](MODEL_CARD.md), [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md), and [`AUDIT_FIXES.md`](AUDIT_FIXES.md) for exactly what is implemented, validated, planned, and not-yet-safe-to-claim.
+**Model status (read this first):** the deployed v1 scorer is an **evidence-weighted alignment** model built from a curated evidence corpus — *not* the output of a supervised training run, and *not* yet externally validated. It additionally returns a **four-class Naive Bayes posterior** (general population / nonagenarian / centenarian / supercentenarian) as a *derived, calibration-pending* output. A score can be framed **relative to your own country and sex** using a *validated* demographic baseline (HMD life tables), while the mapping from phenotype to personal survival odds stays *calibration-pending*. A fully calibrated Naive Bayes and external validation are the **planned v2**. See [`MODEL_CARD.md`](MODEL_CARD.md), [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md), and [`AUDIT_FIXES.md`](AUDIT_FIXES.md) for exactly what is implemented, validated, planned, and not-yet-safe-to-claim.
 
 The model ships in three tiers, each an evolution of the one before:
 
@@ -73,6 +73,7 @@ Scripts are run from the project root. Full script index: `scripts/README.md`.
 | 6. Baselines (D) | `scripts/pipeline/step_d_population_baselines.py` *(placeholder)* | `tier3_nhanes_baselines.parquet` |
 | 7. Feature mapping (E) | `scripts/pipeline/step_e_feature_mapping.py` *(placeholder)* | `feature_mapping.csv` |
 | 8. Model & scoring (F) | `scripts/pipeline/step_f_scoring.py` *(placeholder)* | `models/tier{1,2,3}_model.yaml`, `score.py` |
+| 9. Longevity baselines (G) | `scripts/pipeline/step_g_longevity_baselines.py` | `longevity_baselines.csv`, bundled `models/longevity_baselines.yaml` |
 
 All scrapers are idempotent (skip-if-exists / ID dedup) and save incrementally.
 

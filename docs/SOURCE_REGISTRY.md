@@ -33,7 +33,8 @@ Each source row should record:
 | News / GDELT / obituary / oral-history | open (various) | named centenarians | 100+ (age floored) | verified_cent | training | **no 90–99 subjects** (nonagenarian floor) |
 | NHANES 2017–2018 (+ methylation) | open | US population | all | mortality_outcome / context | validation | few subjects 95+; cross-sectional |
 | GWAS Catalog (longevity) | open | GWAS summary | n/a | healthspan/genetic | training | single longevity source currently |
-| WHO GHO / UN WPP / Human Mortality Database | open | country-level | all | context | contextual | 30/50 HMD countries carry quality warnings |
+| Human Mortality Database life tables | open (registration) | 41 countries × sex | 0–109 | mortality_outcome / context | **validation anchor** | processed → `longevity_baselines.yaml`; 30/50 countries carry quality warnings. **Now the validated relative-longevity baseline.** |
+| WHO GHO / UN WPP | open | country-level | all | context | contextual | country life-expectancy context |
 | Italian centenarian WGS | open (Figshare) | semi-supercentenarians | 105+ | verified_super | contextual | small n (~27); GRCh build mismatch |
 | Centenarian gut microbiome (Zenodo 6579480; PLOS One) | open | centenarian gut | 100+ | healthspan | pending | no validated reference distribution wired in |
 

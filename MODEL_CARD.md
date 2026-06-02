@@ -41,9 +41,30 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
 
 ## 4. Endpoint definition
 
-Verified survival to 100+ is the anchor. Survivor/delayer/escaper subtypes and the interpretive
-`domain_scores` (cardiovascular, metabolic, inflammatory, functional, cognitive, social, genetic,
-epigenetic, disease-escape) **enrich interpretation but never replace** the primary endpoint.
+**Primary endpoint (now):** similarity to *verified* survival to 100+. Survivor/delayer/escaper
+subtypes and the interpretive `domain_scores` (cardiovascular, metabolic, inflammatory, functional,
+cognitive, social, genetic, epigenetic, disease-escape) **enrich interpretation but never replace**
+the primary endpoint.
+
+**Endpoint evolution (planned, in progress):** toward a **relative healthspan/longevity** statement —
+whether a profile is consistent with *outliving the typical survival trajectory for the person's own
+country and sex*, with less age-related decline and higher odds of reaching 100 **on their current
+trajectory** (absent sudden lifestyle change/injury, and incorporating chronic-disease risk). The
+unifying construct across ages is **reduced biological age at any chronological age** (clocks +
+age/sex-adjusted markers), so the model need not always say "will reach 100" — it can say "this looks
+younger/healthier than typical for your age and country."
+
+This is split by evidence status (see `longevity.py` / `longevity_context`):
+- **Validated anchor:** the population survival baseline by country × sex (HMD life tables — open
+  demography, not modelled).
+- **Calibration-pending:** the mapping from phenotype score → a personal survival/trajectory band.
+  Converting the band into calibrated personal odds is the validation deliverable.
+
+**Validation standards for the trajectory endpoint:**
+- **Gold:** data from a person in a commonly-measured age range (≈60–75) followed to 100+, even if sparse.
+- **Platinum:** longitudinal data from youth to 100+ (presently uncommon).
+- Until those exist, we anchor on *reduced biological age at any age* + exposomic/lifestyle patterns
+  and the validated demographic baseline.
 
 ## 5. Data & source registry
 
