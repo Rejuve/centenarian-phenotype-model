@@ -1,6 +1,14 @@
-# Model Card (stub) — Centenarian Longevity Phenotype Model
+# Model Card (stub) — superseded
 
-*Seed document. Limitations and parameters accumulate here as the model is built (Step F). Not yet a released model card.*
+> **This stub is superseded by the complete [`MODEL_CARD.md`](../MODEL_CARD.md) at the repo root.**
+> The full card states what is implemented now, validated now, planned, and not-yet-safe-to-claim,
+> and includes intended/non-intended use, endpoint definition, evidence grades, bias risks,
+> known failure modes, regulatory disclaimer, and versioning/update policy. The historical seed
+> notes below are retained for provenance only.
+
+---
+
+*Seed document (historical). Limitations and parameters accumulated here as the model was built.*
 
 ## Overview
 - **Name:** Centenarian Longevity Phenotype Model

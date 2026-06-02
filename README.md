@@ -1,8 +1,10 @@
 # Rejuve Centenarian Longevity Phenotype Model
 
-An open-source machine-learning model that scores how similar a person's lifestyle, biomarker, and genetic profile is to people who live to 100 or more.
+An open-source model that scores how similar a person's lifestyle, biomarker, and genetic profile is to people who **verifiably lived to 100 or more**.
 
-> **This is a similarity score, not a lifespan predictor.** The output is "your profile is *X%* similar to verified centenarians" — never a predicted age at death.
+> **This is a similarity score, not a lifespan predictor.** The output is "your profile is *X%* similar to verified centenarians" — never a predicted age at death. Higher confidence requires deeper data, and your result can change as more data is added. This is not medical advice or diagnosis.
+
+**Model status (read this first):** the deployed v1 scorer is an **evidence-weighted alignment** model built from a curated evidence corpus — *not* the output of a supervised training run, and *not* yet externally validated. It additionally returns a **four-class Naive Bayes posterior** (general population / nonagenarian / centenarian / supercentenarian) as a *derived, calibration-pending* output. A fully calibrated Naive Bayes and external validation are the **planned v2**. See [`MODEL_CARD.md`](MODEL_CARD.md), [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md), and [`AUDIT_FIXES.md`](AUDIT_FIXES.md) for exactly what is implemented, validated, planned, and not-yet-safe-to-claim.
 
 The model ships in three tiers, each an evolution of the one before:
 
@@ -12,7 +14,7 @@ The model ships in three tiers, each an evolution of the one before:
 
 Completeness accumulates across the tiers (~30% → ~50% → ~80%): each tier carries all of the previous tier's questions into its score and adds deeper evidence on top.
 
-Built data-first from an academic + news corpus and validated reference datasets (NHANES, WHO, UN WPP, HMD, GWAS, LongeviQuest). Designed to interoperate with OpenCog Hyperon / PLN: Naive Bayes outputs map to PLN truth values.
+Built data-first from an academic + news corpus and validated reference datasets (NHANES, WHO, UN WPP, HMD, GWAS, LongeviQuest). Designed to interoperate with OpenCog Hyperon / PLN: the four-class Naive Bayes posteriors map to PLN truth values (strength, confidence).
 
 ---
 
@@ -25,7 +27,7 @@ python -m spacy download en_core_web_sm
 
 Scripts run from the repository root: `python <script>.py`. Set `PYTHONIOENCODING=utf-8` for scripts that emit non-ASCII text (Windows/PowerShell: also `chcp.com 65001 > $null`).
 
-The trained model (~50 KB) ships with the application; **end users never run the scrapers or pipeline below.** This repository is for building and reproducing the model.
+The bundled tier models (~50 KB of curated YAML — evidence specifications, not a supervised-training artifact) ship with the application; **end users never run the scrapers or pipeline below.** This repository is for building and reproducing the model.
 
 ---
 
@@ -110,6 +112,9 @@ docs/                project documentation (below)
 
 ## Documentation
 
+- **MODEL_CARD.md** — complete model card: intended/non-intended use, endpoint, evidence grades, bias, failure modes, regulatory disclaimer, versioning, validation status.
+- **VALIDATION_PLAN.md** — cohorts, metrics, acceptance gates (nothing validated yet).
+- **AUDIT_FIXES.md** — what the latest audit changed, what's deferred, and the model-status statement.
 - **METHODS.md** — methodology, decisions, known limitations, changelog.
 - **docs/data_dictionary.md** — schema and join keys for every processed file.
 - **docs/ARCHITECTURE.md** — data flow, lineage, join keys, schema quirks.

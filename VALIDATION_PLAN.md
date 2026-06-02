@@ -1,0 +1,58 @@
+# Validation Plan — Centenarian Longevity Phenotype Model
+
+*Status: planned. Nothing in this document has been executed yet; the model is **not yet validated**
+(see `MODEL_CARD.md` §10). This plan defines how validation will be done and what evidence is
+required before any "validated" claim can be made.*
+
+## 0. Why a plan and not results
+
+The deployed v1 scorer is an **evidence-weighted alignment** model assembled from a curated evidence
+corpus; the four-class Naive Bayes posterior layer is implemented but its likelihoods are
+heuristic/uncalibrated. Neither has been tested against held-out outcomes. This plan is the gate
+between "internally consistent" (where we are) and "externally validated" (where a clinical/product
+claim would require us to be).
+
+## 1. Reference cohorts
+
+| cohort | role | usability |
+|---|---|---|
+| Verified centenarian / supercentenarian records (LongeviQuest, GRG-style) | positive anchor | training/validation where licensing allows; else contextual |
+| Nonagenarian references (90–99) | intermediate class | **gap** — corpus has none; must be sourced (HRS/ELSA/SHARE/UKB) |
+| General-population baselines (NHANES) | negative/baseline | validation |
+| Mortality-linked datasets (NHANES mortality linkage) | survival outcome | validation where legally usable |
+| Healthy-aging / morbidity / function datasets (HRS/ELSA/SHARE/UKB, frailty/gait/grip cohorts) | functional endpoints | access/licensing dependent |
+
+## 2. Metrics
+
+- **Score distributions by class** — distributions of `score_pct` and `class_posteriors` for
+  verified centenarians vs nonagenarians vs general population; expect monotone separation.
+- **Calibration** — reliability curves for `centenarian_posterior` / `supercentenarian_posterior`
+  against observed class membership; report ECE/Brier. (Required before posteriors can be called
+  probabilities.)
+- **Sensitivity analyses** — vary priors, likelihood centroids/σ, and feature weights; report
+  ranking stability.
+- **Subgroup performance** — by sex, ancestry, geography, and socioeconomic proxies; report gaps.
+- **Ablation by feature class** — behavioral-only vs +clinical vs +genomic vs +epigenetic; quantify
+  each tier's marginal contribution (validates the 30/50/80 depth ladder).
+- **Missingness robustness** — score stability and `evidence_confidence_pct` behaviour under
+  random and informative missingness; partial-survey degradation curves.
+- **Temporal stability** — same profile across model versions; bounded drift per version bump.
+- **External validation** — performance on a cohort not used in any sourcing/curation step.
+
+## 3. Acceptance gates (before any "validated" claim)
+
+1. Monotone class separation with non-overlapping CIs on the primary endpoint.
+2. Calibrated posteriors (ECE below an agreed threshold) **before** posteriors are presented as
+   probabilities.
+3. No subgroup with materially degraded ranking performance without a documented mitigation.
+4. Ablation confirms each tier adds signal in the claimed direction.
+5. Documented external-validation result on a held-out cohort.
+
+## 4. Sequencing
+
+1. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).
+2. Calibrate NB likelihoods from labelled per-class feature distributions → lift
+   `calibration` from `heuristic_pending` to `calibrated`.
+3. Run distribution + ablation + missingness suites on NHANES (+ mortality linkage).
+4. Subgroup + temporal + external validation.
+5. Promote results into `MODEL_CARD.md` §10 and gate public claims on the acceptance gates above.

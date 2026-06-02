@@ -126,3 +126,38 @@ def test_model_version_stamped():
     assert "model_version" in score(1, opt0(t1))
     assert set(_MODEL_FILES) == {1, 2, 3}
     assert MODEL_VERSIONS[1] and MODEL_VERSIONS[2] and MODEL_VERSIONS[3]
+
+
+# ---------- phenotype decomposition (secondary domains; primary endpoint unchanged) ----------
+
+def test_primary_endpoint_unchanged_by_decomposition():
+    # Adding domain_scores must not move the headline similarity number.
+    t1 = load_model(1)
+    assert score(1, truemax(t1))["score_pct"] == 97.5
+
+
+def test_domain_scores_present_and_bounded():
+    t2 = load_model(2)
+    ds = score(2, opt0(t2))["domain_scores"]
+    assert ds  # at least one interpretive domain emitted
+    for d in ds.values():
+        assert 0.0 <= d["score_pct"] <= 100.0
+        assert d["n_features"] >= 1
+
+
+def test_layer3_emits_genetic_and_epigenetic_context():
+    t2, t3 = load_model(2), load_model(3)
+    clin = {"grimage_2019": 0.9, "rs2802295": 1.0}
+    ds = score(3, opt0(t2), clinical=clin)["domain_scores"]
+    assert "genetic_longevity_context" in ds
+    assert "epigenetic_youthfulness_slow_pace_context" in ds
+
+
+def test_product_output_fields_present():
+    t2 = load_model(2)
+    r = score(2, opt0(t2))
+    for f in ("total_similarity_score", "class_posteriors", "domain_scores", "top_positive_drivers",
+              "top_negative_drivers", "modifiable_drivers", "non_modifiable_context",
+              "missing_high_value_inputs", "evidence_confidence_pct", "next_best_data_action",
+              "pro_unlock_opportunities", "response_completeness_pct", "usable_score", "warnings"):
+        assert f in r, f"missing product field {f}"
