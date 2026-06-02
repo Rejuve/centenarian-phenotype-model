@@ -30,8 +30,9 @@ data/processed/nhanes_merged.csv
 # ---- Backups / scratch ----
 *.bak
 *.prerename.bak
+# scratch files like _oneoff.py; the negations keep package dunders (the glob would catch them)
 _*.py
-!**/__init__.py        # never ignore package markers (the _*.py glob would otherwise catch dunders)
+!**/__init__.py
 !**/__main__.py
 _*.csv
 
