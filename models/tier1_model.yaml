@@ -69,13 +69,15 @@ questions:
   - id: q_smoking
     domain: substance_use
     weight: 0.55
-    text: "Have you ever smoked?"
+    text: "Would you consider yourself a smoker — past or present? (The occasional cigarette at a party doesn't count)"
     # Data: measured Step-D ratios — never enriched 1.51x, current depleted 0.58x. Directional gold.
+    # Wording anchors on REGULAR use to match the NHANES SMQ definition (>=100 lifetime cigarettes),
+    # so light/occasional smokers self-classify as 'never' as the reference distribution does.
     # No cessation-recency data exists, so 'former' is a single state.
     options:
-      - {label: "Never", trait_tags: [smoking_status_never], alignment: 1.0, basis: measured}
-      - {label: "Former smoker (quit)", trait_tags: [smoking_status_former], alignment: 0.5, basis: measured}
-      - {label: "Current smoker", trait_tags: [smoking_status_current], alignment: 0.15, basis: measured}
+      - {label: "No — never been a regular smoker", trait_tags: [smoking_status_never], alignment: 1.0, basis: measured}
+      - {label: "Former smoker — I quit", trait_tags: [smoking_status_former], alignment: 0.5, basis: measured}
+      - {label: "Yes — I smoke regularly", trait_tags: [smoking_status_current], alignment: 0.15, basis: measured}
 
   - id: q_alcohol
     domain: substance_use

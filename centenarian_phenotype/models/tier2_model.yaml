@@ -70,11 +70,12 @@ questions:
   - id: q_smoking
     domain: substance_use            # NHANES SMQ; measured Step-D ratios (never 1.51x, current 0.58x)
     weight: 0.55
-    text: "Have you ever smoked, and do you now?"
+    text: "Would you consider yourself a smoker — past or present? (The occasional cigarette at a party doesn't count)"
+    # Wording anchors on REGULAR use to match the NHANES SMQ >=100-lifetime-cigarette definition.
     options:
-      - {label: "Never smoked", trait_tags: [smoking_status_never], alignment: 1.0, basis: measured}
-      - {label: "Former smoker (quit)", trait_tags: [smoking_status_former], alignment: 0.5, basis: measured}
-      - {label: "Current smoker", trait_tags: [smoking_status_current], alignment: 0.15, basis: measured}
+      - {label: "No — never been a regular smoker", trait_tags: [smoking_status_never], alignment: 1.0, basis: measured}
+      - {label: "Former smoker — I quit", trait_tags: [smoking_status_former], alignment: 0.5, basis: measured}
+      - {label: "Yes — I smoke regularly", trait_tags: [smoking_status_current], alignment: 0.15, basis: measured}
 
   - id: q_alcohol
     domain: substance_use            # NHANES ALQ; moderate enriched 75.5% vs 62.4% (gold)
