@@ -115,6 +115,7 @@ docs/                project documentation (below)
 - **MODEL_CARD.md** — complete model card: intended/non-intended use, endpoint, evidence grades, bias, failure modes, regulatory disclaimer, versioning, validation status.
 - **VALIDATION_PLAN.md** — cohorts, metrics, acceptance gates (nothing validated yet).
 - **AUDIT_FIXES.md** — what the latest audit changed, what's deferred, and the model-status statement.
+- **docs/SOURCE_REGISTRY.md** — enriched source schema, current sources, and prioritized freely-available candidates toward validation.
 - **METHODS.md** — methodology, decisions, known limitations, changelog.
 - **docs/data_dictionary.md** — schema and join keys for every processed file.
 - **docs/ARCHITECTURE.md** — data flow, lineage, join keys, schema quirks.

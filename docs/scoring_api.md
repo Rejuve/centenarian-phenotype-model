@@ -42,6 +42,18 @@ score(1, answers, strict=False)
   returns `alignment=None` for missing inputs, and clamps + warns on out-of-physiological-range
   values. `describe_mappers()` returns the full catalogue.
 
+- **Biological-age clocks** — `centenarian_phenotype.clocks` is an extensible registry (DNAm,
+  clinical-chemistry, mortality-risk, pace-of-aging, telomere, frailty; proteomic/metabolomic/
+  microbiome registered as `pending`). `compute_panel()` distinguishes raw biological age /
+  age-acceleration delta / pace and returns a panel; `to_clinical_alignments()` feeds **only
+  scoreable clocks** into `score(3, ...)`:
+
+  ```python
+  from centenarian_phenotype.clocks import compute_panel, to_clinical_alignments
+  panel = compute_panel({"grimage_2019": {"value": 60, "chronological_age": 72}}, sex="F")
+  score(3, l2_answers, clinical=to_clinical_alignments(panel))
+  ```
+
 ### Scoring method
 
 The **user-facing number is `evidence_weighted_similarity`** (also `score_pct` /

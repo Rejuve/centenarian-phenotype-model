@@ -62,7 +62,11 @@ centenarian-vs-population ratio), `genomic`, `epigenetic`, `measured_clinical`, 
 with stratified DerSimonian-Laird pooling and a commensurability guardrail (ORs never pooled with
 HRs). Tier-3 raw-value → alignment mappers cite established public cut-offs (NCEP ATP III, ADA, WHO,
 ACC/AHA, AHA/CDC, EWGSOP2, KDIGO) and carry their own per-mapper evidence grade — see
-`centenarian_phenotype/mappers.py` and `describe_mappers()`.
+`centenarian_phenotype/mappers.py` and `describe_mappers()`. Biological-age clocks are managed by an
+extensible registry (`centenarian_phenotype/clocks.py`) that records each clock's tissue/sample,
+platform/assay, availability (free_open / requires_coefficients / restricted), evidence grade, and
+limitations, and **never mixes a clock into the score without a scoreable flag** (versioned
+weighting); proteomic/metabolomic/microbiome clocks are registered but `pending`.
 
 ## 7. Known failure modes
 
