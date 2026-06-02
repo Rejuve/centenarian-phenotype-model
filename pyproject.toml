@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "centenarian-phenotype"
+version = "0.1.0"
+description = "Centenarian Longevity Phenotype Model — three-tier similarity scoring engine (not a lifespan predictor)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "Rejuve.AI" }]
+keywords = ["longevity", "centenarian", "healthspan", "biological-age", "scoring"]
+dependencies = ["pyyaml>=6.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=7", "httpx>=0.24"]
+api = ["fastapi>=0.110", "uvicorn>=0.27"]
+aws = ["fastapi>=0.110", "mangum>=0.17"]
+
+[project.urls]
+Homepage = "https://rejuve.ai"
+
+[tool.setuptools]
+packages = ["centenarian_phenotype"]
+
+[tool.setuptools.package-data]
+centenarian_phenotype = ["models/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

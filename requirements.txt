@@ -1,0 +1,29 @@
+# Rejuve Centenarian Clock — Python dependencies
+# Python 3.14. Install with:  pip install -r requirements.txt
+# Then download the spaCy model:  python -m spacy download en_core_web_sm
+
+# --- core data ---
+pandas==3.0.3
+numpy==2.4.4
+
+# --- scraping ---
+requests==2.34.1
+beautifulsoup4==4.14.3
+lxml==6.1.1
+ddgs==9.14.4                 # DuckDuckGo search (replaces deprecated duckduckgo-search)
+selenium==4.44.0             # used by some scrapers; profile scraper uses requests only
+webdriver-manager==4.0.2
+
+# --- NLP (feature discovery) ---
+spacy==3.8.13                # also run: python -m spacy download en_core_web_sm  (3.8.0)
+
+# --- statistics / meta-analysis ---
+scipy==1.17.1
+pymare==0.0.10               # DerSimonian-Laird random-effects pooling
+
+# --- dataset ingestion ---
+openpyxl==3.1.5              # UN WPP .xlsx
+pyreadstat==1.3.5           # NHANES .sas7bdat
+
+# --- Phase 3 (model scoring; not yet imported by current pipeline) ---
+# scikit-learn>=1.5

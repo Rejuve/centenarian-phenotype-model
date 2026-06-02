@@ -1,0 +1,334 @@
+model: centenarian_longevity_phenotype_tier2
+layer: 2
+version: "1.0"
+description: >
+  Layer 2 (free app) is a STANDALONE, comprehensive mobile survey — NOT a carry-over of the
+  12-question Layer-1 teaser. It re-asks the behavioral domains at NHANES-module depth, mapped to
+  the top-ranked centenarian features, then adds self-reported clinical state + family history.
+  Layer 2 re-captures every variable FRESH and more granularly than the teaser — there is NO
+  carry-over or pre-fill from Layer 1. The app survey is more detailed than the 12-question quiz,
+  so a clean re-capture is more accurate than trying to map coarser teaser answers onto it.
+  Scored on its own (score_profile([tier2], answers)); completeness ~50%.
+  Behavioral block ~18 q (NHANES PAQ/SLQ/SMQ/ALQ/DBQ/SSQ/PFQ-aligned) + 13 clinical/health items.
+narrative_template: "Your lifestyle and self-reported health share {score}% similarity with verified centenarians."
+scoring:
+  method: evidence_weighted_alignment
+  completeness_pct: 50          # standalone app survey: behavioral (deep) + self-report clinical + family history
+  gwas_corroborated_weight: 0.00  # still 0 here; user-supplied genomic data only enters at Layer 3
+  # no pre-fill from Layer 1 — L2 re-captures all variables fresh and at finer granularity
+basis_legend:
+  measured:              "Step-D measured centenarian-vs-population prevalence ratio (smoking; moderate-vs-no alcohol)."
+  academic_corroborated: "Silver-tier support from the academic longevity corpus at the pattern level (diet)."
+  documented_positive:   "Trait has direction=positive in the case corpus; presence is a genuine centenarian signal."
+  reasoned_gradient:     "Within-question ordinal (e.g. daily vs weekly) set by judgment; the corpus measures presence, not the gradient."
+  neutral_context:       "context_dependent trait or absence-of-a-positive; scored near-neutral, not measured depletion."
+  external_evidence:     "State not documented in the corpus (e.g. heavy drinking); scored from external evidence, flagged."
+  clinical_literature: "Direction from established centenarian clinical literature — disease escape/delay (New England Centenarian Study) and offspring biomarker studies. Silver-tier; not a gold case-vs-population effect we computed."
+  heritability:        "Familial-longevity / heritability literature (parental & sibling longevity; siblings of centenarians have markedly higher odds of extreme age). Strongest single Layer-2 feature."
+notes: >
+  Centenarians characteristically DELAY or ESCAPE the major age-related diseases rather than
+  being disease-free, so 'managed/controlled' states score above 'uncontrolled' but below
+  'never'. Body-composition direction (lean, low central adiposity) follows offspring studies.
+  Family history carries the highest Layer-2 weight (0.75) and is gwas-corroborated, but its
+  genomic counterpart is only scored from user genotype at Layer 3. Values are reported as the
+  literature shows them; none adjusted to expectation.
+
+questions:
+  # ===== BEHAVIORAL BLOCK — fresh, NHANES-aligned, deeper than the L1 teaser =====
+  # Same alignment/basis system as Layer 1; smoking & alcohol keep their measured-gold values.
+  # High-evidence domains (family 0.75, social 0.64) get multiple questions; sub-weights are
+  # distributed so a domain is not over-counted by being split.
+  - id: q_pa_frequency
+    domain: physical_activity        # NHANES PAQ650/PAQ665
+    weight: 0.40
+    text: "In a typical week, how many days are you physically active for 30+ minutes? (any intensity — brisk walking, gardening, swimming, cycling, sport, or dancing)"
+    options:
+      - {label: "5-7 days", trait_tags: [staying active, regular exercise], alignment: 1.0, basis: documented_positive}
+      - {label: "3-4 days", trait_tags: [staying active], alignment: 0.8, basis: reasoned_gradient}
+      - {label: "1-2 days", trait_tags: [], alignment: 0.5, basis: reasoned_gradient}
+      - {label: "Rarely or never", trait_tags: [], alignment: 0.25, basis: neutral_context}
+
+  - id: q_pa_everyday
+    domain: physical_activity        # top documented forms: walking 120, gardening 70, dancing 62
+    weight: 0.30
+    text: "Do you regularly walk, garden, dance, or do active hobbies as part of daily life?"
+    options:
+      - {label: "Yes, most days", trait_tags: [walking daily, gardening, dancing], alignment: 1.0, basis: documented_positive}
+      - {label: "Sometimes", trait_tags: [walking daily], alignment: 0.65, basis: reasoned_gradient}
+      - {label: "Rarely", trait_tags: [], alignment: 0.3, basis: neutral_context}
+
+  - id: q_sleep
+    domain: sleep                    # NHANES SLQ300 / SLD012 / SLQ050
+    weight: 0.60
+    text: "On most nights, how many hours do you sleep, and is it restful?"
+    options:
+      - {label: "7-9 hours, restful", trait_tags: [good sleep], alignment: 1.0, basis: documented_positive}
+      - {label: "7-9 hours, but not always restful", trait_tags: [good sleep], alignment: 0.8, basis: reasoned_gradient}
+      - {label: "Under 6 or over 9 hours", trait_tags: [], alignment: 0.45, basis: neutral_context}
+      - {label: "Frequently broken or poor", trait_tags: [], alignment: 0.3, basis: neutral_context}
+
+  - id: q_smoking
+    domain: substance_use            # NHANES SMQ; measured Step-D ratios (never 1.51x, current 0.58x)
+    weight: 0.55
+    text: "Have you ever smoked, and do you now?"
+    options:
+      - {label: "Never smoked", trait_tags: [smoking_status_never], alignment: 1.0, basis: measured}
+      - {label: "Former smoker (quit)", trait_tags: [smoking_status_former], alignment: 0.5, basis: measured}
+      - {label: "Current smoker", trait_tags: [smoking_status_current], alignment: 0.15, basis: measured}
+
+  - id: q_alcohol
+    domain: substance_use            # NHANES ALQ; moderate enriched 75.5% vs 62.4% (gold)
+    weight: 0.40
+    text: "How many alcoholic drinks do you have in a typical week? (1 drink = a glass of wine, a beer, or a single spirit)"
+    options:
+      - {label: "None", trait_tags: [no alcohol], alignment: 0.6, basis: measured}
+      - {label: "1-7 (light to moderate)", trait_tags: [drinks alcohol (moderate)], alignment: 0.7, basis: measured}
+      - {label: "8-14", trait_tags: [], alignment: 0.5, basis: external_evidence}
+      - {label: "15 or more (heavy)", trait_tags: [], alignment: 0.35, basis: external_evidence}
+
+  - id: q_diet
+    domain: diet                     # NHANES DBQ; context_dependent, mild plant-forward lean
+    weight: 0.48
+    text: "How would you describe your usual eating?"
+    options:
+      - {label: "Mostly plant-forward and moderate (vegetables, fruit, fish, beans)", trait_tags: [eats vegetables, eats fruit, eats fish, beans/legumes, eating in moderation], alignment: 0.9, basis: academic_corroborated}
+      - {label: "A balanced mix, in moderate amounts", trait_tags: [eating in moderation], alignment: 0.75, basis: academic_corroborated}
+      - {label: "Heavy on processed foods or large portions", trait_tags: [], alignment: 0.55, basis: neutral_context}
+
+  - id: q_social_friends
+    domain: social_connectedness     # NHANES SSQ; socializing 369, friendships 135
+    weight: 0.40
+    text: "How often are you in contact with friends or neighbours?"
+    options:
+      - {label: "Most days", trait_tags: [socializing, friendships], alignment: 1.0, basis: documented_positive}
+      - {label: "Weekly", trait_tags: [socializing], alignment: 0.75, basis: reasoned_gradient}
+      - {label: "Occasionally", trait_tags: [], alignment: 0.45, basis: reasoned_gradient}
+      - {label: "Rarely", trait_tags: [], alignment: 0.2, basis: neutral_context}
+
+  - id: q_social_community
+    domain: social_connectedness     # community ties 144, volunteering
+    weight: 0.30
+    text: "Are you part of any clubs, groups, or volunteer activities?"
+    options:
+      - {label: "Yes, actively", trait_tags: [community ties, volunteering], alignment: 1.0, basis: documented_positive}
+      - {label: "Occasionally", trait_tags: [community ties], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "No", trait_tags: [], alignment: 0.3, basis: neutral_context}
+
+  - id: q_family_partner
+    domain: family_bonds             # married (long) n=1529
+    weight: 0.40
+    text: "Do you have a spouse or long-term partner?"
+    options:
+      - {label: "Yes — a long partnership/marriage", trait_tags: [married (long)], alignment: 1.0, basis: documented_positive}
+      - {label: "Yes — a partner", trait_tags: [married (long)], alignment: 0.85, basis: reasoned_gradient}
+      - {label: "Widowed, after a long partnership", trait_tags: [married (long)], alignment: 0.8, basis: reasoned_gradient}
+      - {label: "No partner", trait_tags: [], alignment: 0.4, basis: neutral_context}
+
+  - id: q_family_children
+    domain: family_bonds             # close family n=716 (near or far — closeness, not proximity)
+    weight: 0.30
+    text: "Do you have close family ties (children or other relatives), near or far?"
+    options:
+      - {label: "Yes — very close", trait_tags: [close family], alignment: 1.0, basis: documented_positive}
+      - {label: "Some close ties", trait_tags: [close family], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Few or none", trait_tags: [], alignment: 0.25, basis: neutral_context}
+
+  - id: q_family_grandchildren
+    domain: family_bonds             # grandchildren n=489
+    weight: 0.20
+    text: "Do you have grandchildren (or younger family) you're involved with?"
+    options:
+      - {label: "Yes", trait_tags: [grandchildren], alignment: 1.0, basis: documented_positive}
+      - {label: "Yes, but limited contact", trait_tags: [grandchildren], alignment: 0.7, basis: reasoned_gradient}
+      - {label: "No", trait_tags: [], alignment: 0.5, basis: neutral_context}
+
+  - id: q_purpose_sense
+    domain: purpose_meaning          # sense of purpose
+    weight: 0.40
+    text: "Do you have a clear sense of purpose or reason to get up in the morning?"
+    options:
+      - {label: "Strong, clear purpose", trait_tags: [sense of purpose], alignment: 1.0, basis: documented_positive}
+      - {label: "Somewhat", trait_tags: [sense of purpose], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Not really", trait_tags: [], alignment: 0.25, basis: neutral_context}
+
+  - id: q_purpose_engagement
+    domain: purpose_meaning          # still working / volunteering / keeping busy
+    weight: 0.25
+    text: "Are you still working, volunteering, caregiving, or actively engaged in something?"
+    options:
+      - {label: "Yes, regularly", trait_tags: [still working, volunteering, keeping busy], alignment: 1.0, basis: documented_positive}
+      - {label: "Sometimes", trait_tags: [keeping busy], alignment: 0.65, basis: reasoned_gradient}
+      - {label: "No", trait_tags: [], alignment: 0.35, basis: neutral_context}
+
+  - id: q_cognitive_hobbies
+    domain: cognitive_engagement     # creative hobbies 268, music 119, puzzles 34
+    weight: 0.40
+    text: "Do you have a creative or mentally engaging hobby — e.g. music, puzzles, painting, writing, crafts?"
+    options:
+      - {label: "Yes, regularly", trait_tags: [creative hobbies, music, puzzles/games], alignment: 1.0, basis: documented_positive}
+      - {label: "Sometimes", trait_tags: [creative hobbies], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Rarely", trait_tags: [], alignment: 0.25, basis: neutral_context}
+
+  - id: q_cognitive_learning
+    domain: cognitive_engagement     # reads daily 201, curiosity/learning
+    weight: 0.25
+    text: "Do you read, learn, or stay mentally curious most days?"
+    options:
+      - {label: "Yes, daily", trait_tags: [reads daily, curiosity/learning], alignment: 1.0, basis: documented_positive}
+      - {label: "Sometimes", trait_tags: [reads daily], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Rarely", trait_tags: [], alignment: 0.3, basis: neutral_context}
+
+  - id: q_outlook
+    domain: psychological_resilience # positive outlook 165, low stress/calm 17 (disposition, not stress-state)
+    weight: 0.60
+    text: "Which best fits your general disposition?"
+    options:
+      - {label: "Optimistic and calm — good-humoured, take things in stride", trait_tags: [positive outlook, humor/laughter, low stress / calm, gratitude], alignment: 1.0, basis: documented_positive}
+      - {label: "Generally even-keeled and content", trait_tags: [positive outlook], alignment: 0.7, basis: reasoned_gradient}
+      - {label: "Often stressed, anxious, or low", trait_tags: [], alignment: 0.2, basis: neutral_context}
+
+  - id: q_faith
+    domain: faith_religion           # religious_community 252 > faith 147 — attendance is the signal
+    weight: 0.45
+    text: "Are you actively part of a faith or spiritual community?"
+    options:
+      - {label: "Yes — I attend / take part regularly", trait_tags: [religious community, faith/religion], alignment: 1.0, basis: documented_positive}
+      - {label: "Occasionally", trait_tags: [faith/religion], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Private faith, not in a community", trait_tags: [faith/religion], alignment: 0.55, basis: reasoned_gradient}
+      - {label: "No", trait_tags: [], alignment: 0.4, basis: neutral_context}
+
+  - id: q_independence_behavioral
+    domain: functional_independence  # NHANES PFQ; lives independently 83
+    weight: 0.60
+    text: "Do you manage daily life (cooking, finances, errands) independently?"
+    options:
+      - {label: "Yes, fully", trait_tags: [lives independently], alignment: 1.0, basis: documented_positive}
+      - {label: "Mostly, with a little help", trait_tags: [lives independently], alignment: 0.7, basis: reasoned_gradient}
+      - {label: "Significant help needed", trait_tags: [], alignment: 0.35, basis: neutral_context}
+
+  # ===== CLINICAL / HEALTH BLOCK =====
+  - id: q_diabetes
+    domain: diabetes
+    weight: 0.66
+    text: "Have you been diagnosed with type 2 diabetes?"
+    options:
+      - {label: "No", trait_tags: [no_diabetes], alignment: 1.0, basis: clinical_literature}
+      - {label: "Prediabetes / borderline", trait_tags: [], alignment: 0.6, basis: clinical_literature}
+      - {label: "Yes — well managed", trait_tags: [diabetes_managed], alignment: 0.45, basis: clinical_literature}
+      - {label: "Yes — not well controlled", trait_tags: [diabetes], alignment: 0.3, basis: clinical_literature}
+
+  - id: q_hypertension
+    domain: hypertension
+    weight: 0.66
+    text: "Do you have high blood pressure (hypertension)?"
+    options:
+      - {label: "No", trait_tags: [no_hypertension], alignment: 1.0, basis: clinical_literature}
+      - {label: "Borderline / controlled with lifestyle alone", trait_tags: [], alignment: 0.7, basis: clinical_literature}
+      - {label: "Yes — medicated and controlled", trait_tags: [hypertension_managed], alignment: 0.55, basis: clinical_literature}
+      - {label: "Yes — not well controlled", trait_tags: [hypertension], alignment: 0.3, basis: clinical_literature}
+
+  - id: q_body_mass_index
+    domain: body_composition
+    weight: 0.33
+    text: "Which best describes your body weight? (BMI band)"
+    options:
+      - {label: "Healthy range (BMI ~18.5-25)", trait_tags: [bmi_normal], alignment: 1.0, basis: clinical_literature}
+      - {label: "Slightly outside it", trait_tags: [], alignment: 0.7, basis: clinical_literature}
+      - {label: "Overweight (BMI ~25-30)", trait_tags: [], alignment: 0.55, basis: clinical_literature}
+      - {label: "Obese (BMI >30) or underweight (BMI <18.5)", trait_tags: [bmi_adverse], alignment: 0.35, basis: clinical_literature}
+
+  - id: q_waist_circumference
+    domain: body_composition
+    weight: 0.66
+    text: "How would you describe your waistline / central weight?"
+    options:
+      - {label: "Slim (men <94 cm / women <80 cm)", trait_tags: [waist_low], alignment: 1.0, basis: clinical_literature}
+      - {label: "Moderate (men 94-102 cm / women 80-88 cm)", trait_tags: [], alignment: 0.65, basis: clinical_literature}
+      - {label: "High (men >102 cm / women >88 cm)", trait_tags: [waist_high], alignment: 0.4, basis: clinical_literature}
+
+  - id: q_family_history_of_longevity
+    domain: genetic_family_history
+    weight: 0.75
+    text: "Did your parents, grandparents, or siblings live to 90 or beyond?"
+    options:
+      - {label: "Yes — several of them", trait_tags: [family_history_of_longevity], alignment: 1.0, basis: heritability}
+      - {label: "One or two", trait_tags: [family_history_of_longevity], alignment: 0.7, basis: heritability}
+      - {label: "Not that I know of", trait_tags: [], alignment: 0.45, basis: heritability}
+      - {label: "Unsure / no family information", trait_tags: [], alignment: 0.5, basis: heritability}
+
+  # ---- disease-escape self-report (coarse versions of the L3 clinical flags; deepest layer wins) ----
+  - id: q_cardiovascular_event
+    domain: cardiovascular_disease   # construct: maps to L3 cardiovascular_disease / myocardial_infarction / stroke
+    weight: 0.66
+    text: "Have you had a heart attack, heart disease, or a stroke?"
+    options:
+      - {label: "No", trait_tags: [no_cardiovascular_disease], alignment: 1.0, basis: clinical_literature}
+      - {label: "One event, well recovered", trait_tags: [], alignment: 0.5, basis: clinical_literature}
+      - {label: "Yes — ongoing heart or vascular condition", trait_tags: [cardiovascular_disease], alignment: 0.3, basis: clinical_literature}
+
+  - id: q_cancer_history
+    domain: cancer   # construct: maps to L3 breast_cancer / skin_cancer (age-related cancers)
+    weight: 0.66
+    text: "Have you been diagnosed with cancer (other than minor skin cancer)?"
+    options:
+      - {label: "No", trait_tags: [no_cancer], alignment: 1.0, basis: clinical_literature}
+      - {label: "Yes — treated, now in remission", trait_tags: [], alignment: 0.55, basis: clinical_literature}
+      - {label: "Yes — currently active", trait_tags: [cancer], alignment: 0.35, basis: clinical_literature}
+
+  - id: q_functional_mobility
+    domain: functional_capacity   # construct: proxies L3 grip_strength / frailty / activities_of_daily_living
+    weight: 0.66
+    text: "Can you climb a flight of stairs and walk a block without help?"
+    options:
+      - {label: "Yes, easily", trait_tags: [preserved_function], alignment: 1.0, basis: clinical_literature}
+      - {label: "With some difficulty", trait_tags: [], alignment: 0.6, basis: clinical_literature}
+      - {label: "Only with help, or not at all", trait_tags: [frailty], alignment: 0.3, basis: clinical_literature}
+
+  # ---- additional survey-reportable markers (corpus-justified; NHANES module in comment) ----
+  - id: q_self_rated_health
+    domain: self_rated_health   # NHANES HSQ010; gold-standard self-report mortality predictor
+    weight: 0.66
+    text: "In general, how would you rate your overall health?"
+    options:
+      - {label: "Excellent", trait_tags: [self_rated_health_high], alignment: 1.0, basis: clinical_literature}
+      - {label: "Good", trait_tags: [], alignment: 0.8, basis: clinical_literature}
+      - {label: "Fair", trait_tags: [], alignment: 0.5, basis: clinical_literature}
+      - {label: "Poor", trait_tags: [self_rated_health_low], alignment: 0.25, basis: clinical_literature}
+
+  - id: q_cholesterol
+    domain: cholesterol   # construct: proxies L3 cholesterol; NHANES MCQ/BPQ
+    weight: 0.66
+    text: "Have you been told you have high cholesterol?"
+    options:
+      - {label: "No", trait_tags: [no_high_cholesterol], alignment: 1.0, basis: clinical_literature}
+      - {label: "Borderline / controlled by lifestyle", trait_tags: [], alignment: 0.65, basis: clinical_literature}
+      - {label: "Yes — medicated", trait_tags: [], alignment: 0.5, basis: clinical_literature}
+      - {label: "Yes — not well controlled", trait_tags: [high_cholesterol], alignment: 0.35, basis: clinical_literature}
+
+  - id: q_disease_burden
+    domain: multimorbidity   # construct: proxies L3 multimorbidity / comorbidity; NHANES MCQ + RXQ (polypharmacy)
+    weight: 0.66
+    text: "How many long-term conditions do you take daily medication for?"
+    options:
+      - {label: "None", trait_tags: [no_multimorbidity], alignment: 1.0, basis: clinical_literature}
+      - {label: "1-2", trait_tags: [], alignment: 0.7, basis: clinical_literature}
+      - {label: "3-4", trait_tags: [], alignment: 0.45, basis: clinical_literature}
+      - {label: "5 or more (polypharmacy)", trait_tags: [multimorbidity], alignment: 0.3, basis: clinical_literature}
+
+  - id: q_depression
+    domain: mental_health   # clinical dx, distinct from L1 outlook; NHANES DPQ (PHQ-9)
+    weight: 0.66
+    text: "Have you been diagnosed with or treated for depression?"
+    options:
+      - {label: "No", trait_tags: [no_depression], alignment: 1.0, basis: clinical_literature}
+      - {label: "In the past, now resolved", trait_tags: [], alignment: 0.6, basis: clinical_literature}
+      - {label: "Yes — ongoing", trait_tags: [depression], alignment: 0.35, basis: clinical_literature}
+
+  - id: q_bone_health
+    domain: osteoporosis   # construct: proxies L3 osteoporosis; NHANES OSQ
+    weight: 0.66
+    text: "Have you been diagnosed with osteoporosis, or had a fragility fracture?"
+    options:
+      - {label: "No", trait_tags: [no_osteoporosis], alignment: 1.0, basis: clinical_literature}
+      - {label: "Osteopenia / borderline", trait_tags: [], alignment: 0.65, basis: clinical_literature}
+      - {label: "Yes", trait_tags: [osteoporosis], alignment: 0.4, basis: clinical_literature}

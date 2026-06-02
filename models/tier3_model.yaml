@@ -1,0 +1,132 @@
+model: centenarian_longevity_phenotype_tier3
+layer: 3
+version: "1.0"
+description: >
+  Layer 3 (clinical) adds measured blood biomarkers, genomic variants, and (pending) gut
+  microbiome ON TOP of Layers 1-2. Unlike Layers 1-2 this is NOT a quiz — it is scored from a
+  user's uploaded lab panel + genotype. Features are the Step-E layer-3 assignments
+  (step_e_feature_layer_assignments.csv) and the gene->biomarker links in
+  data/processed/gwas_biomarker_pathways.csv. Completeness rises to ~80%.
+narrative_template: "Your lifestyle, blood, and genomic markers share {score}% statistical similarity with verified centenarians."
+scoring:
+  method: evidence_weighted_alignment
+  completeness_pct: 80
+  combine_with: [tier2_model.yaml]   # L3 = standalone app survey (tier2: behavioral + clinical) + biomarkers/genomics/epigenetics
+  # gwas_corroborated REINTRODUCED with weight at Layer 3 (was 0.00 at Layers 1-2).
+  gwas_corroborated_weight: 0.15
+  gwas_weight_rationale: >
+    Longevity heritability is ~20-50% of variance (Herskind 1996; Sebastiani & Perls 2012;
+    Ruby 2018), rising at the most extreme ages. 0.15 is deliberately CONSERVATIVE because the
+    pipeline currently has a single GWAS source (gwas_longevity.csv); the weight scales up as
+    more GWAS sources and individual genomic data are integrated. Applied as an additive
+    confidence bonus to features carrying genetic corroboration (gwas_corroborated=True), on top
+    of each feature's own evidence weight.
+basis_legend:
+  measured_clinical:   "Standard clinical reference cut-offs; centenarian-favourable direction from biomarker meta-analysis in the academic corpus (METHODS 3.4, DerSimonian-Laird pooled, A/B/C graded)."
+  disease_escape:      "Absence/delay of an age-related disease — the New England Centenarian Study 'escaper/delayer' phenotype. Favourable = absent or late-onset."
+  epigenetic:          "DNA-methylation clock. Favourable = negative epigenetic age acceleration (biological < chronological) or a slow pace of ageing. Among the strongest molecular mortality predictors (Marioni 2015; Lu 2019; Belsky 2022). Measured from a methylation array — Layer 3 only."
+  genomic:             "Genotype at a longevity-associated variant. Protective allele -> high alignment, adverse allele -> low. Effect direction + pathway from gwas_biomarker_pathways.csv (gwas_corroborated=True)."
+  pending:             "Feature acquired but not yet scoreable (no validated reference distribution wired in). Carries zero weight until enabled."
+
+# ---- measurable blood / functional biomarkers (weight 0.66, silver) ----
+clinical_biomarkers:
+  - {feature: hdl_cholesterol,     direction: higher_favorable,  reference: ">=60 mg/dL favourable; <40 adverse",            weight: 0.66, gwas_corroborated: false, basis: measured_clinical, pathway_gene: CETP}
+  - {feature: cholesterol,         direction: lower_ldl_favorable, reference: "LDL <100 mg/dL favourable",                    weight: 0.66, gwas_corroborated: false, basis: measured_clinical, pathway_gene: "APOE/APOC1"}
+  - {feature: triglycerides,       direction: lower_favorable,   reference: "<150 mg/dL favourable; >200 adverse",           weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: hypertriglyceridemia, direction: absent_favorable, reference: "absence favourable",                            weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: c_reactive_protein,  direction: lower_favorable,   reference: "<1.0 mg/L low CV risk; >3.0 high",              weight: 0.66, gwas_corroborated: true,  basis: measured_clinical}
+  - {feature: interleukin_6,       direction: lower_favorable,   reference: "lower = less inflamm-ageing",                    weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: white_blood_cell,    direction: mid_range_favorable, reference: "~4-7 x10^9/L; high adverse (inflammation)",    weight: 0.66, gwas_corroborated: true,  basis: measured_clinical}
+  - {feature: cortisol,            direction: lower_favorable,   reference: "lower diurnal load favourable",                  weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: testosterone,        direction: sex_specific_normal, reference: "age/sex-appropriate range",                    weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: grip_strength,       direction: higher_favorable,  reference: "higher = less sarcopenia/frailty",               weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: muscle_strength,     direction: higher_favorable,  reference: "higher favourable",                              weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: calf_circumference,  direction: higher_favorable,  reference: ">=31 cm favourable (less sarcopenia)",           weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: euthyroid,           direction: present_favorable, reference: "normal thyroid function favourable",             weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: telomere_length,     direction: longer_favorable,  reference: "longer leukocyte telomere length favourable; short telomeres an adverse ageing phenotype (582 academic-corpus mentions; centenarian-reference hits)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: body_mass_index,     direction: u_shaped_normal_favorable, reference: "U-shaped: BMI ~18.5-25 favourable; BOTH obesity (>30) AND underweight (<18.5) adverse. Late-life low BMI signals frailty/sarcopenia, not health (nhanes_body_measures baseline)", weight: 0.33, gwas_corroborated: false, basis: measured_clinical}
+
+# ---- age-related disease flags: absence/late-onset favourable (escaper/delayer phenotype) ----
+clinical_disease_flags:
+  - {feature: dementia,                direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape}
+  - {feature: alzheimer_disease,       direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape, pathway_gene: APOE}
+  - {feature: frailty,                 direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape}
+  - {feature: cardiovascular_disease,  direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape}
+  - {feature: coronary_heart_disease,  direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape, pathway_gene: CDKN2B-AS1}
+  - {feature: myocardial_infarction,   direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape}
+  - {feature: stroke,                  direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape}
+  - {feature: diabetes,                direction: absent_favorable, weight: 0.66, gwas_corroborated: true,  basis: disease_escape, pathway_gene: TCF7L2}
+  - {feature: hypertension,            direction: absent_or_late_favorable, weight: 0.66, gwas_corroborated: true, basis: disease_escape, pathway_gene: "FURIN/SLC39A8"}
+  - {feature: osteoporosis,            direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: hip_osteoarthritis,      direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: breast_cancer,           direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: skin_cancer,             direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: multimorbidity,          direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: comorbidity,             direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: underweight,             direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: unintentional_weight_loss, direction: absent_favorable, weight: 0.66, gwas_corroborated: false, basis: disease_escape}
+  - {feature: activities_of_daily_living, direction: preserved_favorable, weight: 0.66, gwas_corroborated: true, basis: disease_escape}
+
+# ---- genomic variants (weight 0.70, all gwas_corroborated). Allele info: gwas_biomarker_pathways.csv ----
+genomic_variants:
+  - {variant: rs429358, gene: APOE,        effect: adverse,    favorable_genotype: "no e4 (C absent)",   influences: LDL_cholesterol,   weight: 0.70, basis: genomic}
+  - {variant: rs7412,   gene: APOE,        effect: protective, favorable_genotype: "e2 carrier (T)",     influences: LDL_cholesterol,   weight: 0.70, basis: genomic}
+  - {variant: rs4420638, gene: APOC1,      effect: protective, favorable_genotype: "minor allele",       influences: cholesterol,       weight: 0.70, basis: genomic}
+  - {variant: rs157581, gene: TOMM40,      effect: haplotype_linked, favorable_genotype: "APOE-favourable haplotype", influences: cholesterol, weight: 0.70, basis: genomic}
+  - {variant: rs10455872, gene: LPA,       effect: adverse,    favorable_genotype: "major allele (low Lp(a))", influences: "lipoprotein(a)", weight: 0.70, basis: genomic}
+  - {variant: rs247617, gene: CETP,        effect: modulating, favorable_genotype: "HDL-raising allele",  influences: HDL_cholesterol,   weight: 0.70, basis: genomic}
+  - {variant: rs35198068, gene: TCF7L2,    effect: adverse,    favorable_genotype: "non-risk allele",     influences: glucose,           weight: 0.70, basis: genomic}
+  - {variant: rs1556516, gene: CDKN2B-AS1, effect: adverse,    favorable_genotype: "non-risk allele",     influences: coronary_heart_disease, weight: 0.70, basis: genomic}
+  - {variant: rs2802295, gene: FOXO3,      effect: protective, favorable_genotype: "longevity allele",    influences: "IGF-1 signaling", weight: 0.70, basis: genomic}
+  - {variant: rs6224,   gene: FURIN,       effect: modulating, favorable_genotype: "BP-favourable allele", influences: blood_pressure,    weight: 0.70, basis: genomic}
+  - {variant: rs13107325, gene: SLC39A8,   effect: protective, favorable_genotype: "minor allele (lower BP)", influences: blood_pressure, weight: 0.70, basis: genomic}
+  # --- expanded panel (curated from gwas_longevity.csv; genome-wide significant, interpretable direction) ---
+  - {variant: rs2069837,  gene: IL6,       effect: protective, favorable_genotype: "A carrier",  influences: "inflammation (IL-6 / inflammaging)", weight: 0.70, basis: genomic, source: "Zeng Y PMID26912274"}
+  - {variant: rs7137828,  gene: ATXN2,     effect: protective, favorable_genotype: "C carrier",  influences: "12q24 cardiometabolic",  weight: 0.70, basis: genomic, source: "Pilling LC PMID29227965"}
+  - {variant: rs72738736, gene: IREB2,     effect: protective, favorable_genotype: "G carrier",  influences: "15q25 locus",            weight: 0.70, basis: genomic, source: "Pilling LC PMID29227965"}
+  - {variant: rs8042849,  gene: HYKK,      effect: protective, favorable_genotype: "T carrier",  influences: "15q25 locus",            weight: 0.70, basis: genomic, source: "Timmers PR PMID30642433"}
+  - {variant: rs951266,   gene: CHRNA5,    effect: protective, favorable_genotype: "G carrier",  influences: "15q25 nicotinic locus",  weight: 0.70, basis: genomic, source: "Pilling LC PMID29227965"}
+  - {variant: rs9457925,  gene: SLC22A3,   effect: protective, favorable_genotype: "A carrier",  influences: "LPA region / cardiovascular", weight: 0.70, basis: genomic, source: "Wright KM PMID31484785"}
+  - {variant: rs11513729, gene: ALDH2,     effect: protective, favorable_genotype: "C carrier",  influences: "alcohol metabolism / cardiometabolic", weight: 0.70, basis: genomic, source: "Pilling LC PMID29227965"}
+  - {variant: rs28383322, gene: HLA-DRB1,  effect: protective, favorable_genotype: "C carrier",  influences: "immune (HLA class II)",  weight: 0.70, basis: genomic, source: "Pilling LC PMID29227965"}
+  - {variant: rs11066309, gene: PTPN11,    effect: protective, favorable_genotype: "G carrier",  influences: "12q24 cardiometabolic",  weight: 0.70, basis: genomic, source: "Pilling LC PMID29227965"}
+  - {variant: rs17169634, gene: BMPER,     effect: adverse,    favorable_genotype: "lacks G allele", influences: "vascular development", weight: 0.70, basis: genomic, source: "Liu X PMID33657282"}
+
+# Full curated catalogue (not all inlined): data/processed/genomic_panel_curated.csv
+genomic_panel_extended:
+  source: data/processed/genomic_panel_curated.csv
+  derived_from: [data/raw/datasets/gwas_longevity.csv, data/raw/datasets/cent_WGS.txt]
+  n_genome_wide_significant: 508
+  n_distinct_genes: 426
+  n_interpretable_direction: 80      # scoreable (longevity_associated / adverse)
+  n_wgs_position_corroborated: 2     # own centenarian-vs-control WGS
+  scoring_rule: "favourable genotype = carries the risk allele if effect=longevity_associated, else lacks it. Direction-ambiguous (428 'reported') variants are catalogued but NOT scored until direction is resolved."
+  caveats:
+    - "cent_WGS.txt corroboration is limited: GRCh38 GWAS positions vs the WGS build match for only 2 variants (build mismatch), and the WGS centenarian sample is small (~27). Used for candidate corroboration, not discovery."
+    - "Nothing invented: effect direction is read from the catalog trait + OR/BETA; ambiguous cases stay 'reported'."
+
+# ---- DNA methylation / epigenetic clocks (weight 0.66; measured from a methylation array) ----
+# Direction: negative epigenetic age acceleration (biological age < chronological) or pace < 1.0
+# is favourable. The 'epigenetic_age' feature is the Step-E layer-3 assignment; the specific
+# clocks below are the standard instruments that produce it. Score the clock(s) the user has.
+# POPULATION ANCHOR (gold path): data/raw/datasets/nhanes_methylation.csv carries computed
+# HorvathAge / HannumAge / SkinBloodAge / PhenoAge (+ GrimAge mortality-surrogate proteins) for
+# the NHANES population. This provides a real population reference distribution, so epigenetic age
+# acceleration is GOLD-ELIGIBLE (centenarian-vs-population, same logic as smoking/alcohol). The
+# quantified centenarian delta is deferred (requires centenarian clock values) and NOT invented;
+# until computed these stay basis=epigenetic (literature direction), with the anchor available.
+epigenetic_population_anchor:
+  population_baseline: data/raw/datasets/nhanes_methylation.csv   # HorvathAge,HannumAge,SkinBloodAge,PhenoAge,*Mort
+  gold_eligible: true
+  status: "anchor available; quantified centenarian-vs-population delta deferred (not invented)"
+epigenetic_methylation:
+  - {clock: horvath_2013,    tissue: pan_tissue, metric: age_acceleration, direction: lower_favorable, reference: "DNAmAge - chronological < 0 favourable", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
+  - {clock: hannum_2013,     tissue: blood,      metric: age_acceleration, direction: lower_favorable, reference: "DNAmAge - chronological < 0 favourable", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
+  - {clock: phenoage_2018,   tissue: blood,      metric: phenotypic_age_acceleration, direction: lower_favorable, reference: "negative accel favourable; strong mortality predictor (Levine 2018)", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
+  - {clock: grimage_2019,    tissue: blood,      metric: age_acceleration, direction: lower_favorable, reference: "lower GrimAge accel favourable; strongest single mortality/lifespan clock (Lu 2019)", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
+  - {clock: dunedinpace_2022, tissue: blood,     metric: pace_of_aging,    direction: lower_favorable, reference: "<1.0 = ageing slower than 1 yr/yr favourable (Belsky 2022)", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
+
+# ---- microbiome: acquired, not yet scoreable ----
+microbiome:
+  - {feature: gut_microbiome_diversity, status: pending, weight: 0.00, basis: pending,
+     note: "Centenarian gut bacteriophage + diversity data acquired (Zenodo 6579480; PLOS One pone.0305583). No validated reference distribution wired in yet; zero weight until enabled."}

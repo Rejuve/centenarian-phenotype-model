@@ -1,0 +1,172 @@
+model: centenarian_longevity_phenotype_tier1
+layer: 1
+version: "1.2"
+description: >
+  Layer 1 (quiz / ad funnel) behavioral similarity model. 12 questions across the
+  11 Step-E behavioral domains. Each answer option maps to trait tags from
+  step_e_feature_layer_assignments.csv. Score = evidence-weighted mean of per-domain
+  alignment (0-1), expressed as a percentage similarity to verified centenarians.
+narrative_template: "Your lifestyle shares {score}% similarity with verified centenarians."
+scoring:
+  method: evidence_weighted_alignment
+  completeness_pct: 30          # behavioral-only; see docs/model_card_stub.md
+  gwas_corroborated_weight: 0.00  # behavioral layer; reintroduced with weight at Layer 3
+# basis = provenance of each option's alignment value, so scores map to data reality,
+# not to authoring judgment. Reported alongside every result.
+basis_legend:
+  measured:              "Step-D measured centenarian-vs-population prevalence ratio (directional gold). Smoking; moderate-vs-no alcohol."
+  academic_corroborated: "Silver-tier support from the academic longevity corpus at the pattern level (e.g. plant-forward + moderation diet), WITHOUT a gold case-vs-population effect. Case-corpus direction may be mixed."
+  documented_positive:   "Trait has direction=positive in the case corpus; presence is a genuine centenarian signal. Intensity is NOT sub-ranked where the data does not rank it."
+  reasoned_gradient:     "Within-question ordinal (e.g. daily vs weekly) set by judgment; the corpus measures presence, not the gradient."
+  neutral_context:       "context_dependent trait, OR absence-of-a-positive. Scored near-neutral, NOT as measured depletion (avoids documentation-bias penalty)."
+  external_evidence:     "State NOT documented in the corpus (e.g. heavy drinking). Scored from established external evidence (WHO/IARC), explicitly flagged as not-from-our-data."
+notes: >
+  Only smoking and the moderate-vs-no-alcohol split are MEASURED directional mappings. Physical
+  activity is scored on regularity, NOT intensity (the corpus documents everyday activity —
+  'staying active' n=147, 'walking daily' n=120 — more than vigorous — 'running/marathon' n=43).
+  Diet is context_dependent in the case corpus (most-documented single food is 'sweets/sugar'
+  n=42, and centenarians' own diets are varied), but the academic longevity corpus supports a
+  plant-forward + moderation PATTERN (moderation n=93 papers, fruit n=93, fish n=84, vegetables
+  n=57, olive oil n=29), so diet is kept at a mild silver lean and never penalises sugar. Heavy
+  drinking and poor sleep are undocumented among the corpus centenarians and are scored as
+  neutral/external, never as measured depletion. All associations are reported as the data shows
+  them; none adjusted to expectation.
+
+questions:
+  - id: q_physical_activity
+    domain: physical_activity
+    weight: 0.55
+    text: "How would you describe your physical activity? (any form counts — walking, gardening, swimming, cycling, dancing, sport, or active chores)"
+    options:
+      - {label: "Daily", trait_tags: [staying active, regular exercise, walking daily], alignment: 1.0, basis: documented_positive}
+      - {label: "A few times a week", trait_tags: [staying active], alignment: 0.85, basis: reasoned_gradient}
+      - {label: "Occasionally", trait_tags: [], alignment: 0.5, basis: reasoned_gradient}
+      - {label: "Mostly sedentary", trait_tags: [], alignment: 0.25, basis: neutral_context}
+
+  - id: q_diet
+    domain: diet
+    weight: 0.48
+    text: "Which best describes your usual eating?"
+    # Case corpus is context_dependent (sweets/sugar n=42 is the #1 documented food); academic
+    # corpus supports a plant-forward + moderation PATTERN (silver). Mild lean, no sugar penalty.
+    options:
+      - {label: "Mostly plant-forward and moderate — vegetables, fruit, fish, beans; rarely overeat", trait_tags: [eats vegetables, eats fruit, eats fish, beans/legumes, eating in moderation], alignment: 0.9, basis: academic_corroborated}
+      - {label: "A balanced mix, in moderate amounts", trait_tags: [eating in moderation], alignment: 0.75, basis: academic_corroborated}
+      - {label: "Heavy on processed foods or large portions", trait_tags: [], alignment: 0.55, basis: neutral_context}
+
+  - id: q_sleep
+    domain: sleep
+    weight: 0.60
+    text: "How's your sleep?"
+    # Data: 'good sleep' n=35 is the documented positive. No poor-sleeper centenarian data, so the
+    # lower options are absence-of-signal, not measured depletion.
+    options:
+      - {label: "Consistently good", trait_tags: [good sleep], alignment: 1.0, basis: documented_positive}
+      - {label: "Hit and miss", trait_tags: [], alignment: 0.55, basis: reasoned_gradient}
+      - {label: "I sleep a lot but not restful", trait_tags: [], alignment: 0.4, basis: neutral_context}
+      - {label: "Poor", trait_tags: [], alignment: 0.3, basis: neutral_context}
+
+  - id: q_smoking
+    domain: substance_use
+    weight: 0.55
+    text: "Have you ever smoked?"
+    # Data: measured Step-D ratios — never enriched 1.51x, current depleted 0.58x. Directional gold.
+    # No cessation-recency data exists, so 'former' is a single state.
+    options:
+      - {label: "Never", trait_tags: [smoking_status_never], alignment: 1.0, basis: measured}
+      - {label: "Former smoker (quit)", trait_tags: [smoking_status_former], alignment: 0.5, basis: measured}
+      - {label: "Current smoker", trait_tags: [smoking_status_current], alignment: 0.15, basis: measured}
+
+  - id: q_alcohol
+    domain: substance_use
+    weight: 0.40
+    text: "How much alcohol do you drink? (1 drink = a glass of wine, a beer, or a single spirit)"
+    finding_context: >
+      Measured: centenarians here report light-to-moderate alcohol at 75.5% vs 62.4% of the
+      documented-drinker 60+ population (gold). 'No alcohol' is also a documented gold trait. A
+      daily light drink is the ENRICHED pattern, not 'heavy'. NO centenarian in this corpus is
+      documented as a heavy drinker, so the heavy option is scored from external WHO/IARC evidence
+      (no universally safe level), NOT our data, and flagged accordingly. Genetics may modify risk (Layer 3).
+    options:
+      - {label: "None / I don't drink", trait_tags: [no alcohol], alignment: 0.6, basis: measured}
+      - {label: "Light to moderate (including a daily glass)", trait_tags: [drinks alcohol (moderate)], alignment: 0.7, basis: measured}
+      - {label: "Heavy or frequent (3+ a day, or regular binge drinking)", trait_tags: [], alignment: 0.4, basis: external_evidence}
+
+  - id: q_social
+    domain: social_connectedness
+    weight: 0.64
+    text: "How often do you see or speak to friends, neighbours, or your community?"
+    # Anchored on non-family ties to stay distinct from the family question. socializing n=369,
+    # community ties n=144, friendships n=135 — all direction=positive; frequency is the presence proxy.
+    options:
+      - {label: "Most days", trait_tags: [socializing, friendships, community ties], alignment: 1.0, basis: documented_positive}
+      - {label: "A few times a week", trait_tags: [socializing], alignment: 0.8, basis: reasoned_gradient}
+      - {label: "Once a week or less", trait_tags: [], alignment: 0.5, basis: reasoned_gradient}
+      - {label: "Rarely", trait_tags: [], alignment: 0.2, basis: neutral_context}
+
+  - id: q_family
+    domain: family_bonds
+    weight: 0.75
+    text: "Do you have a partner or very close family ties — emotionally, even if they live far away?"
+    # Strongest domain. married (long) n=1529, close family n=716, grandchildren n=489. The corpus
+    # documents that close bonds EXIST, not contact frequency/proximity — so emotional closeness
+    # scores the same whether near or far (the old 'close but far' split implied an unmeasured penalty).
+    options:
+      - {label: "Yes — partner and/or very close family (whether near or far)", trait_tags: [close family, married (long), grandchildren], alignment: 1.0, basis: documented_positive}
+      - {label: "Some ties, not especially close", trait_tags: [close family], alignment: 0.55, basis: reasoned_gradient}
+      - {label: "Few close ties", trait_tags: [], alignment: 0.2, basis: neutral_context}
+
+  - id: q_purpose
+    domain: purpose_meaning
+    weight: 0.56
+    text: "What gets you out of bed in the morning?"
+    options:
+      - {label: "A strong sense of purpose", trait_tags: [sense of purpose, still working, volunteering], alignment: 1.0, basis: documented_positive}
+      - {label: "Routine and staying busy", trait_tags: [keeping busy, reads daily, curiosity/learning], alignment: 0.7, basis: reasoned_gradient}
+      - {label: "Mostly obligations", trait_tags: [], alignment: 0.4, basis: reasoned_gradient}
+      - {label: "Honestly, not much", trait_tags: [], alignment: 0.2, basis: neutral_context}
+
+  - id: q_resilience
+    domain: psychological_resilience
+    weight: 0.60
+    text: "Which best fits your general disposition?"
+    # Signal is dispositional positivity/calm (positive outlook n=165, humor/laughter n=30, gratitude
+    # n=25, low stress/calm n=17) — a TRAIT, not the presence of stressful days (which is universal).
+    # Middle option = even-keeled disposition, not a stress-state. 'Stressed' = absence of the pattern.
+    options:
+      - {label: "Optimistic and calm — good-humoured, take things in stride", trait_tags: [positive outlook, humor/laughter, low stress / calm, gratitude], alignment: 1.0, basis: documented_positive}
+      - {label: "Generally even-keeled and content", trait_tags: [positive outlook], alignment: 0.7, basis: reasoned_gradient}
+      - {label: "Often stressed, anxious, or low", trait_tags: [], alignment: 0.2, basis: neutral_context}
+
+  - id: q_cognitive
+    domain: cognitive_engagement
+    weight: 0.56
+    text: "Do you have a creative or mentally engaging hobby — e.g. music, puzzles, painting, writing, crafts, or learning something new?"
+    # creative hobbies n=268 (strongest cognitive trait), music n=119, puzzles/games n=34.
+    options:
+      - {label: "Yes, regularly", trait_tags: [creative hobbies, puzzles/games, music], alignment: 1.0, basis: documented_positive}
+      - {label: "Sometimes", trait_tags: [creative hobbies], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Used to", trait_tags: [], alignment: 0.4, basis: reasoned_gradient}
+      - {label: "Not really", trait_tags: [], alignment: 0.2, basis: neutral_context}
+
+  - id: q_faith
+    domain: faith_religion
+    weight: 0.45
+    text: "Are you part of a faith or spiritual community?"
+    # Kept distinct from the social question. religious community n=252, faith/religion n=147.
+    options:
+      - {label: "Yes, actively", trait_tags: [faith/religion, religious community], alignment: 1.0, basis: documented_positive}
+      - {label: "Loosely", trait_tags: [faith/religion], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Personal faith, not in a community", trait_tags: [faith/religion], alignment: 0.55, basis: reasoned_gradient}
+      - {label: "No", trait_tags: [], alignment: 0.4, basis: neutral_context}
+
+  - id: q_independence
+    domain: functional_independence
+    weight: 0.60
+    text: "Do you manage your daily life independently?"
+    # lives independently n=83 (direction=positive).
+    options:
+      - {label: "Yes, completely", trait_tags: [lives independently], alignment: 1.0, basis: documented_positive}
+      - {label: "Mostly", trait_tags: [lives independently], alignment: 0.7, basis: reasoned_gradient}
+      - {label: "Some support needed", trait_tags: [], alignment: 0.4, basis: reasoned_gradient}
+      - {label: "Significant support", trait_tags: [], alignment: 0.2, basis: neutral_context}

@@ -1,0 +1,51 @@
+# ============================================================================
+# DATA — the entire data/ tree is excluded from the public repo by default:
+#   - raw corpus (news/academic) is third-party copyrighted text
+#   - supercentenarians.csv contains personal data (names/dates) of individuals
+#   - several files are >20 MB (GitHub-unfriendly)
+# The scoring package bundles its own model YAMLs, so NO data/ is needed at runtime.
+# To publish a specific small, license-clean, derived artifact, force-add it, e.g.:
+#   git add -f data/processed/genomic_panel_curated.csv
+# ============================================================================
+data/
+
+# ---- (granular rules below are subsumed by data/ above; kept for clarity) ----
+# ---- Large raw data (do not commit; re-acquire via scrapers / download scripts) ----
+data/raw/news_articles.csv
+data/raw/academic_papers.csv
+data/raw/*_preview.csv
+data/raw/datasets/cent_WGS.txt
+data/raw/datasets/*.sas7bdat
+data/raw/datasets/*.xlsx
+data/raw/datasets/hmd/*.zip
+data/raw/datasets/hmd_life_tables.csv
+data/raw/datasets/un_population_prospects.csv
+data/raw/datasets/who_life_expectancy.csv
+
+# ---- Large derived files (regenerable from the pipeline) ----
+data/processed/master_dataset.csv
+data/processed/master_dataset_nlp.csv
+data/processed/nhanes_merged.csv
+
+# ---- Backups / scratch ----
+*.bak
+*.prerename.bak
+_*.py
+_*.csv
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ---- Claude Code local config ----
+.claude/
