@@ -31,6 +31,8 @@ data/processed/nhanes_merged.csv
 *.bak
 *.prerename.bak
 _*.py
+!**/__init__.py        # never ignore package markers (the _*.py glob would otherwise catch dunders)
+!**/__main__.py
 _*.csv
 
 # ---- Python ----
