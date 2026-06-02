@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Dependency-free secret guard. Blocks a commit if staged additions look like a key/secret.
+# Enable once per clone:   git config core.hooksPath .githooks
+# Bypass a false positive:  git commit --no-verify
+set -uo pipefail
+
+patterns='(sk-[A-Za-z0-9]{16}|s2k-[A-Za-z0-9]{16}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{20}|gh[pousr]_[A-Za-z0-9]{20}|xox[baprs]-[A-Za-z0-9-]{10}|glpat-[A-Za-z0-9_-]{20}|-----BEGIN [A-Z ]*PRIVATE KEY-----|(api[_-]?key|secret|token|password|x-api-key)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][A-Za-z0-9/_+-]{16,})'
+
+# only inspect newly ADDED lines in the staged diff
+hits=$(git diff --cached --no-color -U0 | grep -E '^\+' | grep -vE '^\+\+\+' | grep -EnI "$patterns" || true)
+
+if [ -n "$hits" ]; then
+  echo "------------------------------------------------------------------"
+  echo "  pre-commit: possible secret detected — COMMIT BLOCKED"
+  echo "------------------------------------------------------------------"
+  echo "$hits"
+  echo ""
+  echo "  Move the value to an environment variable. If it is a genuine"
+  echo "  false positive, re-run with:  git commit --no-verify"
+  exit 1
+fi
+exit 0

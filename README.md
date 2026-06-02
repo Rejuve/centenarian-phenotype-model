@@ -29,6 +29,32 @@ The trained model (~50 KB) ships with the application; **end users never run the
 
 ---
 
+## Scoring package & API
+
+The deployable model is the `centenarian_phenotype` package (dependency-light; bundles its own model YAMLs — no `data/` needed at runtime).
+
+```bash
+pip install -e .                 # core scorer
+pip install -e ".[api]"          # + FastAPI service
+python -c "import centenarian_phenotype as cp; print(cp.score(1, {'q_diet': 0}))"
+uvicorn centenarian_phenotype.api:app --reload     # http://127.0.0.1:8000/docs
+```
+
+Each layer deploys independently (web widget = L1, app = L2+L3). Contract: `docs/scoring_api.md`. Deployment (AWS Lambda / CORS / Flutter): `docs/deployment.md`.
+
+## Development & security
+
+```bash
+pip install -e ".[test,api]" && python -m pytest -q   # 20 tests
+git config core.hooksPath .githooks                    # enable the secret-scan pre-commit hook
+```
+
+- **API keys are read from environment variables** (`NCBI_API_KEY`, `SEMANTIC_SCHOLAR_API_KEY`) — never hardcode them.
+- A **secret-scan pre-commit hook** (`.githooks/pre-commit`, dependency-free) blocks commits containing key-like strings; `.pre-commit-config.yaml` offers the gitleaks alternative.
+- **CI** (`.github/workflows/ci.yml`) runs the test suite and a gitleaks secret scan on every push/PR.
+
+---
+
 ## Pipeline run order
 
 Scripts are run from the project root. Full script index: `scripts/README.md`.

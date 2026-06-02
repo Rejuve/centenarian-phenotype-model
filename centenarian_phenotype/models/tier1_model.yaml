@@ -69,7 +69,7 @@ questions:
   - id: q_smoking
     domain: substance_use
     weight: 0.55
-    text: "Would you consider yourself a smoker — past or present? (The occasional cigarette at a party doesn't count)"
+    text: "Have you ever smoked regularly?"
     # Data: measured Step-D ratios — never enriched 1.51x, current depleted 0.58x. Directional gold.
     # Wording anchors on REGULAR use to match the NHANES SMQ definition (>=100 lifetime cigarettes),
     # so light/occasional smokers self-classify as 'never' as the reference distribution does.

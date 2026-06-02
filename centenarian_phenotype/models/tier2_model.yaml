@@ -70,7 +70,7 @@ questions:
   - id: q_smoking
     domain: substance_use            # NHANES SMQ; measured Step-D ratios (never 1.51x, current 0.58x)
     weight: 0.55
-    text: "Would you consider yourself a smoker — past or present? (The occasional cigarette at a party doesn't count)"
+    text: "Have you ever smoked regularly?"
     # Wording anchors on REGULAR use to match the NHANES SMQ >=100-lifetime-cigarette definition.
     options:
       - {label: "No — never been a regular smoker", trait_tags: [smoking_status_never], alignment: 1.0, basis: measured}

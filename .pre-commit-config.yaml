@@ -1,0 +1,9 @@
+# Optional: industry-standard secret scanning via the pre-commit framework.
+#   pip install pre-commit && pre-commit install
+# (A dependency-free fallback hook also lives in .githooks/ — enable with:
+#   git config core.hooksPath .githooks)
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
