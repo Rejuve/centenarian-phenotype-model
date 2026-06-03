@@ -64,6 +64,23 @@ claim would require us to be).
 4. Ablation confirms each tier adds signal in the claimed direction.
 5. Documented external-validation result on a held-out cohort.
 
+## 3a. Harness (runnable now)
+
+`scripts/validation/` implements the metric engine and is exercised by `tests/test_validation_harness.py`:
+
+- `metrics.py` — AUC (discrimination), reliability/ECE/Brier (calibration), a pure-Python logistic
+  calibration model (score [+age/sex] → P(outcome)), score distributions, subgroup summaries.
+- `validate.py` — runs the full report; `--synthetic N` self-tests end-to-end with no data.
+- `parse_nhanes_lmf.py` — parses the NHANES Linked Mortality File (fixed-width, NCHS layout).
+- `build_nhanes_cohort.py` — maps NHANES variables → model inputs via the versioned mappers, scores
+  each participant, and joins the mortality outcome. **Already runs on the repo's NHANES data: 5,518
+  participants scored**; add the LMF (`--lmf`) to attach the survival outcome.
+- `FETCH_MORTALITY.md` — exact acquisition + DUC for the NHANES LMF and the nonagenarian sources.
+
+First real run produces: AUC(score → survival), a fitted phenotype→mortality calibration with
+reliability/ECE/Brier, and subgroup AUC by sex/age band — i.e. gates 1, 4 (partial), and the
+calibration gate's machinery.
+
 ## 4. Sequencing
 
 1. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).

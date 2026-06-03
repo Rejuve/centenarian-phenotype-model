@@ -5,7 +5,7 @@ This PR targets the audit's **Priority 1** in full plus the high-value Priority 
 production-safety and contradiction risks; remaining Priority 2/3 work is scoped as *planned* below
 rather than stubbed.
 
-Package version bumped **0.1.0 → 0.2.0**. Test suite **20 → 57 tests, all passing**. The headline
+Package version bumped **0.1.0 → 0.2.0**. Test suite **20 → 81 tests, all passing**. The headline
 score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrations are unaffected.
 
 ---
@@ -23,7 +23,7 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 | 8 | Product output | **Done** | Added `total_similarity_score`, `class_posteriors`, `domain_scores`, `top_positive_drivers`, `top_negative_drivers`, `modifiable_drivers`, `non_modifiable_context`, `missing_high_value_inputs`, `evidence_confidence_pct`, `next_best_data_action`, `pro_unlock_opportunities`. README + MODEL_CARD carry the "similarity not prediction / higher confidence needs deeper data / result can change / not medical advice" language. |
 | 9 | Model card + validation report | **Done** | New root [`MODEL_CARD.md`](MODEL_CARD.md) (intended/non-intended use, endpoint, evidence grades, bias, **known failure modes**, regulatory disclaimer, versioning/update policy, validation status) replaces the stub (now a pointer). New [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) with cohorts, metrics, acceptance gates, sequencing. |
 | 10 | Doc contradictions | **Done** | METHODS §3.1/§3.7/§4, README, model-card stub, and scoring_api all reconciled: deployed = evidence-weighted alignment; NB posterior = derived/calibration-pending; calibrated NB + validation = planned. No remaining "trained/validated ML model" claims. |
-| 11 | Tests & CI | **Tests done; CI partial** | +37 tests across NB, strict validation, mappers, completeness split, domains, API 422. CI matrix/lint/type/schema/wheel/deterministic-artifact additions are **planned** (existing CI + secret scan retained). |
+| 11 | Tests & CI | **Tests done; CI partial** | 81 tests (from 20) across NB, strict validation, mappers, clocks, domains, longevity, the validation harness, and API 422. CI matrix/lint/type/schema/wheel/deterministic-artifact additions are **planned** (existing CI + secret scan retained). |
 | 12 | API / deployment hardening | **Done** | L2/L3 no longer default to wildcard CORS (deny + warn unless `CENTENARIAN_CORS_ORIGINS`/`cors_origins` set); L1 widget may stay permissive. Quiz endpoints already never expose internal weights/alignments; score endpoints now return `warnings` + provenance. Routes already versioned (`/v1`) and per-layer isolated. Auth for L3 is **planned** (deployment concern). |
 | 5 | Expand public sources | **Advanced (registry + prioritized candidates done; acquisition pending)** | New tracked [`docs/SOURCE_REGISTRY.md`](docs/SOURCE_REGISTRY.md) defines the enriched schema (license/access, raw location, processed artifact, population, age range, cent relevance, train/validate/contextual, bias), documents current sources against it, and lists **prioritized freely-available candidates ordered by validation ROI** — NHANES mortality linkage (P1), HRS / Gateway-to-Global-Aging to close the nonagenarian gap (P1), more GWAS + GEO methylation (P2), IDL/GRG external validation (P2). Actual acquisition/ingestion is the next step. |
 | 13 | Reproducibility pipeline | **Planned** | Makefile/nox rebuild, checksums/manifests, artifact-generation script, and release process are scoped; pipeline steps D–F remain placeholders (already disclosed in README). |
@@ -52,6 +52,11 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 - **Relative-longevity context (`longevity.py` + Step G):** validated HMD population survival
   baselines by country × sex (123 rows bundled), with a calibration-pending phenotype trajectory band
   kept strictly separate. Threaded into `score(..., context=...)` without changing the similarity number.
+- **Validation/calibration harness (`scripts/validation/`):** pure-Python metric engine (AUC,
+  reliability/ECE/Brier, fitted score→mortality calibration, subgroup AUC), a synthetic self-test, an
+  NHANES Linked-Mortality-File parser (NCHS layout) and a cohort adapter that **already scores 5,518
+  real NHANES participants** end-to-end — add the LMF to attach the survival outcome. FETCH guide for
+  the LMF + nonagenarian sources (HRS / G2Aging).
 - Tracked enriched source registry + prioritized freely-available candidate sources toward validation.
 - Phenotype decomposition (`domain_scores`) and the full product output bundle.
 - L2/L3 CORS hardening; per-layer route isolation; versioned `/v1` routes.

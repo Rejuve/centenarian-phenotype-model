@@ -125,7 +125,9 @@ insurance/actuarial decisions, or any individual medical decision. **This is not
 
 **Not yet validated.** No retrospective, calibration, subgroup, ablation, missingness, temporal, or
 external validation has been run. The score ranges and invariants are guarded by the unit-test suite
-(`tests/`, 57 tests) only. The full plan is in [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).
+(`tests/`, 81 tests) only. A runnable validation harness (`scripts/validation/`) exists and already
+scores 5,518 real NHANES participants; attaching the NHANES Linked Mortality File produces the first
+real survival calibration. The full plan is in [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).
 
 ## 11. Versioning & update policy
 
