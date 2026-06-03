@@ -194,6 +194,26 @@ more under landmarking (its huge raw AUC 0.78 is largely age/illness), illustrat
 inflammatory axis, and **pinpoints** features whose curated weights diverge from measured signal
 (LDL, linear-BMI) — the input to ablation-guided re-weighting (§4).
 
+## 3e. Healthspan signal at 75+ and incremental input value (toward predictive-trajectory modeling)
+
+*First steps of the documented "Toward Predictive Trajectory Modeling" extension (`docs/ROADMAP.md`),
+now feasible via the NHANES mortality linkage. `incremental_value.py` + `feature_association.py
+--min-age`. Aggregate, NCHS-cited. Survival proxy, single cohort.*
+
+- **Incremental value (all ages):** age+sex alone discriminate mortality at AUC 0.872; adding the
+  phenotype features reaches 0.906, and the first ~6 inputs (depression, smoking, functional mobility,
+  bone health, self-rated health, eGFR) capture most of the gain. *Ethos:* a sparse profile is already
+  meaningful; the model keeps all features and gains confidence as more are added.
+- **75+ stratum (the "healthspan" group):** age+sex discrimination falls to AUC 0.71 (age is far less
+  informative once everyone is old), and **phenotype adds much more there** (→ ~0.84). The strongest
+  age-independent protective signals at 75+ are **self-rated health, functional mobility, C-reactive
+  protein (low inflammation), absence of prior CVD, and non-smoking** — robust to the early-death
+  landmark guard.
+- **Read:** these are precisely the **functional / inflammatory / behavioral centenarian-aligned
+  traits**, and they carry *more* survival signal at 75+ than in the general population — i.e. the
+  centenarian phenotype shows up as a measurable **healthspan signal in the oldest measurable group**.
+  This motivates the predictive-trajectory model (time-to-event + interactions + aging-rate biomarkers).
+
 ## 4. Sequencing
 
 1. **Data-derived feature shapes + provenance labels.** Replace *imposed* mapper shapes with shapes
