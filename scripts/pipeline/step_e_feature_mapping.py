@@ -11,7 +11,7 @@ Each component is normalized 0..1 first so no input dominates by scale.
 
 Genetics is ~20-50% of longevity variance (heritability literature) but is not
 scoreable from behavioral inputs and we have a single GWAS source -> weight 0.00
-here is a KNOWN LIMITATION, not a finding (see docs/model_card_stub.md).
+here is a KNOWN LIMITATION, not a finding (see MODEL_CARD.md).
 
 Outputs:
   data/processed/step_e_feature_layer_assignments.csv

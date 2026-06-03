@@ -8,17 +8,58 @@ on:
 
 jobs:
   test:
-    name: tests
+    name: tests (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install (from source, with extras)
+        run: pip install -e ".[test,api]"
+      - name: Run pytest
+        run: python -m pytest -q
+
+  lint:
+    name: lint (ruff)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install deps
-        run: pip install pyyaml "fastapi>=0.110" "uvicorn>=0.27" "httpx>=0.24" "pytest>=7"
-      - name: Run pytest
-        run: python -m pytest -q
+      - run: pip install ruff
+      - name: Ruff (package + validation harness + tests)
+        run: python -m ruff check    # config in pyproject.toml [tool.ruff]
+
+  build:
+    name: wheel build + install + import
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build pyyaml
+      - name: Deterministic model-artifact check
+        run: python scripts/make_manifest.py --check
+      - name: Build wheel
+        run: python -m build --wheel
+      - name: Install the wheel in a clean env and smoke-test bundled data
+        run: |
+          pip install dist/*.whl
+          python - <<'PY'
+          import centenarian_phenotype as cp
+          # bundled model YAMLs + longevity baselines must travel inside the wheel
+          r = cp.score(1, {"q_smoking": 0, "q_family": 0, "q_social": 0})
+          assert 0 <= r["score_pct"] <= 100
+          assert cp.population_baseline("Japan", sex="F")["p_reach_target"] > 0
+          print("wheel OK:", cp.__version__, r["score_pct"])
+          PY
 
   secret-scan:
     name: secret scan

@@ -42,6 +42,39 @@ def test_invalid_payload_returns_422():
     assert r.status_code == 422
 
 
+def test_unknown_question_returns_structured_422():
+    r = client.post("/v1/score/layer1", json={"answers": {"q_bogus": 0, "q_smoking": 0}})
+    assert r.status_code == 422
+    detail = r.json()["detail"]
+    assert detail["error"] == "input validation failed"
+    assert "q_bogus" in detail["report"]["unknown_inputs"]
+
+
+def test_unknown_clinical_feature_returns_422():
+    r = client.post("/v1/score/layer3",
+                    json={"answers": {"q_smoking": 0}, "clinical": {"not_a_marker": 0.9}})
+    assert r.status_code == 422
+
+
+def test_empty_answers_returns_422():
+    r = client.post("/v1/score/layer2", json={"answers": {}})
+    assert r.status_code == 422
+
+
+def test_non_strict_request_is_permissive():
+    r = client.post("/v1/score/layer1",
+                    json={"answers": {"q_smoking": 0, "q_bogus": 0}, "strict": False})
+    assert r.status_code == 200
+    assert "q_bogus" in r.json()["warnings"]["unknown_inputs"]
+
+
+def test_score_returns_posteriors_and_product_fields():
+    r = client.post("/v1/score/layer1",
+                    json={"answers": {"q_smoking": 0, "q_family": 0, "q_social": 0}}).json()
+    assert "class_posteriors" in r and "centenarian_posterior" in r
+    assert "domain_scores" in r and "missing_high_value_inputs" in r
+
+
 def test_layer_scoped_apps_are_independent():
     from centenarian_phenotype.api import create_app
 

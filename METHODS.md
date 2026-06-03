@@ -16,7 +16,7 @@ The model ships in three tiers:
 2. **Tier 2 (application):** a **standalone 31-item mobile survey** — 18 NHANES-aligned behavioral questions (re-asked at greater depth than the teaser, mapped to the top-ranked centenarian features) plus 13 self-report clinical/health items. Free application tier; re-captures every variable fresh (no carry-over from Tier 1). (`tier2_model.yaml`)
 3. **Tier 3 (premium):** Tier 2 plus blood biomarkers, 21 scored genomic variants (from a 508-variant curated catalogue), DNA-methylation clocks + telomere length, and microbiome (pending). Subscription tier. (`tier3_model.yaml`)
 
-Scoring completeness rises across the tiers (~30% → ~50% → ~80%), grounded in longevity-heritability estimates (see `docs/model_card_stub.md`). The deployed v1 scorer is an **evidence-weighted alignment** model with per-feature provenance (§3.10); model outputs are designed to translate to PLN truth values (strength, confidence) for downstream integration with OpenCog Hyperon / AtomSpace / PLN, and a four-class Naive Bayes probabilistic version (§3.1) remains the target architecture.
+Scoring completeness rises across the tiers (~30% → ~50% → ~80%), grounded in longevity-heritability estimates (see `MODEL_CARD.md`). The deployed v1 scorer is an **evidence-weighted alignment** model with per-feature provenance (§3.10); model outputs are designed to translate to PLN truth values (strength, confidence) for downstream integration with OpenCog Hyperon / AtomSpace / PLN, and a four-class Naive Bayes probabilistic version (§3.1) remains the target architecture.
 
 ---
 
@@ -53,13 +53,42 @@ A formal source registry is maintained at `data/processed/source_registry.csv`.
 
 ### 3.1 Scoring approach
 
-Scoring uses **Naive Bayes** with parameters derived from corpus statistics, NHANES population baselines, and curated centenarian-class distributions. It is not a hand-built Bayesian network and not a deep-learning model.
+**What is deployed today (v1).** The shipped scorer (`centenarian_phenotype.score`) is an
+**evidence-weighted alignment** model: each feature maps to an alignment in [0, 1], and the score is
+the evidence-weighted mean, expressed as a percentage similarity to verified centenarians. It is
+**not** a hand-built Bayesian network and **not** a deep-learning model. This evidence-weighted
+similarity is the **user-facing number** (`score_pct` / `total_similarity_score` /
+`evidence_weighted_similarity`).
 
-Four reference classes are modelled: general population (NHANES baseline), nonagenarian (90–99), centenarian (100–109), and supercentenarian (110+). User scoring is performed against the centenarian class; the gradient across all four classes enriches per-feature signal and supports evidence grading.
+**Four-class Naive Bayes posterior (derived output, calibration-pending).** On top of the v1 score
+the engine also computes and returns a genuine **four-class Naive Bayes posterior**
+(`centenarian_phenotype.naive_bayes`) over four reference classes — general population, nonagenarian
+(90–99), centenarian (100–109), supercentenarian (110+) — via
+`P(class | evidence) ∝ P(class) · ∏ L(alignmentᵢ | class)^{weightᵢ}`. It is exposed as
+`class_posteriors`, `centenarian_posterior`, and `supercentenarian_posterior`, and is what maps to
+PLN truth values. **The Naive Bayes *math* is implemented and tested; its *likelihoods* are not yet
+data-calibrated** — each class is given an explicit, monotone alignment centroid rather than
+likelihoods estimated from labelled per-class feature distributions, because the corpus has **no
+cleanly-named 90–99 subjects** (subject age is floored at 100 — see *Nonagenarian floor* in §5). The
+posterior layer is therefore flagged `calibration: "heuristic_pending"` and the headline number
+remains the evidence-weighted similarity. A **fully calibrated four-class Naive Bayes is the planned
+v2 endpoint**; reaching it requires labelled multi-class feature distributions (see
+`VALIDATION_PLAN.md`).
 
-Per-factor proximity is scored on a 0–100 scale and aggregated into an overall percentage similarity, with per-feature subscores exposed so that contributing factors are visible.
+Per-factor proximity is scored on a 0–100 scale and aggregated into an overall percentage similarity,
+with per-feature subscores, interpretive `domain_scores`, and the class posteriors all exposed so
+that contributing factors are visible.
 
-Country-level exposomic context is applied at scoring time, outside the Naive Bayes core: country-specific centenarian density replaces the global prior, a Blue Zone adjustment is applied as auditable configuration, and Human Mortality Database quality warnings widen the confidence interval rather than shifting the central estimate.
+**Relative-longevity baseline (wired in).** A validated demographic anchor is computed by Step G
+(`scripts/pipeline/step_g_longevity_baselines.py`) from Human Mortality Database period life tables
+and bundled as `centenarian_phenotype/models/longevity_baselines.yaml` (123 country × sex rows): life
+expectancy at 60/65 and P(reach 90/100 | alive at 65/80). `centenarian_phenotype.longevity` exposes
+this so a score can be framed *relative to the person's own country and sex* (e.g. ~7.6% of Japanese
+women alive at 65 reach 100, 2024). The population baseline is **validated demography**; the mapping
+from phenotype score → personal survival trajectory is **calibration-pending** and kept separate
+(see `MODEL_CARD.md` §4, `VALIDATION_PLAN.md`). The remaining country exposomic adjustments
+(centenarian-density prior, Blue Zone configuration, HMD quality-warning CI widening) are specified
+but not yet wired in.
 
 ### 3.2 Feature discovery
 
@@ -87,7 +116,7 @@ The LongeviQuest atlas is treated as the authoritative gender source for verifie
 
 ### 3.7 Stack
 
-Python pipeline producing CSV/Parquet, spaCy NLP, scikit-learn / custom Naive Bayes, FastAPI service, and Flutter application plus React widget. The trained model (approximately 50 KB) ships with the application; end users do not run the scrapers.
+Python pipeline producing CSV/Parquet, spaCy NLP, a dependency-light scoring package (evidence-weighted alignment + a derived four-class Naive Bayes posterior layer; `pyyaml` only at runtime), FastAPI service, and Flutter application plus React widget. The bundled tier models (approximately 50 KB of YAML) ship with the application; end users do not run the scrapers. Note: the models are **curated evidence specifications**, not the output of a supervised training run — see §3.1 for the deployed-vs-planned scoring distinction.
 
 ### 3.8 Population baselines (Step D)
 
@@ -119,9 +148,9 @@ Key rules: physical activity is scored on **regularity, not intensity** (the val
 
 ## 4. Key decisions
 
-- Scoring is Naive Bayes over four age-stratified reference classes, not a binary centenarian / non-centenarian frame.
+- The deployed v1 scorer is **evidence-weighted alignment**; a four-class Naive Bayes posterior is computed on top as a derived, calibration-pending output (a fully calibrated NB is the planned v2). Neither is a binary centenarian / non-centenarian frame.
 - Features are data-first and receive tier labels only on NHANES mapping.
-- Country-level exposomic context is applied at scoring time and sits outside the Naive Bayes core.
+- Country-level exposomic context is applied at scoring time and sits outside the scoring core (specified, not yet wired into the package).
 - The Blue Zone adjustment is an explicit, auditable exception to the data-first rule.
 - Centenarian-class biomarker distributions are sourced from the literature and curation rather than NHANES, which has too few subjects aged 95 and over.
 - Attribution (centenarian-voice quotation) is not used as a feature class; the signal did not survive deduplication. Tier-1 lifestyle scoring uses noun/verb-phrase and NHANES-mapped predictors.
@@ -156,7 +185,7 @@ Key rules: physical activity is scored on **regularity, not intensity** (the val
 | 2026-06-01 | LongeviQuest full atlas (3,924 records) scraped and merged into the supercentenarian registry; known-gender female share corrected to 89.3%. |
 | 2026-06-01 | LongeviQuest profile blurbs mined as `database_profile` source records and integrated into the trait pipeline. |
 | 2026-06-01 | Biomarker name columns standardized to `biomarker_name_raw` + `biomarker_name` across all four biomarker files. |
-| 2026-06-01 | Project audit produced (`audit_report.md`, `data_dictionary.md`, `documentation_gaps.md`). |
+| 2026-06-01 | Project audit produced (`data_dictionary.md`; interim audit/gaps notes later superseded by `MODEL_CARD.md` / `VALIDATION_PLAN.md` / `AUDIT_FIXES.md`). |
 | 2026-06-01 | Step D population baselines (NHANES 60+, survey-weighted, Wilson CIs); deferred-gold framework (status_composition valid, mention_rate documentation-biased); smoking restructured to `smoking_status_{never,former,current}`. |
 | 2026-06-01 | Step E feature layer assignment + composite evidence scoring (`step_e_feature_layer_assignments.csv`, L1 54 / L2 5 / L3 46); domains kept distinct; `gwas_biomarker_pathways.csv` created. |
 | 2026-06-02 | Step F three-tier scoring engine (`step_f_scoring.py`, `models/tier1-3_model.yaml`): evidence-weighted alignment, per-feature `basis` provenance, `evidence_basis_pct`, completeness ladder 30/50/80, `gwas_corroborated` reintroduced at Layer 3, construct-level dedup. |

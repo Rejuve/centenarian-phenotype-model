@@ -45,6 +45,9 @@ clinical_biomarkers:
   - {feature: euthyroid,           direction: present_favorable, reference: "normal thyroid function favourable",             weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
   - {feature: telomere_length,     direction: longer_favorable,  reference: "longer leukocyte telomere length favourable; short telomeres an adverse ageing phenotype (582 academic-corpus mentions; centenarian-reference hits)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
   - {feature: body_mass_index,     direction: u_shaped_normal_favorable, reference: "U-shaped: BMI ~18.5-25 favourable; BOTH obesity (>30) AND underweight (<18.5) adverse. Late-life low BMI signals frailty/sarcopenia, not health (nhanes_body_measures baseline)", weight: 0.33, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: glucose,             direction: lower_favorable,   reference: "ADA fasting glucose: <100 mg/dL normal, 100-125 prediabetes, >=126 diabetes",  weight: 0.66, gwas_corroborated: true,  basis: measured_clinical, pathway_gene: TCF7L2}
+  - {feature: hba1c,               direction: lower_favorable,   reference: "ADA HbA1c: <5.7% normal, 5.7-6.4 prediabetes, >=6.5 diabetes",                weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: egfr,                direction: higher_favorable,  reference: "KDIGO eGFR: >=90 normal, <60 CKD (CKD-EPI 2021, race-free, from serum creatinine)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
 
 # ---- age-related disease flags: absence/late-onset favourable (escaper/delayer phenotype) ----
 clinical_disease_flags:

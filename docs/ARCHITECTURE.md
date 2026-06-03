@@ -66,4 +66,4 @@ process_new_datasets ─► gwas_longevity / who_life_expectancy / un_population
 - **NHANES categorical codes:** values are raw CDC numeric codes, not labels; a codebook decode is required before scoring.
 - **Abstract-only academic corpus:** `academic_papers.csv` has an `abstract` column (100% populated) but no full text. Control-group prevalence is extractable from ~52% of control-group abstracts; the remainder relies on NHANES/WHO fallback.
 - **Nonagenarian floor:** the news corpus has no cleanly named 90–99 subjects (subject age floored at 100), so that class is unpopulated from news.
-- **Stale derived files:** `master_dataset_nlp.csv` and `feature_registry.csv` predate the +1,916-paper biomarker scrape; regenerate before relying on them for Step F Tier 2/3 (see `docs/audit_report.md` §2).
+- **Stale derived files:** `master_dataset_nlp.csv` and `feature_registry.csv` predate the +1,916-paper biomarker scrape; regenerate before relying on them for Step F Tier 2/3.

@@ -1,0 +1,162 @@
+# Validation Plan — Centenarian Longevity Phenotype Model
+
+*Status: planned. Nothing in this document has been executed yet; the model is **not yet validated**
+(see `MODEL_CARD.md` §10). This plan defines how validation will be done and what evidence is
+required before any "validated" claim can be made.*
+
+## 0a. Endpoint & validation standards
+
+The model is evolving from "similarity to verified centenarians" toward a **relative
+healthspan/longevity** statement: is this profile consistent with outliving the typical survival
+trajectory for the person's own country/sex, with less age-related decline, and higher odds of
+reaching 100 on the current trajectory (chronic-disease risk included)?
+
+- **Validated anchor (already in the package):** population survival baselines by country × sex from
+  HMD life tables (`longevity_baselines.yaml`). This is the demographic denominator and the
+  calibration target.
+- **Gold standard cohort:** an individual measured in a common age range (≈60–75) and followed to
+  100+ — even sparse. This is what calibrates "phenotype at 65 → odds of reaching 100."
+- **Platinum standard:** longitudinal data from youth to 100+ (rare today).
+- **Interim anchor:** *reduced biological age at any chronological age* (clocks + age/sex-adjusted
+  markers) plus exposomic/lifestyle patterns — measurable at any age without waiting decades.
+
+## 0. Why a plan and not results
+
+The deployed v1 scorer is an **evidence-weighted alignment** model assembled from a curated evidence
+corpus; the four-class Naive Bayes posterior layer is implemented but its likelihoods are
+heuristic/uncalibrated. Neither has been tested against held-out outcomes. This plan is the gate
+between "internally consistent" (where we are) and "externally validated" (where a clinical/product
+claim would require us to be).
+
+## 1. Reference cohorts
+
+| cohort | role | usability |
+|---|---|---|
+| Verified centenarian / supercentenarian records (LongeviQuest, GRG-style) | positive anchor | training/validation where licensing allows; else contextual |
+| Nonagenarian references (90–99) | intermediate class | **gap** — corpus has none; must be sourced (HRS/ELSA/SHARE/UKB) |
+| General-population baselines (NHANES) | negative/baseline | validation |
+| Mortality-linked datasets (NHANES mortality linkage) | survival outcome | validation where legally usable |
+| Healthy-aging / morbidity / function datasets (HRS/ELSA/SHARE/UKB, frailty/gait/grip cohorts) | functional endpoints | access/licensing dependent |
+
+## 2. Metrics
+
+- **Score distributions by class** — distributions of `score_pct` and `class_posteriors` for
+  verified centenarians vs nonagenarians vs general population; expect monotone separation.
+- **Calibration** — reliability curves for `centenarian_posterior` / `supercentenarian_posterior`
+  against observed class membership; report ECE/Brier. (Required before posteriors can be called
+  probabilities.)
+- **Sensitivity analyses** — vary priors, likelihood centroids/σ, and feature weights; report
+  ranking stability.
+- **Subgroup performance** — by sex, ancestry, geography, and socioeconomic proxies; report gaps.
+- **Ablation by feature class** — behavioral-only vs +clinical vs +genomic vs +epigenetic; quantify
+  each tier's marginal contribution (validates the 30/50/80 depth ladder).
+- **Missingness robustness** — score stability and `evidence_confidence_pct` behaviour under
+  random and informative missingness; partial-survey degradation curves.
+- **Temporal stability** — same profile across model versions; bounded drift per version bump.
+- **External validation** — performance on a cohort not used in any sourcing/curation step.
+
+## 3. Acceptance gates (before any "validated" claim)
+
+1. Monotone class separation with non-overlapping CIs on the primary endpoint.
+2. Calibrated posteriors (ECE below an agreed threshold) **before** posteriors are presented as
+   probabilities.
+3. No subgroup with materially degraded ranking performance without a documented mitigation.
+4. Ablation confirms each tier adds signal in the claimed direction.
+5. Documented external-validation result on a held-out cohort.
+
+## 3a. Harness (runnable now)
+
+`scripts/validation/` implements the metric engine and is exercised by `tests/test_validation_harness.py`:
+
+- `metrics.py` — AUC (discrimination), reliability/ECE/Brier (calibration), a pure-Python logistic
+  calibration model (score [+age/sex] → P(outcome)), score distributions, subgroup summaries.
+- `validate.py` — runs the full report; `--synthetic N` self-tests end-to-end with no data.
+- `parse_nhanes_lmf.py` — parses the NHANES Linked Mortality File (fixed-width, NCHS layout).
+- `build_nhanes_cohort.py` — maps NHANES variables → model inputs via the versioned mappers, scores
+  each participant, and joins the mortality outcome. **Already runs on the repo's NHANES data: 5,518
+  participants scored**; add the LMF (`--lmf`) to attach the survival outcome.
+- `FETCH_MORTALITY.md` — exact acquisition + DUC for the NHANES LMF and the nonagenarian sources.
+
+First real run produces: AUC(score → survival), a fitted phenotype→mortality calibration with
+reliability/ECE/Brier, and subgroup AUC by sex/age band — i.e. gates 1, 4 (partial), and the
+calibration gate's machinery.
+
+## 3b. First validation result (pooled NHANES 1999–2016, all-cause mortality)
+
+*Run with `build_cohort_from_xpt.py --cycles 1999-2000,…,2015-2016` (follow-up to 2019-12-31, up to
+~20 yr) + `validate.py --ablate-cols score_selfreport,score_labs,score_full`. Aggregate statistics
+only; individual data not redistributed. Data: NCHS Continuous NHANES + Public-use Linked Mortality
+File, 2019 (doi:10.15620/cdc:117142). Analysis/interpretation are the authors', not NCHS.*
+
+- Cohort: **N = 53,255** scored adults, **9,106 deaths** (17.1%). ~15 of 31 Layer-2 questions mapped
+  per subject + 8-marker lab panel (HDL, LDL, triglycerides, glucose, HbA1c, eGFR, CRP, BMI).
+- **Discrimination, full score alone (no age): AUC(score → survival) = 0.687.**
+- **Age/sex-adjusted model** (score + age + sex → P(deceased)): standardized weight on
+  **score = −0.39 (protective)**, age +1.86 (dominant), sex_male +0.23; AUC 0.884, ECE 0.019.
+- **Protective within every age band** (survival-AUC ≈ 0.54–0.66 across 18–49 / 50–64 / 65–74 / 75+)
+  and **in both sexes** (F 0.683, M 0.694) — i.e. **not merely an age proxy**, and directionally fair.
+
+**Ablation by feature class** (adjusted weight on the class score; more negative = more protective):
+
+| feature class | n | AUC(→survival) | adj. weight |
+|---|---:|---:|---:|
+| self-report (~15 NHANES-mapped Layer-2 questions) | 53,255 | 0.660 | −0.32 |
+| measured labs (HDL/LDL/TG/glucose/HbA1c/eGFR/CRP/BMI) | 50,541 | 0.652 | −0.27 |
+| **full (combined)** | 53,255 | **0.687** | **−0.39** |
+
+Self-report and labs are now **comparable and complementary** — the full score beats either alone.
+
+**Progression (a real signal strengthens as information is added):** full-score AUC→survival rose
+0.590 → 0.661 → **0.687** as the lab panel widened (5→8 markers) and the self-report mapping widened
+(2→~15 questions). The behavioral/self-report block — including **PHQ-9 depression (mental
+wellbeing)**, self-rated health, physical activity, alcohol, sleep, diet — carries signal on par with
+the labs, consistent with the model's behavioral-first design and the product's top-of-funnel quiz.
+
+**Mapping honesty:** ~15 of 31 Layer-2 questions are mapped from real NHANES variables; the remaining
+~16 are constructs NHANES never measured (social ties, purpose/meaning, cognitive hobbies, faith,
+family-history-of-longevity) and are left unmapped rather than fabricated — so the true full-survey
+score would draw on *more* signal than measured here.
+
+**What this is / isn't:** an honest, *out-of-the-box* (untrained) signal that a higher phenotype score
+is associated with **lower all-cause mortality** over up to ~20 years, independent of age and in both
+sexes, in one US cohort. It is **not** centenarian attainment (a survival proxy), **not** trained on
+this data, and **not** externally replicated. It satisfies the *machinery* of gates 1, 4, and the
+subgroup gate; calibration of the trajectory band to reaching specific ages, nonagenarian-class NB
+calibration, mortality-calibrated re-weighting (Part A), and external replication still stand.
+
+**Power note:** 2017–2018 alone yields only ~127 deaths (1–2 yr follow-up, underpowered); pool earlier
+cycles via `build_cohort_from_xpt.py --cycles ...`.
+
+## 3c. Part A — held-out survival calibration (bundled)
+
+*Run with `scripts/validation/calibrate.py` on the pooled cohort; artifact bundled at
+`centenarian_phenotype/models/survival_calibration.yaml`. Aggregate coefficients only.*
+
+A small logistic model calibrates the phenotype score to a **fixed 10-year all-cause mortality
+horizon** (so differing cycle follow-up does not confound it): `P(die within 120 months) =
+sigmoid(b0 + w·z(score, age, sex_male))`. Honesty guardrail: metrics are **out-of-sample** (70/30
+train/test); coefficients then refit on the full eligible cohort for deployment.
+
+- Eligible n = 32,082 (deaths ≤120mo, or known alive ≥120mo; censored-before-horizon excluded);
+  10-yr event rate 18.3%.
+- **Held-out (n=9,625): AUC 0.896, ECE 0.020, Brier 0.090** — well-calibrated out-of-sample.
+- **Standardized score weight = −0.555 (protective, age/sex-adjusted)** — the calibrated, held-out
+  effect of the phenotype score on 10-year mortality. (AUC is age-dominated; the score's contribution
+  is the age-independent −0.555.)
+- Wired into `longevity.relative_longevity()`: when age/sex are supplied, `longevity_context` now
+  returns a **calibrated** `calibrated_mortality` block (10-yr mortality probability + ratio vs an
+  average-phenotype peer of the same age/sex), replacing the illustrative multipliers. Example
+  (70-yo F): score 90 → p≈0.17 (0.58× peer), score 40 → p≈0.83 (2.9× peer).
+
+**Scope/limits:** ALL-CAUSE US 10-year mortality, single national cohort, not externally replicated,
+**not centenarian attainment** (which remains the HMD population baseline). The four-class NB
+likelihoods are still `heuristic_pending` (need the 90–99 band; see `docs/DATA_STRATEGY.md`).
+
+## 4. Sequencing
+
+1. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).
+2. Calibrate NB likelihoods from labelled per-class feature distributions → lift
+   `calibration` from `heuristic_pending` to `calibrated`.
+3. Run distribution + ablation + missingness suites on NHANES (+ mortality linkage).
+4. Subgroup + temporal + external validation.
+5. Promote results into `MODEL_CARD.md` §10 and gate public claims on the acceptance gates above.

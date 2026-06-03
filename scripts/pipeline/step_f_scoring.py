@@ -7,7 +7,7 @@ factors pulling the score up/down.
 
 Layer 1 (this file's primary use): behavioral quiz, gwas weight 0.00.
 Layer 3 (when built) reintroduces gwas_corroborated with weight — see
-docs/model_card_stub.md "Evidence accumulation model".
+MODEL_CARD.md "Evidence accumulation / completeness".
 
 Usage:
   python scripts/pipeline/step_f_scoring.py --print            # show the quiz

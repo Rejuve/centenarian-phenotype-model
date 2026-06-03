@@ -9,7 +9,7 @@ description: >
 narrative_template: "Your lifestyle shares {score}% similarity with verified centenarians."
 scoring:
   method: evidence_weighted_alignment
-  completeness_pct: 30          # behavioral-only; see docs/model_card_stub.md
+  completeness_pct: 30          # behavioral-only; see MODEL_CARD.md
   gwas_corroborated_weight: 0.00  # behavioral layer; reintroduced with weight at Layer 3
 # basis = provenance of each option's alignment value, so scores map to data reality,
 # not to authoring judgment. Reported alongside every result.

@@ -9,6 +9,9 @@
 # ============================================================================
 data/
 
+# Generated validation reports (regenerate via scripts/validation/validate.py)
+reports/
+
 # ---- (granular rules below are subsumed by data/ above; kept for clarity) ----
 # ---- Large raw data (do not commit; re-acquire via scrapers / download scripts) ----
 data/raw/news_articles.csv
