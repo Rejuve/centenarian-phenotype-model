@@ -16,7 +16,7 @@ The model ships in three tiers:
 2. **Tier 2 (application):** a **standalone 31-item mobile survey** — 18 NHANES-aligned behavioral questions (re-asked at greater depth than the teaser, mapped to the top-ranked centenarian features) plus 13 self-report clinical/health items. Free application tier; re-captures every variable fresh (no carry-over from Tier 1). (`tier2_model.yaml`)
 3. **Tier 3 (premium):** Tier 2 plus blood biomarkers, 21 scored genomic variants (from a 508-variant curated catalogue), DNA-methylation clocks + telomere length, and microbiome (pending). Subscription tier. (`tier3_model.yaml`)
 
-Scoring completeness rises across the tiers (~30% → ~50% → ~80%), grounded in longevity-heritability estimates (see `docs/model_card_stub.md`). The deployed v1 scorer is an **evidence-weighted alignment** model with per-feature provenance (§3.10); model outputs are designed to translate to PLN truth values (strength, confidence) for downstream integration with OpenCog Hyperon / AtomSpace / PLN, and a four-class Naive Bayes probabilistic version (§3.1) remains the target architecture.
+Scoring completeness rises across the tiers (~30% → ~50% → ~80%), grounded in longevity-heritability estimates (see `MODEL_CARD.md`). The deployed v1 scorer is an **evidence-weighted alignment** model with per-feature provenance (§3.10); model outputs are designed to translate to PLN truth values (strength, confidence) for downstream integration with OpenCog Hyperon / AtomSpace / PLN, and a four-class Naive Bayes probabilistic version (§3.1) remains the target architecture.
 
 ---
 
@@ -185,7 +185,7 @@ Key rules: physical activity is scored on **regularity, not intensity** (the val
 | 2026-06-01 | LongeviQuest full atlas (3,924 records) scraped and merged into the supercentenarian registry; known-gender female share corrected to 89.3%. |
 | 2026-06-01 | LongeviQuest profile blurbs mined as `database_profile` source records and integrated into the trait pipeline. |
 | 2026-06-01 | Biomarker name columns standardized to `biomarker_name_raw` + `biomarker_name` across all four biomarker files. |
-| 2026-06-01 | Project audit produced (`audit_report.md`, `data_dictionary.md`, `documentation_gaps.md`). |
+| 2026-06-01 | Project audit produced (`data_dictionary.md`; interim audit/gaps notes later superseded by `MODEL_CARD.md` / `VALIDATION_PLAN.md` / `AUDIT_FIXES.md`). |
 | 2026-06-01 | Step D population baselines (NHANES 60+, survey-weighted, Wilson CIs); deferred-gold framework (status_composition valid, mention_rate documentation-biased); smoking restructured to `smoking_status_{never,former,current}`. |
 | 2026-06-01 | Step E feature layer assignment + composite evidence scoring (`step_e_feature_layer_assignments.csv`, L1 54 / L2 5 / L3 46); domains kept distinct; `gwas_biomarker_pathways.csv` created. |
 | 2026-06-02 | Step F three-tier scoring engine (`step_f_scoring.py`, `models/tier1-3_model.yaml`): evidence-weighted alignment, per-feature `basis` provenance, `evidence_basis_pct`, completeness ladder 30/50/80, `gwas_corroborated` reintroduced at Layer 3, construct-level dedup. |

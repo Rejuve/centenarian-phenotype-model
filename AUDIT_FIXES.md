@@ -5,7 +5,7 @@ This PR targets the audit's **Priority 1** in full plus the high-value Priority 
 production-safety and contradiction risks; remaining Priority 2/3 work is scoped as *planned* below
 rather than stubbed.
 
-Package version bumped **0.1.0 → 0.2.0**. Test suite **20 → 81 tests, all passing**. The headline
+Package version bumped **0.1.0 → 0.2.0**. Test suite **20 → 88 tests, all passing**. The headline
 score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrations are unaffected.
 
 ---
@@ -23,20 +23,27 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 | 8 | Product output | **Done** | Added `total_similarity_score`, `class_posteriors`, `domain_scores`, `top_positive_drivers`, `top_negative_drivers`, `modifiable_drivers`, `non_modifiable_context`, `missing_high_value_inputs`, `evidence_confidence_pct`, `next_best_data_action`, `pro_unlock_opportunities`. README + MODEL_CARD carry the "similarity not prediction / higher confidence needs deeper data / result can change / not medical advice" language. |
 | 9 | Model card + validation report | **Done** | New root [`MODEL_CARD.md`](MODEL_CARD.md) (intended/non-intended use, endpoint, evidence grades, bias, **known failure modes**, regulatory disclaimer, versioning/update policy, validation status) replaces the stub (now a pointer). New [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) with cohorts, metrics, acceptance gates, sequencing. |
 | 10 | Doc contradictions | **Done** | METHODS §3.1/§3.7/§4, README, model-card stub, and scoring_api all reconciled: deployed = evidence-weighted alignment; NB posterior = derived/calibration-pending; calibrated NB + validation = planned. No remaining "trained/validated ML model" claims. |
-| 11 | Tests & CI | **Tests done; CI partial** | 81 tests (from 20) across NB, strict validation, mappers, clocks, domains, longevity, the validation harness, and API 422. CI matrix/lint/type/schema/wheel/deterministic-artifact additions are **planned** (existing CI + secret scan retained). |
+| 11 | Tests & CI | **Done** | 88 tests (from 20) across NB, strict validation, mappers, clocks, domains, longevity, calibration, model-schema, the validation harness, and API 422. CI now runs: **Python matrix 3.10–3.13**, **ruff lint**, **schema validation** (test), **wheel build + install + bundled-data smoke test**, **deterministic model-artifact check** (`make_manifest.py --check`), and the secret scan. (mypy/type-checking intentionally omitted to avoid noise on untyped legacy scripts.) |
 | 12 | API / deployment hardening | **Done** | L2/L3 no longer default to wildcard CORS (deny + warn unless `CENTENARIAN_CORS_ORIGINS`/`cors_origins` set); L1 widget may stay permissive. Quiz endpoints already never expose internal weights/alignments; score endpoints now return `warnings` + provenance. Routes already versioned (`/v1`) and per-layer isolated. Auth for L3 is **planned** (deployment concern). |
 | 5 | Expand public sources | **Advanced (registry + prioritized candidates done; acquisition pending)** | New tracked [`docs/SOURCE_REGISTRY.md`](docs/SOURCE_REGISTRY.md) defines the enriched schema (license/access, raw location, processed artifact, population, age range, cent relevance, train/validate/contextual, bias), documents current sources against it, and lists **prioritized freely-available candidates ordered by validation ROI** — NHANES mortality linkage (P1), HRS / Gateway-to-Global-Aging to close the nonagenarian gap (P1), more GWAS + GEO methylation (P2), IDL/GRG external validation (P2). Actual acquisition/ingestion is the next step. |
-| 13 | Reproducibility pipeline | **Planned** | Makefile/nox rebuild, checksums/manifests, artifact-generation script, and release process are scoped; pipeline steps D–F remain placeholders (already disclosed in README). |
+| 13 | Reproducibility pipeline | **Done (core)** | `Makefile` (install/test/lint/build/manifest-check/validate/longevity-baselines); `scripts/make_manifest.py` writes + checks `centenarian_phenotype/models/MANIFEST.sha256` (deterministic artifacts, enforced in CI); README "Reproducibility & release" documents the regenerable-data policy and the version tuple (package + model versions + data snapshot + changelog + validation status). Pipeline steps D–F remain placeholders (disclosed). |
 
 ## Files added/changed
 
-- **Added:** `centenarian_phenotype/naive_bayes.py`, `validation.py`, `mappers.py`, `domains.py`,
-  `clocks.py`; `MODEL_CARD.md`, `VALIDATION_PLAN.md`, `AUDIT_FIXES.md`, `docs/SOURCE_REGISTRY.md`;
-  `tests/test_naive_bayes.py`, `tests/test_validation.py`, `tests/test_mappers.py`,
-  `tests/test_clocks.py`.
-- **Changed:** `centenarian_phenotype/scoring.py`, `api.py`, `__init__.py`;
-  `README.md`, `METHODS.md`, `docs/scoring_api.md`, `docs/model_card_stub.md`;
-  `tests/test_scoring.py`, `tests/test_api.py`.
+- **Added — package:** `centenarian_phenotype/naive_bayes.py`, `validation.py`, `mappers.py`,
+  `domains.py`, `clocks.py`, `longevity.py`; bundled data `models/longevity_baselines.yaml`,
+  `models/survival_calibration.yaml`, `models/MANIFEST.sha256`.
+- **Added — docs:** `MODEL_CARD.md`, `VALIDATION_PLAN.md`, `AUDIT_FIXES.md`, `docs/SOURCE_REGISTRY.md`,
+  `docs/DATA_STRATEGY.md`.
+- **Added — tooling/tests:** `Makefile`, `scripts/make_manifest.py`,
+  `scripts/pipeline/step_g_longevity_baselines.py`, `scripts/validation/*`
+  (metrics, validate, calibrate, NHANES LMF parser + cohort builders, FETCH guide);
+  `tests/test_{naive_bayes,validation,mappers,clocks,longevity,model_schema,validation_harness}.py`.
+- **Changed:** `centenarian_phenotype/scoring.py`, `api.py`, `__init__.py`, `models/tier{1,3}*.yaml`;
+  `README.md`, `METHODS.md`, `docs/scoring_api.md`, `docs/ARCHITECTURE.md`, `pyproject.toml`,
+  `.github/workflows/ci.yml`; `tests/test_scoring.py`, `tests/test_api.py`.
+- **Removed (stale/superseded):** `docs/model_card_stub.md` (→ `MODEL_CARD.md`),
+  `docs/audit_report.md`, `docs/documentation_gaps.md` (point-in-time 2026-06-01 snapshots).
 
 ---
 

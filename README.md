@@ -44,6 +44,21 @@ uvicorn centenarian_phenotype.api:app --reload     # http://127.0.0.1:8000/docs
 
 Each layer deploys independently (web widget = L1, app = L2+L3). Contract: `docs/scoring_api.md`. Deployment (AWS Lambda / CORS / Flutter): `docs/deployment.md`.
 
+## Reproducibility & release
+
+`Makefile` wraps the common tasks: `make install | test | lint | build | manifest-check | validate |
+longevity-baselines`.
+
+- **Deterministic artifacts:** the bundled model YAMLs are checksummed in
+  `centenarian_phenotype/models/MANIFEST.sha256`; CI runs `make manifest-check`, so any model edit must
+  bump the model `version` and regenerate the manifest (`make manifest`).
+- **Regenerable data:** the `data/` tree is gitignored (third-party/large/personal). Rebuild processed
+  artifacts from source via the pipeline (`scripts/pipeline/step_*`); validation cohorts are fetched on
+  demand (`scripts/validation/`, see `FETCH_MORTALITY.md`). Nothing under `data/` ships in the wheel.
+- **Release stamps a tuple:** package `__version__` + per-tier model `version`s (in every result's
+  `model_version`) + the data snapshot the artifacts were built from + a changelog entry (METHODS) +
+  current validation status (`MODEL_CARD.md` §10).
+
 ## Development & security
 
 ```bash
@@ -122,9 +137,6 @@ docs/                project documentation (below)
 - **docs/data_dictionary.md** — schema and join keys for every processed file.
 - **docs/ARCHITECTURE.md** — data flow, lineage, join keys, schema quirks.
 - **docs/ROADMAP.md** — data/evidence expansion and the predictive-trajectory extension.
-- **docs/audit_report.md** — living status: inventory, integrity, missing steps, data-quality flags, readiness.
-- **docs/model_card_stub.md** — model card seed (framing, limitations).
-- **docs/documentation_gaps.md** — outstanding documentation/packaging tasks.
 
 ## License
 

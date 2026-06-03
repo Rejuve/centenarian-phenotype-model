@@ -28,7 +28,7 @@ Usage
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable, Optional
 
 MAPPER_SET_VERSION = "1.0"

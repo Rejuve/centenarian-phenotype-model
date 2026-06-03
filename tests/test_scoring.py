@@ -146,7 +146,7 @@ def test_domain_scores_present_and_bounded():
 
 
 def test_layer3_emits_genetic_and_epigenetic_context():
-    t2, t3 = load_model(2), load_model(3)
+    t2 = load_model(2)
     clin = {"grimage_2019": 0.9, "rs2802295": 1.0}
     ds = score(3, opt0(t2), clinical=clin)["domain_scores"]
     assert "genetic_longevity_context" in ds

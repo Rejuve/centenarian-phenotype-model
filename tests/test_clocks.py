@@ -2,7 +2,7 @@
 import pytest
 
 from centenarian_phenotype import score
-from centenarian_phenotype.clocks import (CLOCKS, compute_clock, compute_panel, describe_clocks,
+from centenarian_phenotype.clocks import (compute_clock, compute_panel, describe_clocks,
                                           to_clinical_alignments)
 
 

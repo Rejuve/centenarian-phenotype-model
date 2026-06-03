@@ -29,3 +29,10 @@ centenarian_phenotype = ["models/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+# lint the deployable package, validation harness, and tests (the maintained code);
+# the large legacy scrapers/pipeline scripts are excluded from the gate.
+include = ["centenarian_phenotype/**/*.py", "scripts/validation/**/*.py", "tests/**/*.py"]
+lint.select = ["E", "F", "W"]
