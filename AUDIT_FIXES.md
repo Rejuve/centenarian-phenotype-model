@@ -55,12 +55,14 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 - **Validation/calibration harness (`scripts/validation/`) — with a first real result.** Pure-Python
   metric engine (AUC, reliability/ECE/Brier, fitted score→mortality calibration, subgroup AUC) + an
   NHANES Linked-Mortality-File parser (NCHS layout) and two cohort builders (2017–2018 CSVs; and
-  `build_cohort_from_xpt.py` which auto-downloads & POOLS any earlier cycles' XPT + LMF, with ablation
-  by feature class). **First powered run (pooled NHANES 2005–2010, N=18,290, 3,014 deaths): the
-  untrained phenotype score is associated with lower all-cause mortality independent of age and in
-  both sexes** (adj. weight −0.34; protective in every age band). Ablation: behavioral/self-report
-  block strongest (−0.41), 5-marker lab panel weaker (−0.20). Survival proxy, single cohort, not
-  centenarian attainment — see VALIDATION_PLAN §3b.
+  `build_cohort_from_xpt.py` auto-downloads & POOLS all cycles' XPT + LMF, maps ~15 of 31 Layer-2
+  questions (incl. PHQ-9 depression, self-rated health, activity, sleep, diet) + an 8-marker lab
+  panel, with ablation by feature class). **First powered run (pooled NHANES 1999–2016, N=53,255,
+  9,106 deaths, up to ~20-yr follow-up): the untrained phenotype score is associated with lower
+  all-cause mortality independent of age and in both sexes** (age/sex-adjusted weight −0.39; AUC
+  score→survival 0.69; protective in every age band; ECE 0.019). Self-report and labs contribute
+  comparably/complementarily; discrimination rose 0.59→0.66→0.69 as mappings widened. Survival proxy,
+  single cohort, not centenarian attainment — see VALIDATION_PLAN §3b.
 - Tracked enriched source registry + prioritized freely-available candidate sources toward validation.
 - Phenotype decomposition (`domain_scores`) and the full product output bundle.
 - L2/L3 CORS hardening; per-layer route isolation; versioned `/v1` routes.

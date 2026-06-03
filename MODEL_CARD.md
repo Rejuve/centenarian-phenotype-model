@@ -124,17 +124,19 @@ insurance/actuarial decisions, or any individual medical decision. **This is not
 ## 10. Validation status
 
 **Preliminary signal only; not yet validated for any claim.** A first external run against pooled
-NHANES 2005–2010 linked mortality (**N=18,290; 3,014 deaths; 10–14-yr follow-up**) shows the
+NHANES 1999–2016 linked mortality (**N=53,255; 9,106 deaths; up to ~20-yr follow-up**) shows the
 *untrained* phenotype score is associated with **lower all-cause mortality independent of age**
-(age/sex-adjusted standardized weight −0.34; protective within every age band **and in both sexes**;
-AUC score→survival 0.59; well-calibrated, ECE 0.018). Ablation shows the **behavioral/self-report
-block carries the strongest signal** (adj. weight −0.41) while the current 5-marker lab panel is
-weaker (−0.20) and slightly dilutes the combined score — flagging mortality-calibration of the lab
-mappings/weights as the top next step. This is a **survival proxy, not centenarian attainment**, in a
-single US cohort, untrained and unreplicated — encouraging but **not** a validated claim. Calibration
-of the trajectory band to reaching specific ages, nonagenarian-class NB calibration, ablation-guided
-re-weighting, temporal, and external validation remain outstanding. Invariants are guarded by 81 unit
-tests; the harness lives in `scripts/validation/`. Full detail: [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) §3b.
+(age/sex-adjusted standardized weight −0.39; protective within every age band **and in both sexes**;
+AUC score→survival 0.69; well-calibrated, ECE 0.019). Ablation shows the **behavioral/self-report
+block (~15 NHANES-mapped questions incl. PHQ-9 depression, self-rated health, activity, sleep, diet)
+and the 8-marker lab panel carry comparable, complementary signal** (AUC→survival 0.66 vs 0.65; full
+0.69). Full-score discrimination rose 0.59→0.66→0.69 as the lab and self-report mappings widened — the
+progression expected of a genuine signal. This is a **survival proxy, not centenarian attainment**, in
+a single US cohort, untrained and unreplicated — encouraging but **not** a validated claim.
+Mortality-calibrated re-weighting (Part A), calibration of the trajectory band to specific ages,
+nonagenarian-class NB calibration, temporal, and external validation remain outstanding. Invariants
+are guarded by 81 unit tests; the harness lives in `scripts/validation/`. Full detail:
+[`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) §3b.
 
 ## 11. Versioning & update policy
 

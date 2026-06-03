@@ -81,43 +81,51 @@ First real run produces: AUC(score → survival), a fitted phenotype→mortality
 reliability/ECE/Brier, and subgroup AUC by sex/age band — i.e. gates 1, 4 (partial), and the
 calibration gate's machinery.
 
-## 3b. First validation result (pooled NHANES 2005–2010, all-cause mortality)
+## 3b. First validation result (pooled NHANES 1999–2016, all-cause mortality)
 
-*Run with `build_cohort_from_xpt.py --cycles 2005-2006,2007-2008,2009-2010` (10–14-yr follow-up to
-2019-12-31) + `validate.py --ablate-cols score_selfreport,score_labs,score_full`. Aggregate statistics
+*Run with `build_cohort_from_xpt.py --cycles 1999-2000,…,2015-2016` (follow-up to 2019-12-31, up to
+~20 yr) + `validate.py --ablate-cols score_selfreport,score_labs,score_full`. Aggregate statistics
 only; individual data not redistributed. Data: NCHS Continuous NHANES + Public-use Linked Mortality
 File, 2019 (doi:10.15620/cdc:117142). Analysis/interpretation are the authors', not NCHS.*
 
-- Cohort: **N = 18,290** scored adults, **3,014 deaths** (16.5%).
-- **Discrimination, full score alone (no age): AUC(score → survival) = 0.590.**
+- Cohort: **N = 53,255** scored adults, **9,106 deaths** (17.1%). ~15 of 31 Layer-2 questions mapped
+  per subject + 8-marker lab panel (HDL, LDL, triglycerides, glucose, HbA1c, eGFR, CRP, BMI).
+- **Discrimination, full score alone (no age): AUC(score → survival) = 0.687.**
 - **Age/sex-adjusted model** (score + age + sex → P(deceased)): standardized weight on
-  **score = −0.34 (protective)**, age +2.06 (dominant), sex_male +0.21; AUC 0.889, ECE 0.018.
-- **Protective within every age band** (survival-AUC ≈ 0.54–0.65 across 18–49 / 50–64 / 65–74 / 75+)
-  and **in both sexes** (F 0.556, M 0.617) — i.e. **not merely an age proxy**, and directionally fair.
+  **score = −0.39 (protective)**, age +1.86 (dominant), sex_male +0.23; AUC 0.884, ECE 0.019.
+- **Protective within every age band** (survival-AUC ≈ 0.54–0.66 across 18–49 / 50–64 / 65–74 / 75+)
+  and **in both sexes** (F 0.683, M 0.694) — i.e. **not merely an age proxy**, and directionally fair.
 
 **Ablation by feature class** (adjusted weight on the class score; more negative = more protective):
 
-| feature class | n | deaths | AUC(→survival) | adj. weight |
-|---|---:|---:|---:|---:|
-| self-report (behavioral + self-report clinical) | 18,290 | 3,014 | **0.630** | **−0.41** |
-| measured labs only (HDL/LDL/TG/CRP/BMI) | 17,615 | 2,798 | 0.544 | −0.20 |
-| full (combined) | 18,290 | 3,014 | 0.590 | −0.34 |
+| feature class | n | AUC(→survival) | adj. weight |
+|---|---:|---:|---:|
+| self-report (~15 NHANES-mapped Layer-2 questions) | 53,255 | 0.660 | −0.32 |
+| measured labs (HDL/LDL/TG/glucose/HbA1c/eGFR/CRP/BMI) | 50,541 | 0.652 | −0.27 |
+| **full (combined)** | 53,255 | **0.687** | **−0.39** |
 
-**Actionable finding:** the **behavioral / self-report block carries the strongest mortality signal**;
-the current limited lab panel is weaker and slightly *dilutes* the full score. This is expected for an
-*untrained* model with only 5 mapped labs and uncalibrated cross-class weights — and it pinpoints the
-highest-value next step: **calibrate the lab→alignment mappings and feature weights against mortality**
-(and widen the lab panel: glucose/HbA1c/eGFR are measured in NHANES but not yet tier-3 features).
+Self-report and labs are now **comparable and complementary** — the full score beats either alone.
+
+**Progression (a real signal strengthens as information is added):** full-score AUC→survival rose
+0.590 → 0.661 → **0.687** as the lab panel widened (5→8 markers) and the self-report mapping widened
+(2→~15 questions). The behavioral/self-report block — including **PHQ-9 depression (mental
+wellbeing)**, self-rated health, physical activity, alcohol, sleep, diet — carries signal on par with
+the labs, consistent with the model's behavioral-first design and the product's top-of-funnel quiz.
+
+**Mapping honesty:** ~15 of 31 Layer-2 questions are mapped from real NHANES variables; the remaining
+~16 are constructs NHANES never measured (social ties, purpose/meaning, cognitive hobbies, faith,
+family-history-of-longevity) and are left unmapped rather than fabricated — so the true full-survey
+score would draw on *more* signal than measured here.
 
 **What this is / isn't:** an honest, *out-of-the-box* (untrained) signal that a higher phenotype score
-is associated with **lower all-cause mortality** over 10–14 years, independent of age and in both
+is associated with **lower all-cause mortality** over up to ~20 years, independent of age and in both
 sexes, in one US cohort. It is **not** centenarian attainment (a survival proxy), **not** trained on
 this data, and **not** externally replicated. It satisfies the *machinery* of gates 1, 4, and the
 subgroup gate; calibration of the trajectory band to reaching specific ages, nonagenarian-class NB
-calibration, ablation-guided re-weighting, and external replication still stand.
+calibration, mortality-calibrated re-weighting (Part A), and external replication still stand.
 
-**Power note:** 2017–2018 alone yields only ~127 deaths (1–2 yr follow-up, underpowered); use earlier
-cycles via `build_cohort_from_xpt.py` (`--cycle` or pooled `--cycles`).
+**Power note:** 2017–2018 alone yields only ~127 deaths (1–2 yr follow-up, underpowered); pool earlier
+cycles via `build_cohort_from_xpt.py --cycles ...`.
 
 ## 4. Sequencing
 
