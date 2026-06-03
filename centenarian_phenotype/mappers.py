@@ -230,22 +230,41 @@ def map_value(feature: str, value, sex: Optional[str] = None, age: Optional[floa
     return MAPPERS[feature](value, sex=sex, age=age)
 
 
-def map_panel(raw: dict, sex: Optional[str] = None, age: Optional[float] = None) -> dict:
-    """Map a raw lab/functional panel.
+def _tier3_scoreable():
+    """(scoreable feature-name set, alias map) from the live tier-3 model; ({}, {}) if unavailable."""
+    try:
+        from .scoring import CLINICAL_ALIASES, _feature_defs, load_model
+        return set(_feature_defs(load_model(3))), CLINICAL_ALIASES
+    except Exception:  # noqa: BLE001 - keep mappers usable even if scoring import fails
+        return set(), {}
 
-    Returns {"clinical": {feature: alignment}, "report": {feature: full mapper output},
-    "unmapped": [features with no mapper]}. ``clinical`` is ready to pass to ``score(3, ...)``.
+
+def map_panel(raw: dict, sex: Optional[str] = None, age: Optional[float] = None) -> dict:
+    """Map a raw lab/functional panel into alignments.
+
+    Returns {"clinical", "report", "unmapped", "not_scoreable"}. ``clinical`` is keyed by the tier-3
+    feature name (aliases resolved, e.g. ldl_cholesterol -> cholesterol) and contains **only features
+    the tier-3 model can currently score** — so it is safe to pass to ``score(3, ..., strict=True)``.
+    Mapped features without a tier-3 home (apob, systolic_bp, waist_circumference, alt, gait_speed)
+    are listed in ``not_scoreable`` rather than silently included.
     """
-    clinical, report, unmapped = {}, {}, []
+    scoreable, alias = _tier3_scoreable()
+    clinical, report, unmapped, not_scoreable = {}, {}, [], []
     for feat, val in raw.items():
         if feat not in MAPPERS:
             unmapped.append(feat)
             continue
         out = MAPPERS[feat](val, sex=sex, age=age)
         report[feat] = out
-        if out["alignment"] is not None:
-            clinical[feat] = out["alignment"]
-    return {"clinical": clinical, "report": report, "unmapped": unmapped}
+        if out["alignment"] is None:
+            continue
+        target = alias.get(feat, feat)
+        if not scoreable or target in scoreable:
+            clinical[target] = out["alignment"]
+        else:
+            not_scoreable.append(feat)
+    return {"clinical": clinical, "report": report, "unmapped": unmapped,
+            "not_scoreable": not_scoreable}
 
 
 def describe_mappers() -> list[dict]:

@@ -62,7 +62,7 @@ longevity-baselines`.
 ## Development & security
 
 ```bash
-pip install -e ".[test,api]" && python -m pytest -q   # 20 tests
+pip install -e ".[test,api]" && python -m pytest -q   # 88 tests
 git config core.hooksPath .githooks                    # enable the secret-scan pre-commit hook
 ```
 
@@ -129,7 +129,7 @@ docs/                project documentation (below)
 ## Documentation
 
 - **MODEL_CARD.md** — complete model card: intended/non-intended use, endpoint, evidence grades, bias, failure modes, regulatory disclaimer, versioning, validation status.
-- **VALIDATION_PLAN.md** — cohorts, metrics, acceptance gates (nothing validated yet).
+- **VALIDATION_PLAN.md** — cohorts, metrics, acceptance gates, and the preliminary NHANES mortality signal + held-out calibration (not externally replicated; not centenarian-attainment validation).
 - **AUDIT_FIXES.md** — what the latest audit changed, what's deferred, and the model-status statement.
 - **docs/SOURCE_REGISTRY.md** — enriched source schema, current sources, and prioritized freely-available candidates toward validation.
 - **docs/DATA_STRATEGY.md** — tiered source-quality ranking, AI/LLM-use screening (person-level data vs permitted aggregate/package use), plan for filling missing constructs, nonagenarian/public-figure data, early-life factors, and the behaviour/genetics/experience variance decomposition.

@@ -1,6 +1,6 @@
 # Model Card — Centenarian Longevity Phenotype Model
 
-*Version 0.2.0 · model artifacts: tier1 v1.2, tier2 v1.0, tier3 v1.0 · last updated 2026-06-02.*
+*Version 0.2.1 · model artifacts: tier1 v1.2, tier2 v1.1, tier3 v1.0 · last updated 2026-06-03.*
 
 This card states plainly **what is implemented now, what is validated now, what is planned, and what
 is not safe to claim**. It supersedes `docs/model_card_stub.md`.

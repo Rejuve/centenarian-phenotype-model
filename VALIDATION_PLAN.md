@@ -155,11 +155,56 @@ train/test); coefficients then refit on the full eligible cohort for deployment.
 **not centenarian attainment** (which remains the HMD population baseline). The four-class NB
 likelihoods are still `heuristic_pending` (need the 90–99 band; see `docs/DATA_STRATEGY.md`).
 
+## 3d. Per-feature association + reverse-causation check (pooled NHANES 1999–2016)
+
+*`scripts/validation/feature_association.py` — age/sex-adjusted logistic of each feature's alignment
+on all-cause mortality, with a **landmark** sensitivity that drops deaths < 24 months (a partial
+reverse-causation guard). Coefficient on the standardized alignment; **negative = protective**.
+Aggregate results only; NCHS-cited (doi:10.15620/cdc:117142).*
+
+**Strongest age-independent protective signals (adj. coef; landmark in parens — persistence = robust):**
+- functional mobility −0.39 (−0.35) · smoking −0.36 (−0.36) · self-rated health −0.35 (−0.32) ·
+  **C-reactive protein / inflammation −0.31 (−0.28)** · depression −0.23 (−0.20) · prior CVD −0.22 ·
+  **partnership/social −0.22 (−0.20)** · triglycerides −0.19 · eGFR −0.19 (−0.15) · moderate alcohol −0.17.
+
+**Reverse-causation read:** the behavioral/functional/psychosocial/inflammatory signals **persist
+after excluding early deaths** (e.g. smoking, self-rated health, social partnership barely move),
+which argues they are *not* merely "baseline-sick people die soon." Kidney function (eGFR) attenuates
+more under landmarking (its huge raw AUC 0.78 is largely age/illness), illustrating the guard working.
+
+**Honest nulls / paradoxes (motivate the weight review, not a bug):**
+- **BMI ≈ 0** linear coefficient — a *linear* term cannot detect a U-shaped relationship, so this is
+  **consistent with, but does not prove,** a U-shape. The BMI mapper currently *imposes* a U-shape
+  from established literature (obesity-paradox / late-life frailty); whether that shape actually holds
+  in-cohort must be **tested empirically** (mortality by BMI band), **not assumed** — flagged for the
+  data-derived shape review (§4).
+- **LDL ("cholesterol") slightly positive** — the well-documented late-life *cholesterol paradox*
+  (low LDL tracks frailty/illness in older adults). A naïve "fit the data" model would wrongly learn
+  "high LDL is protective"; this is exactly why shapes need causal care (landmarking, age-strata),
+  not raw curve-fitting. Flags LDL direction for age-stratified review.
+- `q_pa_frequency` underpowered here (only 2007+ cycles; 846 deaths) — treat as noisy.
+
+> **Note on provenance (data vs imposed).** Per-feature *alignment shapes* in v1 are **curated from
+> literature** (tagged by `basis`), not learned from our statistics. The data-driven goal (§4) is to
+> **derive shapes empirically** where outcome data exists — with reverse-causation/confounding
+> safeguards — and to label every shape as *data-derived*, *literature*, or *reasoned*, never imposing
+> one silently. See §4.
+
+**Implication:** measured mortality association **corroborates** the behavioral-first design and the
+inflammatory axis, and **pinpoints** features whose curated weights diverge from measured signal
+(LDL, linear-BMI) — the input to ablation-guided re-weighting (§4).
+
 ## 4. Sequencing
 
-1. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).
-2. Calibrate NB likelihoods from labelled per-class feature distributions → lift
+1. **Data-derived feature shapes + provenance labels.** Replace *imposed* mapper shapes with shapes
+   **estimated from outcome data** where it exists (e.g. nonparametric BMI→mortality by band to test
+   whether the U-shape holds; age-stratified LDL to handle the late-life paradox), each tagged
+   `data_derived` / `literature` / `reasoned`. Use causal safeguards (landmarking, age strata, and —
+   from aggregate GWAS — Mendelian-randomization where feasible) so we do not learn confounded
+   artifacts (e.g. "low LDL is bad"). Goal: no shape imposed silently.
+2. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).
+3. Calibrate NB likelihoods from labelled per-class feature distributions → lift
    `calibration` from `heuristic_pending` to `calibrated`.
-3. Run distribution + ablation + missingness suites on NHANES (+ mortality linkage).
-4. Subgroup + temporal + external validation.
-5. Promote results into `MODEL_CARD.md` §10 and gate public claims on the acceptance gates above.
+4. Ablation-guided re-weighting: reconcile curated weights with measured per-feature association (§3d).
+5. Subgroup + temporal + external validation; distribution + missingness suites.
+6. Promote results into `MODEL_CARD.md` §10 and gate public claims on the acceptance gates above.

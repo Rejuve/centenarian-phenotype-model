@@ -65,3 +65,27 @@ def test_map_panel_round_trips_into_scoring():
     assert "unknown_x" in panel["unmapped"]
     r = score(3, {"q_smoking": 0}, clinical=panel["clinical"])
     assert r["score_pct"] >= 0
+
+
+def test_ldl_alias_resolves_to_cholesterol_and_scores_strict():
+    from centenarian_phenotype import score
+    panel = map_panel({"ldl_cholesterol": 120}, sex="M")
+    # output keyed by the tier-3 feature name, not the mapper name
+    assert "cholesterol" in panel["clinical"] and "ldl_cholesterol" not in panel["clinical"]
+    # safe under strict scoring (no unknown-feature 422)
+    assert score(3, {"q_smoking": 0}, clinical=panel["clinical"], strict=True)["score_pct"] >= 0
+
+
+def test_map_panel_separates_not_scoreable_so_clinical_is_strict_safe():
+    from centenarian_phenotype import score
+    panel = map_panel({"apob": 1.0, "systolic_bp": 122, "gait_speed": 1.1,
+                       "hdl_cholesterol": 62}, sex="F", age=70)
+    assert "hdl_cholesterol" in panel["clinical"]
+    assert set(panel["not_scoreable"]) >= {"apob", "systolic_bp", "gait_speed"}
+    # the clinical dict contains only tier-3-scoreable features -> strict score must not 422
+    assert score(3, {"q_smoking": 0}, clinical=panel["clinical"], strict=True)["answered"] >= 1
+
+
+def test_direct_ldl_alias_accepted_in_strict_score():
+    from centenarian_phenotype import score
+    assert score(3, {"q_smoking": 0}, clinical={"ldl_cholesterol": 0.8}, strict=True)["score_pct"] >= 0

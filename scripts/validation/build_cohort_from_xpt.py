@@ -37,8 +37,12 @@ import os
 
 import pandas as pd
 
-from centenarian_phenotype import map_value, score
+from centenarian_phenotype import load_model, map_value, score
 from parse_nhanes_lmf import parse_file as parse_lmf
+
+# Tier-2 option->alignment lookup, so we can emit each answered feature's alignment (f_<id> columns)
+# for the per-feature mortality association analysis (scripts/validation/feature_association.py).
+_TIER2_OPTS = {q["id"]: [o["alignment"] for o in q["options"]] for q in load_model(2)["questions"]}
 
 SUF = {"1999-2000": "", "2001-2002": "_B", "2003-2004": "_C", "2005-2006": "_D",
        "2007-2008": "_E", "2009-2010": "_F", "2011-2012": "_G", "2013-2014": "_H",
@@ -307,13 +311,21 @@ def build(cycle):
         deceased = permth = ""
         if m and m.get("eligstat") == "1" and m.get("mortstat") in ("0", "1"):
             deceased, permth = m["mortstat"], m.get("permth_exm", "")
-        rows.append({"subject_id": int(seqn), "cycle": cycle, "age": round(age, 1), "sex": sex,
-                     "score_pct": s_full, "score_full": s_full,
-                     "score_selfreport": s_self, "score_labs": s_labs,
-                     "n_clinical": len(clinical), "n_answers": len(answers),
-                     "age_band": "18-49" if age < 50 else ("50-64" if age < 65 else
-                                  ("65-74" if age < 75 else "75+")),
-                     "deceased": deceased, "permth_exm": permth})
+        row = {"subject_id": int(seqn), "cycle": cycle, "age": round(age, 1), "sex": sex,
+               "score_pct": s_full, "score_full": s_full,
+               "score_selfreport": s_self, "score_labs": s_labs,
+               "n_clinical": len(clinical), "n_answers": len(answers),
+               "age_band": "18-49" if age < 50 else ("50-64" if age < 65 else
+                            ("65-74" if age < 75 else "75+")),
+               "deceased": deceased, "permth_exm": permth}
+        # per-feature alignment columns (f_<feature>) for the association analysis
+        for qid, idx in answers.items():
+            opts = _TIER2_OPTS.get(qid)
+            if opts and 0 <= idx < len(opts):
+                row[f"f_{qid}"] = opts[idx]
+        for feat, al in clinical.items():
+            row[f"f_{feat}"] = al
+        rows.append(row)
     return rows
 
 
