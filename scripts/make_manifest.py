@@ -21,11 +21,10 @@ MANIFEST = os.path.join(MODELS_DIR, "MANIFEST.sha256")
 
 
 def _hash(path):
-    h = hashlib.sha256()
+    # Normalize CRLF->LF so the digest is identical regardless of git autocrlf / platform.
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
-    return h.hexdigest()
+        data = f.read().replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 def compute():
