@@ -81,6 +81,31 @@ First real run produces: AUC(score → survival), a fitted phenotype→mortality
 reliability/ECE/Brier, and subgroup AUC by sex/age band — i.e. gates 1, 4 (partial), and the
 calibration gate's machinery.
 
+## 3b. First validation result (NHANES 2005–2006, all-cause mortality)
+
+*Run with `build_cohort_from_xpt.py --cycle 2005-2006` (≈14-year follow-up to 2019-12-31) +
+`validate.py`. Aggregate statistics only; individual data not redistributed. Data: NCHS Continuous
+NHANES + Public-use Linked Mortality File, 2019 (doi:10.15620/cdc:117142). Analysis/interpretation
+are the authors', not NCHS.*
+
+- Cohort: **N = 5,561** scored adults, **1,027 deaths** (18.5%).
+- **Discrimination, score alone (no age): AUC(score → survival) = 0.599.** Decedent median score
+  **70.9** vs survivor **75.8**.
+- **Age/sex-adjusted calibration model** (score + age + sex → P(deceased)): standardized weight on
+  **score = −0.356 (protective)**, age = +2.21 (dominant), sex_male = +0.15; AUC 0.909, ECE 0.025.
+- **Within every age band the score is protective** (survival-AUC ≈ 0.55–0.67 across 18–49, 50–64,
+  65–74, 75+) — i.e. the signal is **not merely an age proxy**.
+
+**What this is / isn't:** an honest, *out-of-the-box* (untrained) signal that a higher phenotype
+score is associated with **lower all-cause mortality** over ~14 years, independent of age, in one US
+cohort. It is **not** centenarian attainment (a survival proxy), **not** trained on this data, and
+**not** externally replicated. It satisfies the *machinery* of gates 1 & 4 and gives a first real
+effect size; the remaining gates (calibration of the trajectory band to reaching specific ages,
+nonagenarian-class NB calibration, subgroup fairness, external replication) still stand.
+
+**Power note:** the 2017–2018 cycle alone yields only ~127 deaths (1–2 yr follow-up, underpowered).
+Use earlier cycles (2005–2006 here; pool 1999–2008 for more power) via `build_cohort_from_xpt.py`.
+
 ## 4. Sequencing
 
 1. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).

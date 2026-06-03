@@ -52,11 +52,13 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 - **Relative-longevity context (`longevity.py` + Step G):** validated HMD population survival
   baselines by country × sex (123 rows bundled), with a calibration-pending phenotype trajectory band
   kept strictly separate. Threaded into `score(..., context=...)` without changing the similarity number.
-- **Validation/calibration harness (`scripts/validation/`):** pure-Python metric engine (AUC,
-  reliability/ECE/Brier, fitted score→mortality calibration, subgroup AUC), a synthetic self-test, an
-  NHANES Linked-Mortality-File parser (NCHS layout) and a cohort adapter that **already scores 5,518
-  real NHANES participants** end-to-end — add the LMF to attach the survival outcome. FETCH guide for
-  the LMF + nonagenarian sources (HRS / G2Aging).
+- **Validation/calibration harness (`scripts/validation/`) — with a first real result.** Pure-Python
+  metric engine (AUC, reliability/ECE/Brier, fitted score→mortality calibration, subgroup AUC) + an
+  NHANES Linked-Mortality-File parser (NCHS layout) and two cohort builders (2017–2018 CSVs; and
+  `build_cohort_from_xpt.py` which auto-downloads any earlier cycle's XPT + LMF). **First powered run
+  (NHANES 2005–2006, 1,027 deaths, ~14-yr follow-up): the untrained phenotype score is associated with
+  lower all-cause mortality independent of age** (adjusted weight −0.36; protective within every age
+  band). Survival proxy, single cohort, not centenarian attainment — see VALIDATION_PLAN §3b.
 - Tracked enriched source registry + prioritized freely-available candidate sources toward validation.
 - Phenotype decomposition (`domain_scores`) and the full product output bundle.
 - L2/L3 CORS hardening; per-layer route isolation; versioned `/v1` routes.

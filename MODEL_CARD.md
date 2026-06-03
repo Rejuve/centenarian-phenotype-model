@@ -123,11 +123,15 @@ insurance/actuarial decisions, or any individual medical decision. **This is not
 
 ## 10. Validation status
 
-**Not yet validated.** No retrospective, calibration, subgroup, ablation, missingness, temporal, or
-external validation has been run. The score ranges and invariants are guarded by the unit-test suite
-(`tests/`, 81 tests) only. A runnable validation harness (`scripts/validation/`) exists and already
-scores 5,518 real NHANES participants; attaching the NHANES Linked Mortality File produces the first
-real survival calibration. The full plan is in [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).
+**Preliminary signal only; not yet validated for any claim.** A first external run against NHANES
+2005–2006 linked mortality (N=5,561; 1,027 deaths; ~14-yr follow-up) shows the *untrained* phenotype
+score is associated with **lower all-cause mortality independent of age** (age/sex-adjusted
+standardized weight −0.36; protective within every age band; AUC score→survival 0.60). This is a
+**survival proxy, not centenarian attainment**, in a single US cohort, untrained and unreplicated —
+encouraging but **not** a validated claim. Calibration of the trajectory band to reaching specific
+ages, nonagenarian-class NB calibration, subgroup-fairness, ablation, temporal, and external
+validation remain outstanding. Invariants are guarded by 81 unit tests; the harness lives in
+`scripts/validation/`. Full detail/result: [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) §3b.
 
 ## 11. Versioning & update policy
 

@@ -19,26 +19,42 @@ Mortality File (LMF)** — we already hold the NHANES survey data, so this just 
   - `MORTSTAT`: 0=assumed alive, 1=assumed deceased (blank if not eligible).
   - `PERMTH_EXM`: person-months from exam to death/censor (follow-up through 2019-12-31).
 
-### Run it
+### Run it — POWERED path (recommended): earlier cycle, ~14-year follow-up
+
+`build_cohort_from_xpt.py` downloads the cycle's NHANES survey XPT files (current CDC path
+`https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/<year>/DataFiles/<FILE>.xpt`) **and** its Linked
+Mortality File, scores each adult via the versioned mappers, and joins the outcome — one command:
 
 ```bash
-# 1. parse the fixed-width .dat -> csv (layout in parse_nhanes_lmf.py, verified against the NCHS PDF)
+python scripts/validation/build_cohort_from_xpt.py --cycle 2005-2006
+python scripts/validation/validate.py --cohort data/processed/nhanes_cohort_2005-2006.csv \
+    --out reports/validation_2005_2006
+```
+
+2005–2006 yields ~5,500 scored adults and **~1,000 deaths** over follow-up to 2019-12-31 — powered.
+First result is recorded in `VALIDATION_PLAN.md` §3b.
+
+### Run it — 2017–2018 (matches the survey CSVs in this repo, but UNDERPOWERED)
+
+The 2017–2018 cycle has only ~1–2 years of follow-up (≈127 deaths). Useful to confirm the pipeline,
+not for a powered result:
+
+```bash
 python scripts/validation/parse_nhanes_lmf.py \
-    NHANES_2017_2018_MORT_2019_PUBLIC.dat data/processed/nhanes_lmf_2017_2018.csv
-
-# 2. build the scored cohort (NHANES inputs -> model score) joined to the mortality outcome
+    data/raw/datasets/NHANES_2017_2018_MORT_2019_PUBLIC.dat data/processed/nhanes_lmf_2017_2018.csv
 python scripts/validation/build_nhanes_cohort.py --lmf data/processed/nhanes_lmf_2017_2018.csv
-
-# 3. validate: AUC, fitted calibration (score [+age/sex] -> P(deceased)), reliability, subgroups
 python scripts/validation/validate.py --cohort data/processed/nhanes_scored_cohort.csv \
-    --score-col score_pct --outcome-col deceased --age-col age --sex-col sex \
     --out reports/validation_nhanes
 ```
 
 What this validates: whether a higher phenotype score is associated with **lower all-cause
-mortality** over follow-up, age/sex-adjusted. That is a *survival proxy*, not centenarian attainment
-(few reach 100 within follow-up) — but it is the first real, defensible calibration of the
-phenotype → survival signal. See `VALIDATION_PLAN.md`.
+mortality** over follow-up, age/sex-adjusted — a *survival proxy*, not centenarian attainment, but
+the first real calibration of the phenotype → survival signal. See `VALIDATION_PLAN.md`.
+
+> **Synthetic note:** the NCHS "synthetic" linked files cover **NHIS-HUD-CMS** (housing), *not* NHANES
+> mortality, so they do not substitute here. The `nhanesdata` R package is a fine alternative source
+> (harmonized NHANES 1999–2023 survey + linked mortality) if you prefer R; export to CSV and feed
+> `validate.py`. The direct CDC files used above need no R.
 
 ## 2. Closing the nonagenarian (90–99) gap — needed for four-class NB calibration
 
