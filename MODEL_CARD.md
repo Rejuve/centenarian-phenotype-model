@@ -132,9 +132,12 @@ block (~15 NHANES-mapped questions incl. PHQ-9 depression, self-rated health, ac
 and the 8-marker lab panel carry comparable, complementary signal** (AUC→survival 0.66 vs 0.65; full
 0.69). Full-score discrimination rose 0.59→0.66→0.69 as the lab and self-report mappings widened — the
 progression expected of a genuine signal. This is a **survival proxy, not centenarian attainment**, in
-a single US cohort, untrained and unreplicated — encouraging but **not** a validated claim.
-Mortality-calibrated re-weighting (Part A), calibration of the trajectory band to specific ages,
-nonagenarian-class NB calibration, temporal, and external validation remain outstanding. Invariants
+a single US cohort, untrained and unreplicated — encouraging but **not** a validated claim. A bundled,
+**held-out** calibration (`survival_calibration.yaml`; NHANES 1999–2016, n=32,082) now maps the score
+to **10-year all-cause mortality** (out-of-sample AUC 0.896, ECE 0.020; age/sex-adjusted score weight
+−0.555) and feeds `longevity_context.calibrated_mortality` — *all-cause mortality, not centenarian
+attainment*. Calibration of the trajectory band to *reaching specific ages*, nonagenarian-class NB
+calibration, ablation-guided re-weighting, temporal, and external validation remain outstanding. Invariants
 are guarded by 81 unit tests; the harness lives in `scripts/validation/`. Full detail:
 [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) §3b.
 

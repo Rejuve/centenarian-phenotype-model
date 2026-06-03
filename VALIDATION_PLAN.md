@@ -127,6 +127,31 @@ calibration, mortality-calibrated re-weighting (Part A), and external replicatio
 **Power note:** 2017–2018 alone yields only ~127 deaths (1–2 yr follow-up, underpowered); pool earlier
 cycles via `build_cohort_from_xpt.py --cycles ...`.
 
+## 3c. Part A — held-out survival calibration (bundled)
+
+*Run with `scripts/validation/calibrate.py` on the pooled cohort; artifact bundled at
+`centenarian_phenotype/models/survival_calibration.yaml`. Aggregate coefficients only.*
+
+A small logistic model calibrates the phenotype score to a **fixed 10-year all-cause mortality
+horizon** (so differing cycle follow-up does not confound it): `P(die within 120 months) =
+sigmoid(b0 + w·z(score, age, sex_male))`. Honesty guardrail: metrics are **out-of-sample** (70/30
+train/test); coefficients then refit on the full eligible cohort for deployment.
+
+- Eligible n = 32,082 (deaths ≤120mo, or known alive ≥120mo; censored-before-horizon excluded);
+  10-yr event rate 18.3%.
+- **Held-out (n=9,625): AUC 0.896, ECE 0.020, Brier 0.090** — well-calibrated out-of-sample.
+- **Standardized score weight = −0.555 (protective, age/sex-adjusted)** — the calibrated, held-out
+  effect of the phenotype score on 10-year mortality. (AUC is age-dominated; the score's contribution
+  is the age-independent −0.555.)
+- Wired into `longevity.relative_longevity()`: when age/sex are supplied, `longevity_context` now
+  returns a **calibrated** `calibrated_mortality` block (10-yr mortality probability + ratio vs an
+  average-phenotype peer of the same age/sex), replacing the illustrative multipliers. Example
+  (70-yo F): score 90 → p≈0.17 (0.58× peer), score 40 → p≈0.83 (2.9× peer).
+
+**Scope/limits:** ALL-CAUSE US 10-year mortality, single national cohort, not externally replicated,
+**not centenarian attainment** (which remains the HMD population baseline). The four-class NB
+likelihoods are still `heuristic_pending` (need the 90–99 band; see `docs/DATA_STRATEGY.md`).
+
 ## 4. Sequencing
 
 1. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).

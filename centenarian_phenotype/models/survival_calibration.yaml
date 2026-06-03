@@ -1,0 +1,33 @@
+model: phenotype_score_to_10yr_mortality_logistic
+version: '1.0'
+date: '2026-06-03'
+horizon_months: 120
+features:
+- score
+- age
+- sex_male
+standardized_weights:
+- -0.555394
+- 1.868387
+- 0.281035
+bias: -2.669034
+feature_stats:
+- - 79.243819
+  - 8.621566
+- - 48.064055
+  - 20.266637
+- - 0.486379
+  - 0.499814
+n_total: 32082
+event_rate_10yr: 0.183
+heldout:
+  n_test: 9625
+  auc: 0.8962
+  ece: 0.0198
+  brier: 0.0903
+cohort: NHANES 1999-2016 Public-use Linked Mortality File (follow-up to 2019-12-31)
+citation: NCHS Continuous NHANES Public-use Linked Mortality Files, 2019 (doi:10.15620/cdc:117142).
+interpretation: negative 'score' weight => higher phenotype score lowers modelled
+  10-year all-cause mortality.
+caveats: ALL-CAUSE US mortality at a 10-year horizon; NOT centenarian attainment.
+  Single national cohort; not externally replicated. score column = score_full

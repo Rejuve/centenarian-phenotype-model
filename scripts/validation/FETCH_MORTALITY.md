@@ -32,7 +32,14 @@ python scripts/validation/validate.py --cohort data/processed/nhanes_cohort_2005
 ```
 
 2005–2006 yields ~5,500 scored adults and **~1,000 deaths** over follow-up to 2019-12-31 — powered.
-First result is recorded in `VALIDATION_PLAN.md` §3b.
+Pool many cycles with `--cycles 1999-2000,...,2015-2016` (≈53k adults, ≈9k deaths). First result is
+recorded in `VALIDATION_PLAN.md` §3b.
+
+```bash
+# fit the held-out 10-year mortality calibration and bundle it (VALIDATION_PLAN §3c):
+python scripts/validation/calibrate.py --cohort data/processed/nhanes_cohort_pooled_*.csv \
+    --score-col score_full     # -> centenarian_phenotype/models/survival_calibration.yaml
+```
 
 ### Run it — 2017–2018 (matches the survey CSVs in this repo, but UNDERPOWERED)
 

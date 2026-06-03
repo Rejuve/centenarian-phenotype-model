@@ -74,8 +74,13 @@ evidence status:
   relative to a typical-centenarian trajectory (`below_typical` → `exceptional`).
 - `biological_age_context` — if `bio_age_delta` (DNAmAge − chronological, e.g. from `clocks.py`) is
   supplied, a younger/older note.
-- `illustrative_relative_odds` — emitted **only** with `allow_uncalibrated_odds=True`, stamped
-  `illustrative_not_validated`. No personal odds are produced by default.
+- `calibrated_mortality` — when age/sex are supplied and the bundled `survival_calibration.yaml` is
+  present: a **held-out NHANES-calibrated** 10-year *all-cause* mortality probability + ratio vs an
+  average-phenotype peer of the same age/sex (out-of-sample AUC 0.896, ECE 0.020). All-cause
+  mortality, **not** centenarian attainment.
+- `illustrative_relative_odds` — fallback only when no calibration artifact is bundled and
+  `allow_uncalibrated_odds=True`; stamped `illustrative_not_validated`. Suppressed once the real
+  calibration is present. No personal odds by default.
 
 ```python
 score(3, l2_answers, clinical=clin,

@@ -19,11 +19,14 @@ module provides the two halves of that framing and keeps them strictly separated
 """
 from __future__ import annotations
 
+import math
 from importlib import resources
 
 import yaml
 
 _BASELINES: dict | None = None
+_CALIB: dict | None = None
+_CALIB_MISSING = False
 
 # Common user inputs -> HMD country code.
 _COUNTRY_ALIASES = {
@@ -41,6 +44,50 @@ def _load() -> dict:
             encoding="utf-8")
         _BASELINES = yaml.safe_load(text)
     return _BASELINES
+
+
+def _load_calibration():
+    """Load the bundled score->10yr-mortality calibration artifact, or None if not present."""
+    global _CALIB, _CALIB_MISSING
+    if _CALIB is None and not _CALIB_MISSING:
+        try:
+            text = resources.files(__package__).joinpath(
+                "models", "survival_calibration.yaml").read_text(encoding="utf-8")
+            _CALIB = yaml.safe_load(text)
+        except (FileNotFoundError, ModuleNotFoundError):
+            _CALIB_MISSING = True
+    return _CALIB
+
+
+def calibrated_mortality(score_pct: float, age: float, sex=None) -> dict | None:
+    """Calibrated 10-year all-cause mortality from the bundled NHANES model (None if unavailable).
+
+    Returns the modelled 10-yr mortality probability and its ratio vs a same-age/sex person with an
+    *average* phenotype score. ALL-CAUSE US mortality — NOT centenarian attainment.
+    """
+    cal = _load_calibration()
+    if cal is None or age is None:
+        return None
+    sex_male = 1.0 if _norm_sex(sex) == "male" else 0.0
+    stats = cal["feature_stats"]
+    w = cal["standardized_weights"]
+    b = cal["bias"]
+
+    def p_of(score):
+        x = [score, float(age), sex_male]
+        z = b + sum(w[j] * (x[j] - stats[j][0]) / stats[j][1] for j in range(len(w)))
+        return 1.0 / (1.0 + math.exp(-z))
+
+    p = p_of(float(score_pct))
+    p_avg = p_of(stats[0][0])  # same age/sex, average phenotype score
+    return {
+        "p_10yr_all_cause_mortality": round(p, 4),
+        "relative_to_average_phenotype_same_age_sex": round(p / p_avg, 3) if p_avg else None,
+        "horizon_years": cal["horizon_months"] // 12,
+        "heldout_auc": cal.get("heldout", {}).get("auc"),
+        "basis": "NHANES 1999-2016 linked mortality (held-out calibrated); all-cause, not centenarian attainment",
+        "model_version": cal.get("version"),
+    }
 
 
 def _norm_sex(sex) -> str:
@@ -145,15 +192,19 @@ def relative_longevity(score_pct: float, country=None, sex=None, age: float = 65
     band, band_desc = _band(score_pct)
     pop = population_baseline(country, sex=sex, age=age, target=100) if country else None
 
+    cal_mort = calibrated_mortality(score_pct, age, sex=sex) if age else None
     out = {
         "population_baseline": pop,                         # validated demography (or None)
-        "phenotype_band": band,                             # calibration-pending
+        "phenotype_band": band,                             # qualitative
         "phenotype_band_description": band_desc,
-        "calibration": "phenotype_to_survival_mapping_uncalibrated",
+        "calibrated_mortality": cal_mort,                   # real, held-out NHANES calibration (or None)
+        "calibration": ("10yr_all_cause_mortality_calibrated_NHANES_1999_2016" if cal_mort
+                        else "phenotype_to_survival_mapping_uncalibrated"),
         "biological_age_context": None,
         "disclaimers": [
-            "Population baseline is validated demography; the phenotype-to-survival mapping is NOT "
-            "yet calibrated against longitudinal outcomes.",
+            "Population baseline (reaching 100) is validated demography. The calibrated_mortality "
+            "field, when present, is a held-out NHANES calibration of ALL-CAUSE 10-year mortality — "
+            "NOT centenarian attainment, single US cohort, not externally replicated.",
             "This is a similarity/trajectory context, not a personal lifespan prediction or medical "
             "advice. It can change as more data is added.",
         ],
@@ -174,7 +225,7 @@ def relative_longevity(score_pct: float, country=None, sex=None, age: float = 65
            f"{pop['from_age']}{ctry} reach {pop['target_age']} ({pop['data_year']})."
            if pop else "Provide country and sex for a population baseline."))
 
-    if allow_uncalibrated_odds and pop:
+    if allow_uncalibrated_odds and pop and cal_mort is None:
         # ILLUSTRATIVE ONLY: a conservative, documented relative-risk band tied to the phenotype band.
         # NOT a validated personal probability. Multipliers are placeholders pending calibration.
         mult = {"exceptional": 2.0, "typical_centenarian_range": 1.5,

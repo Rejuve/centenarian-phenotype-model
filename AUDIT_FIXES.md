@@ -50,8 +50,11 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 - Versioned, referenced raw-value → alignment mappers for the core Tier-3 panel.
 - Extensible biological-age clock interface (`clocks.py`) with a panel output and scoreable-only feed.
 - **Relative-longevity context (`longevity.py` + Step G):** validated HMD population survival
-  baselines by country × sex (123 rows bundled), with a calibration-pending phenotype trajectory band
-  kept strictly separate. Threaded into `score(..., context=...)` without changing the similarity number.
+  baselines by country × sex (123 rows bundled). Threaded into `score(..., context=...)` without
+  changing the similarity number. **Now includes a held-out NHANES calibration**
+  (`survival_calibration.yaml`): `calibrated_mortality` gives 10-yr all-cause mortality (out-of-sample
+  AUC 0.896, ECE 0.020; score weight −0.555) + ratio vs an average peer — all-cause mortality, not
+  centenarian attainment. Built by `scripts/validation/calibrate.py`.
 - **Validation/calibration harness (`scripts/validation/`) — with a first real result.** Pure-Python
   metric engine (AUC, reliability/ECE/Brier, fitted score→mortality calibration, subgroup AUC) + an
   NHANES Linked-Mortality-File parser (NCHS layout) and two cohort builders (2017–2018 CSVs; and
