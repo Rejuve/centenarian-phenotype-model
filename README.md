@@ -42,7 +42,7 @@ python -c "import centenarian_phenotype as cp; print(cp.score(1, {'q_diet': 0}))
 uvicorn centenarian_phenotype.api:app --reload     # http://127.0.0.1:8000/docs
 ```
 
-Each layer deploys independently (web widget = L1, app = L2+L3). Contract: `docs/scoring_api.md`. Deployment (AWS Lambda / CORS / Flutter): `docs/deployment.md`.
+Each layer deploys independently (web widget = L1, app = L2+L3). Contract: `docs/scoring_api.md`. Deployment (AWS Lambda / CORS / Flutter): `docs/deployment.md`. Runnable, toy/synthetic example: [`examples/quickstart.ipynb`](examples/quickstart.ipynb).
 
 ## Reproducibility & release
 
@@ -138,6 +138,13 @@ docs/                project documentation (below)
 - **docs/data_dictionary.md** — schema and join keys for every processed file.
 - **docs/ARCHITECTURE.md** — data flow, lineage, join keys, schema quirks.
 - **docs/ROADMAP.md** — data/evidence expansion and the predictive-trajectory extension.
+- **CHANGELOG.md** — versioned history and the per-release claim boundary.
+
+## Citing
+
+See [`CITATION.cff`](CITATION.cff). Please also cite the underlying open data where used: NCHS
+Continuous NHANES Public-use Linked Mortality Files (doi:10.15620/cdc:117142) and the Human Mortality
+Database (mortality.org).
 
 ## License
 
