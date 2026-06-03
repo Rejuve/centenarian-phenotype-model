@@ -125,6 +125,44 @@ def _auc_oos(df, cols, seed=13):
     return metrics.auc(list(p), [int(v) for v in y[te]]), len(d), (w, list(cols))
 
 
+def _std_beta(df, y, x, covars):
+    """Standardized OLS coefficient on x in y ~ x + covars (age/sex-adjusted association)."""
+    d = df.dropna(subset=[y, x] + covars)
+    if len(d) < 200:
+        return None, len(d)
+    cols = [x] + covars
+    X = d[cols].astype(float).to_numpy()
+    yv = d[y].astype(float).to_numpy()
+    Xs = (X - X.mean(0)) / (X.std(0) + 1e-9)
+    ys = (yv - yv.mean()) / (yv.std() + 1e-9)
+    A = np.column_stack([np.ones(len(Xs)), Xs])
+    beta, *_ = np.linalg.lstsq(A, ys, rcond=None)
+    return round(float(beta[1]), 4), len(d)
+
+
+def concurrent_validity(df, fcols, behavioral):
+    """Does the phenotype track PhenoAge itself? Lower PhenoAge accel = biologically younger;
+    higher phenotype alignment is favourable, so favourable signal should give NEGATIVE coefficients."""
+    d = df.dropna(subset=["phenoage_accel", "score_full"])
+    pearson = round(float(d["score_full"].corr(d["phenoage_accel"])), 4) if len(d) > 200 else None
+    spearman = (round(float(d["score_full"].corr(d["phenoage_accel"], method="spearman")), 4)
+                if len(d) > 200 else None)
+    adj_beta, n = _std_beta(df, "phenoage_accel", "score_full", ["age", "male"])
+    per_feat = {}
+    for c in fcols:
+        b, nn = _std_beta(df, "phenoage_accel", c, ["age", "male"])
+        if b is not None and nn >= 300:
+            per_feat[c[2:]] = b
+    return {
+        "score_vs_phenoage_accel_pearson": pearson,
+        "score_vs_phenoage_accel_spearman": spearman,
+        "score_adjusted_std_beta": adj_beta,  # negative = higher score -> younger PhenoAge
+        "per_feature_std_beta_vs_phenoage_accel": dict(sorted(per_feat.items(), key=lambda kv: kv[1])),
+        "behavioral_only": {k[2:]: per_feat.get(k[2:]) for k in behavioral if k[2:] in per_feat},
+        "interpretation": "negative = favourable phenotype associates with decelerated (younger) PhenoAge",
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cohort", required=True)
@@ -171,6 +209,8 @@ def main():
         "incremental_behavioral_over_phenoage": (round(auc_pa_beh - auc_pa_adj, 4)
                                                  if auc_pa_beh and auc_pa_adj else None),
         "behavioral_features_used": have_beh,
+        "concurrent_validity_vs_phenoage": concurrent_validity(
+            df, [c for c in df.columns if c.startswith("f_")], BEHAVIORAL),
         "note": "All-cause mortality (survival proxy), single US cohort. PhenoAge per Levine 2018.",
     }
     os.makedirs(args.out, exist_ok=True)

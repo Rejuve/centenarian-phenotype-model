@@ -217,8 +217,20 @@ now feasible via the NHANES mortality linkage. `incremental_value.py` + `feature
 ## 3f. Benchmark against PhenoAge (clinical biological-age gold standard)
 
 *`phenoage_benchmark.py` on NHANES 2005–2010 (N=7,964 with the nine PhenoAge inputs; 1,256 deaths).
-PhenoAge computed per Levine et al. 2018 (Aging 10:573). Out-of-sample (70/30) mortality AUC.
-All-cause mortality; single national cohort; aggregate results (NCHS-cited).*
+PhenoAge computed per Levine et al. 2018 (Aging 10:573). All-cause mortality; single national cohort;
+aggregate results (NCHS-cited).*
+
+### Concurrent validity — does the phenotype track measured biological age?
+
+The phenotype score correlates with **PhenoAge acceleration** (PhenoAge − chronological age) at
+**Pearson −0.55, Spearman −0.56, age/sex-adjusted standardized β −0.57**: a higher score corresponds
+to a biologically *younger* profile on the clinical gold standard. Per-feature associations with
+PhenoAge acceleration are in the favourable direction, including features **not** part of PhenoAge —
+self-rated health (β −0.24), functional mobility (−0.22), depression (−0.11), smoking (−0.11), diet
+(−0.12) — establishing non-circular concurrent validity of the behavioral/self-report layer. LDL
+shows the paradoxical positive sign also seen in §3d (low LDL tracks frailty/older biological age).
+
+### Mortality predictiveness — head-to-head and incremental (held-out, 70/30)
 
 | model | held-out mortality AUC |
 |---|---:|
