@@ -1,6 +1,6 @@
 model: centenarian_longevity_phenotype_tier2
 layer: 2
-version: "1.0"
+version: "1.1"
 description: >
   Layer 2 (free app) is a STANDALONE, comprehensive mobile survey — NOT a carry-over of the
   12-question Layer-1 teaser. It re-asks the behavioral domains at NHANES-module depth, mapped to
@@ -9,7 +9,7 @@ description: >
   carry-over or pre-fill from Layer 1. The app survey is more detailed than the 12-question quiz,
   so a clean re-capture is more accurate than trying to map coarser teaser answers onto it.
   Scored on its own (score_profile([tier2], answers)); completeness ~50%.
-  Behavioral block ~18 q (NHANES PAQ/SLQ/SMQ/ALQ/DBQ/SSQ/PFQ-aligned) + 13 clinical/health items.
+  Behavioral block ~19 q (NHANES PAQ/SLQ/SMQ/ALQ/DBQ/SSQ/PFQ-aligned, incl. subjective loneliness) + 13 clinical/health items.
 narrative_template: "Your lifestyle and self-reported health share {score}% similarity with verified centenarians."
 scoring:
   method: evidence_weighted_alignment
@@ -25,6 +25,7 @@ basis_legend:
   external_evidence:     "State not documented in the corpus (e.g. heavy drinking); scored from external evidence, flagged."
   clinical_literature: "Direction from established centenarian clinical literature — disease escape/delay (New England Centenarian Study) and offspring biomarker studies. Silver-tier; not a gold case-vs-population effect we computed."
   heritability:        "Familial-longevity / heritability literature (parental & sibling longevity; siblings of centenarians have markedly higher odds of extreme age). Strongest single Layer-2 feature."
+  meta_analytic:       "Published meta-analytic population mortality effect external to our corpus (e.g. Holt-Lunstad 2015 isolation/loneliness; Cohen 2016 purpose). Aggregate group-level, not person-level (see docs/EVIDENCE_LONGEVITY_FACTORS.md)."
 notes: >
   Centenarians characteristically DELAY or ESCAPE the major age-related diseases rather than
   being disease-free, so 'managed/controlled' states score above 'uncontrolled' but below
@@ -114,6 +115,17 @@ questions:
       - {label: "Yes, actively", trait_tags: [community ties, volunteering], alignment: 1.0, basis: documented_positive}
       - {label: "Occasionally", trait_tags: [community ties], alignment: 0.6, basis: reasoned_gradient}
       - {label: "No", trait_tags: [], alignment: 0.3, basis: neutral_context}
+
+  - id: q_loneliness
+    domain: social_connectedness     # SUBJECTIVE isolation — independent of contact frequency
+    weight: 0.40
+    text: "How often do you feel lonely or isolated from others?"
+    # Loneliness (subjective) and isolation predict mortality independently: OR 1.26 / 1.29
+    # (Holt-Lunstad 2015, n>3.4M). Low loneliness favourable. See docs/EVIDENCE_LONGEVITY_FACTORS.md.
+    options:
+      - {label: "Rarely or never", trait_tags: [low loneliness], alignment: 1.0, basis: meta_analytic}
+      - {label: "Some of the time", trait_tags: [], alignment: 0.6, basis: reasoned_gradient}
+      - {label: "Often or always", trait_tags: [loneliness], alignment: 0.25, basis: meta_analytic}
 
   - id: q_family_partner
     domain: family_bonds             # married (long) n=1529

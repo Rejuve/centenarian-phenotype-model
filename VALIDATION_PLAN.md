@@ -1,8 +1,11 @@
 # Validation Plan — Centenarian Longevity Phenotype Model
 
-*Status: planned. Nothing in this document has been executed yet; the model is **not yet validated**
-(see `MODEL_CARD.md` §10). This plan defines how validation will be done and what evidence is
-required before any "validated" claim can be made.*
+*Status: in progress. A first powered NHANES mortality run and a held-out 10-year survival
+calibration **have been executed** (§3b–3c) — a real but **preliminary** signal, **not** a validated
+centenarian-prediction claim (see `MODEL_CARD.md` §10). Full validation — calibration to *reaching
+specific ages*, large-scale subgroup fairness, ablation-guided re-weighting, and temporal/external
+replication — remains outstanding. This plan defines the remaining work and the acceptance gates
+before any "validated" claim.*
 
 ## 0a. Endpoint & validation standards
 
