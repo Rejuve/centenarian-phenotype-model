@@ -214,6 +214,28 @@ now feasible via the NHANES mortality linkage. `incremental_value.py` + `feature
   centenarian phenotype shows up as a measurable **healthspan signal in the oldest measurable group**.
   This motivates the predictive-trajectory model (time-to-event + interactions + aging-rate biomarkers).
 
+## 3f. Benchmark against PhenoAge (clinical biological-age gold standard)
+
+*`phenoage_benchmark.py` on NHANES 2005–2010 (N=7,964 with the nine PhenoAge inputs; 1,256 deaths).
+PhenoAge computed per Levine et al. 2018 (Aging 10:573). Out-of-sample (70/30) mortality AUC.
+All-cause mortality; single national cohort; aggregate results (NCHS-cited).*
+
+| model | held-out mortality AUC |
+|---|---:|
+| age + sex | 0.874 |
+| age + sex + PhenoAge acceleration | 0.899 |
+| age + sex + phenotype score | 0.887 |
+| age + sex + PhenoAge acceleration + behavioral/psychosocial block | **0.909** |
+
+- The **behavioral/psychosocial block** (depression, self-rated health, functional mobility, activity,
+  diet, sleep, alcohol, smoking, social partnership) adds **+0.010 AUC on top of PhenoAge** —
+  mortality signal the clinical-biomarker panel does not capture. This low-cost, self-report layer is
+  the model's distinct contribution relative to molecular/clinical biological-age clocks.
+- PhenoAge, trained directly on NHANES mortality, is the stronger single clinical predictor; the
+  phenotype panel is complementary to it, not a replacement.
+
+Next: confirm the increment with DeLong / bootstrap confidence intervals; replicate on a second cohort.
+
 ## 4. Sequencing
 
 1. **Data-derived feature shapes + provenance labels.** Replace *imposed* mapper shapes with shapes
