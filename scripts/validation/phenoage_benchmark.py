@@ -210,6 +210,7 @@ def main():
                                  base + ["phenoage_accel"] + present)
         incremental[name] = {
             "n_features": len(present),
+            "features": [c[2:] for c in present],
             "auc_phenoageAccel_plus_block": round(auc_blk, 4) if auc_blk else None,
             "increment_over_phenoageAccel": (round(auc_blk - auc_pa_adj, 4)
                                              if auc_blk and auc_pa_adj else None),

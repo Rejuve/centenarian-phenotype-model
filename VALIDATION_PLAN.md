@@ -239,9 +239,14 @@ illness), not a protective effect of high LDL (Ravnskov et al., BMJ Open 2016, P
 Logistic regression predicting all-cause mortality. Rows 2–3 are **parallel alternatives** (PhenoAge
 acceleration *vs.* the phenotype score, each added to the age/sex baseline — the head-to-head); rows
 4–5 **add a rule-based phenotype feature block** on top of PhenoAge acceleration (the incremental
-test). Not a cumulative sequence. Feature blocks are defined **objectively, not hand-selected**: *all
-self-report features* (every questionnaire item) and *all non-PhenoAge features* (every model feature
-except the PhenoAge inputs — glucose, CRP, creatinine/eGFR — excluded to keep the test non-circular).
+test). Not a cumulative sequence. Feature blocks are defined **objectively, not hand-selected**:
+
+- **All self-report features (17):** smoking, alcohol, diet, sleep, physical-activity frequency,
+  depression, self-rated health, functional mobility, family/partnership, body-mass-index band, waist
+  band, diabetes, hypertension, cholesterol, cardiovascular event, cancer history, bone health.
+- **All non-PhenoAge features (22):** the 17 self-report items above plus the measured markers that
+  are not PhenoAge inputs — HDL, triglycerides, LDL ("cholesterol"), BMI, HbA1c. The PhenoAge inputs
+  glucose, C-reactive protein, and creatinine/eGFR are **excluded** to keep the test non-circular.
 
 | logistic model (covariates) | held-out mortality AUC |
 |---|---:|
