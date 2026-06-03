@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software or its model artifacts, please cite it as below."
+title: "Centenarian Longevity Phenotype Model"
+abstract: >-
+  An open-source, evidence-weighted centenarian-phenotype similarity model with a derived,
+  calibration-pending four-class Naive Bayes posterior, versioned Tier-3 clinical mappers and
+  biological-age clocks, a country/sex relative-longevity context (HMD life tables), and a
+  held-out NHANES 1999-2016 10-year all-cause-mortality calibration. NOT a validated
+  centenarian-prediction or medical-diagnostic tool (see MODEL_CARD.md).
+type: software
+version: "0.2.0"
+date-released: "2026-06-03"
+license: MIT
+repository-code: "https://github.com/Rejuve/centenarian-phenotype-model"
+authors:
+  - name: "Rejuve.AI"
+keywords:
+  - longevity
+  - centenarian
+  - healthspan
+  - biological-age
+  - phenotype
+  - scoring
+references:
+  - type: data
+    title: "NHANES Public-use Linked Mortality Files (Continuous NHANES), 2019"
+    authors:
+      - name: "National Center for Health Statistics, Division of Analysis and Epidemiology"
+    doi: "10.15620/cdc:117142"
+    notes: "Used for the held-out 10-year mortality calibration and validation (aggregate results only)."
+  - type: database
+    title: "Human Mortality Database"
+    authors:
+      - name: "University of California, Berkeley, and Max Planck Institute for Demographic Research"
+    url: "https://www.mortality.org"
+    notes: "Country x sex period life tables underlying the relative-longevity population baselines."
