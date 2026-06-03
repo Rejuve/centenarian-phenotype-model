@@ -123,15 +123,18 @@ insurance/actuarial decisions, or any individual medical decision. **This is not
 
 ## 10. Validation status
 
-**Preliminary signal only; not yet validated for any claim.** A first external run against NHANES
-2005–2006 linked mortality (N=5,561; 1,027 deaths; ~14-yr follow-up) shows the *untrained* phenotype
-score is associated with **lower all-cause mortality independent of age** (age/sex-adjusted
-standardized weight −0.36; protective within every age band; AUC score→survival 0.60). This is a
-**survival proxy, not centenarian attainment**, in a single US cohort, untrained and unreplicated —
-encouraging but **not** a validated claim. Calibration of the trajectory band to reaching specific
-ages, nonagenarian-class NB calibration, subgroup-fairness, ablation, temporal, and external
-validation remain outstanding. Invariants are guarded by 81 unit tests; the harness lives in
-`scripts/validation/`. Full detail/result: [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) §3b.
+**Preliminary signal only; not yet validated for any claim.** A first external run against pooled
+NHANES 2005–2010 linked mortality (**N=18,290; 3,014 deaths; 10–14-yr follow-up**) shows the
+*untrained* phenotype score is associated with **lower all-cause mortality independent of age**
+(age/sex-adjusted standardized weight −0.34; protective within every age band **and in both sexes**;
+AUC score→survival 0.59; well-calibrated, ECE 0.018). Ablation shows the **behavioral/self-report
+block carries the strongest signal** (adj. weight −0.41) while the current 5-marker lab panel is
+weaker (−0.20) and slightly dilutes the combined score — flagging mortality-calibration of the lab
+mappings/weights as the top next step. This is a **survival proxy, not centenarian attainment**, in a
+single US cohort, untrained and unreplicated — encouraging but **not** a validated claim. Calibration
+of the trajectory band to reaching specific ages, nonagenarian-class NB calibration, ablation-guided
+re-weighting, temporal, and external validation remain outstanding. Invariants are guarded by 81 unit
+tests; the harness lives in `scripts/validation/`. Full detail: [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) §3b.
 
 ## 11. Versioning & update policy
 

@@ -138,6 +138,43 @@ def run(rows, score_col, outcome_col, age_col=None, sex_col=None, cal_iters=4000
     return report
 
 
+def ablation(rows, cols, outcome_col, age_col=None, sex_col=None, cal_iters=2500):
+    """Per-feature-class contribution: AUC(col -> survival) + age/sex-adjusted weight on each col."""
+    out = {}
+    for col in cols:
+        clean = []
+        for r in rows:
+            s, y = _num(r.get(col)), _num(r.get(outcome_col))
+            if s is None or y is None:
+                continue
+            age = _num(r.get(age_col)) if age_col else None
+            sex = r.get(sex_col) if sex_col else None
+            clean.append((s, int(y), age, sex))
+        if len(clean) < 50:
+            out[col] = {"n": len(clean), "note": "too few to assess"}
+            continue
+        s = [c[0] for c in clean]
+        y = [c[1] for c in clean]
+        entry = {"n": len(clean), "deaths": sum(y),
+                 "auc_score_predicts_survival": _r(metrics.auc(s, [1 - v for v in y]))}
+        use_age = age_col and all(c[2] is not None for c in clean)
+        use_sex = sex_col and all(c[3] in ("M", "F") for c in clean)
+        X = []
+        for sc_, _, age, sex in clean:
+            row = [sc_]
+            if use_age:
+                row.append(age)
+            if use_sex:
+                row.append(1.0 if sex == "M" else 0.0)
+            X.append(row)
+        model = metrics.logistic_fit(X, y, iters=cal_iters)
+        entry["adjusted_score_weight"] = round(model["weights"][0], 4)
+        entry["adjusted_features"] = ["score"] + (["age"] if use_age else []) + \
+                                     (["sex_male"] if use_sex else [])
+        out[col] = entry
+    return out
+
+
 def _r(x):
     return round(x, 4) if x is not None else None
 
@@ -177,6 +214,8 @@ def main():
     ap.add_argument("--outcome-col", default="deceased")
     ap.add_argument("--age-col", default="age")
     ap.add_argument("--sex-col", default="sex")
+    ap.add_argument("--ablate-cols", help="comma list of score columns to ablate, e.g. "
+                                          "score_selfreport,score_labs,score_full")
     ap.add_argument("--out", default="reports/validation")
     args = ap.parse_args()
 
@@ -186,6 +225,10 @@ def main():
     elif args.cohort:
         rows = load_cohort(args.cohort)
         rep = run(rows, args.score_col, args.outcome_col, args.age_col, args.sex_col)
+        if args.ablate_cols:
+            rep["ablation_by_feature_class"] = ablation(
+                rows, [c.strip() for c in args.ablate_cols.split(",")],
+                args.outcome_col, args.age_col, args.sex_col)
     else:
         ap.error("pass --synthetic N or --cohort PATH")
     write_report(rep, args.out)

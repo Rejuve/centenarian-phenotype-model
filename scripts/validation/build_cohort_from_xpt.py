@@ -136,14 +136,26 @@ def build(cycle):
 
         if not answers and not clinical:
             continue
-        layer = 3 if clinical else 2
-        res = score(layer, answers, clinical=clinical or None, strict=False)
+
+        def sc(layer, ans, clin):
+            try:
+                return score(layer, ans, clinical=clin or None, strict=False)["score_pct"]
+            except Exception:  # noqa: BLE001
+                return ""
+
+        # Per-feature-class scores for ablation: self-report (behavioral + self-report clinical),
+        # measured labs only, and the full combination.
+        s_self = sc(2, answers, None) if answers else ""
+        s_labs = sc(3, {}, clinical) if clinical else ""
+        s_full = sc(3, answers, clinical) if clinical else s_self
         m = lmf.get(int(seqn))
         deceased = permth = ""
         if m and m.get("eligstat") == "1" and m.get("mortstat") in ("0", "1"):
             deceased, permth = m["mortstat"], m.get("permth_exm", "")
-        rows.append({"subject_id": int(seqn), "age": round(age, 1), "sex": sex,
-                     "score_pct": res["score_pct"], "n_features": res["answered"],
+        rows.append({"subject_id": int(seqn), "cycle": cycle, "age": round(age, 1), "sex": sex,
+                     "score_pct": s_full, "score_full": s_full,
+                     "score_selfreport": s_self, "score_labs": s_labs,
+                     "n_clinical": len(clinical),
                      "age_band": "18-49" if age < 50 else ("50-64" if age < 65 else
                                   ("65-74" if age < 75 else "75+")),
                      "deceased": deceased, "permth_exm": permth})
@@ -152,16 +164,25 @@ def build(cycle):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--cycle", required=True, help="e.g. 2005-2006")
+    ap.add_argument("--cycle", help="single cycle, e.g. 2005-2006")
+    ap.add_argument("--cycles", help="comma list to POOL, e.g. 1999-2000,2001-2002,2003-2004,"
+                                     "2005-2006,2007-2008")
     ap.add_argument("--out")
     args = ap.parse_args()
-    rows = build(args.cycle)
-    out = args.out or os.path.join("data", "processed", f"nhanes_cohort_{args.cycle}.csv")
+    if not args.cycle and not args.cycles:
+        ap.error("pass --cycle or --cycles")
+    cycles = args.cycles.split(",") if args.cycles else [args.cycle]
+    rows = []
+    for c in cycles:
+        print(f"[{c}] building...")
+        rows += build(c.strip())
+    tag = "pooled_" + "_".join(c.split("-")[0] for c in cycles) if len(cycles) > 1 else cycles[0]
+    out = args.out or os.path.join("data", "processed", f"nhanes_cohort_{tag}.csv")
     pd.DataFrame(rows).to_csv(out, index=False)
     linked = sum(1 for r in rows if r["deceased"] != "")
     deaths = sum(1 for r in rows if r["deceased"] == "1")
     print(f"wrote {out}: {len(rows)} scored, {linked} linked, {deaths} deaths "
-          f"(cycle {args.cycle}, follow-up to 2019-12-31).")
+          f"(cycles {cycles}, follow-up to 2019-12-31).")
 
 
 if __name__ == "__main__":

@@ -81,30 +81,43 @@ First real run produces: AUC(score → survival), a fitted phenotype→mortality
 reliability/ECE/Brier, and subgroup AUC by sex/age band — i.e. gates 1, 4 (partial), and the
 calibration gate's machinery.
 
-## 3b. First validation result (NHANES 2005–2006, all-cause mortality)
+## 3b. First validation result (pooled NHANES 2005–2010, all-cause mortality)
 
-*Run with `build_cohort_from_xpt.py --cycle 2005-2006` (≈14-year follow-up to 2019-12-31) +
-`validate.py`. Aggregate statistics only; individual data not redistributed. Data: NCHS Continuous
-NHANES + Public-use Linked Mortality File, 2019 (doi:10.15620/cdc:117142). Analysis/interpretation
-are the authors', not NCHS.*
+*Run with `build_cohort_from_xpt.py --cycles 2005-2006,2007-2008,2009-2010` (10–14-yr follow-up to
+2019-12-31) + `validate.py --ablate-cols score_selfreport,score_labs,score_full`. Aggregate statistics
+only; individual data not redistributed. Data: NCHS Continuous NHANES + Public-use Linked Mortality
+File, 2019 (doi:10.15620/cdc:117142). Analysis/interpretation are the authors', not NCHS.*
 
-- Cohort: **N = 5,561** scored adults, **1,027 deaths** (18.5%).
-- **Discrimination, score alone (no age): AUC(score → survival) = 0.599.** Decedent median score
-  **70.9** vs survivor **75.8**.
-- **Age/sex-adjusted calibration model** (score + age + sex → P(deceased)): standardized weight on
-  **score = −0.356 (protective)**, age = +2.21 (dominant), sex_male = +0.15; AUC 0.909, ECE 0.025.
-- **Within every age band the score is protective** (survival-AUC ≈ 0.55–0.67 across 18–49, 50–64,
-  65–74, 75+) — i.e. the signal is **not merely an age proxy**.
+- Cohort: **N = 18,290** scored adults, **3,014 deaths** (16.5%).
+- **Discrimination, full score alone (no age): AUC(score → survival) = 0.590.**
+- **Age/sex-adjusted model** (score + age + sex → P(deceased)): standardized weight on
+  **score = −0.34 (protective)**, age +2.06 (dominant), sex_male +0.21; AUC 0.889, ECE 0.018.
+- **Protective within every age band** (survival-AUC ≈ 0.54–0.65 across 18–49 / 50–64 / 65–74 / 75+)
+  and **in both sexes** (F 0.556, M 0.617) — i.e. **not merely an age proxy**, and directionally fair.
 
-**What this is / isn't:** an honest, *out-of-the-box* (untrained) signal that a higher phenotype
-score is associated with **lower all-cause mortality** over ~14 years, independent of age, in one US
-cohort. It is **not** centenarian attainment (a survival proxy), **not** trained on this data, and
-**not** externally replicated. It satisfies the *machinery* of gates 1 & 4 and gives a first real
-effect size; the remaining gates (calibration of the trajectory band to reaching specific ages,
-nonagenarian-class NB calibration, subgroup fairness, external replication) still stand.
+**Ablation by feature class** (adjusted weight on the class score; more negative = more protective):
 
-**Power note:** the 2017–2018 cycle alone yields only ~127 deaths (1–2 yr follow-up, underpowered).
-Use earlier cycles (2005–2006 here; pool 1999–2008 for more power) via `build_cohort_from_xpt.py`.
+| feature class | n | deaths | AUC(→survival) | adj. weight |
+|---|---:|---:|---:|---:|
+| self-report (behavioral + self-report clinical) | 18,290 | 3,014 | **0.630** | **−0.41** |
+| measured labs only (HDL/LDL/TG/CRP/BMI) | 17,615 | 2,798 | 0.544 | −0.20 |
+| full (combined) | 18,290 | 3,014 | 0.590 | −0.34 |
+
+**Actionable finding:** the **behavioral / self-report block carries the strongest mortality signal**;
+the current limited lab panel is weaker and slightly *dilutes* the full score. This is expected for an
+*untrained* model with only 5 mapped labs and uncalibrated cross-class weights — and it pinpoints the
+highest-value next step: **calibrate the lab→alignment mappings and feature weights against mortality**
+(and widen the lab panel: glucose/HbA1c/eGFR are measured in NHANES but not yet tier-3 features).
+
+**What this is / isn't:** an honest, *out-of-the-box* (untrained) signal that a higher phenotype score
+is associated with **lower all-cause mortality** over 10–14 years, independent of age and in both
+sexes, in one US cohort. It is **not** centenarian attainment (a survival proxy), **not** trained on
+this data, and **not** externally replicated. It satisfies the *machinery* of gates 1, 4, and the
+subgroup gate; calibration of the trajectory band to reaching specific ages, nonagenarian-class NB
+calibration, ablation-guided re-weighting, and external replication still stand.
+
+**Power note:** 2017–2018 alone yields only ~127 deaths (1–2 yr follow-up, underpowered); use earlier
+cycles via `build_cohort_from_xpt.py` (`--cycle` or pooled `--cycles`).
 
 ## 4. Sequencing
 
