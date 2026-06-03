@@ -69,7 +69,8 @@ _BASIS_QUALITY = {
     "measured": 1.0, "measured_clinical": 0.9, "genomic": 0.95, "epigenetic": 0.9,
     "heritability": 0.85, "clinical_literature": 0.8, "disease_escape": 0.8,
     "academic_corroborated": 0.75, "documented_positive": 0.7, "external_evidence": 0.6,
-    "reasoned_gradient": 0.5, "neutral_context": 0.45, "pending": 0.0, "unspecified": 0.5,
+    "meta_analytic": 0.85, "reasoned_gradient": 0.5, "neutral_context": 0.45,
+    "pending": 0.0, "unspecified": 0.5,
 }
 
 _MODIFIABLE_DOMAINS = {

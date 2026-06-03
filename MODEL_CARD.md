@@ -19,8 +19,8 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
   the same evidence. **The math is implemented and tested; the likelihoods are
   `calibration: "heuristic_pending"`** (declared monotone class centroids, not estimated from
   labelled per-class feature distributions — see §8 bias/limitations and §7 known failure modes).
-- **Tiers:** Tier 1 — 12-question behavioral teaser; Tier 2 — standalone 31-item app survey
-  (18 NHANES-aligned behavioral + 13 self-report clinical/health); Tier 3 — Tier 2 + blood
+- **Tiers:** Tier 1 — 12-question behavioral teaser; Tier 2 — standalone 32-item app survey
+  (19 NHANES-aligned behavioral incl. loneliness + 13 self-report clinical/health); Tier 3 — Tier 2 + blood
   biomarkers, 21 scored genomic variants, DNA-methylation clocks + telomere length, microbiome
   (pending).
 

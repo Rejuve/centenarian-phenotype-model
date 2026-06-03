@@ -9,7 +9,7 @@ An open-source model that scores how similar a person's lifestyle, biomarker, an
 The model ships in three tiers, each an evolution of the one before:
 
 - **Tier 1** — 12-question behavioral teaser quiz, instant shareable similarity score (free web/ad widget).
-- **Tier 2** — standalone 31-item app survey: 18 NHANES-aligned behavioral + 13 self-report clinical/health items (free app).
+- **Tier 2** — standalone 32-item app survey: 19 NHANES-aligned behavioral (incl. subjective loneliness) + 13 self-report clinical/health items (free app).
 - **Tier 3** — **Tier 2 in full** plus blood biomarkers, 21 genomic variants, DNA-methylation clocks + telomere length, and microbiome pending (subscription).
 
 Completeness accumulates across the tiers (~30% → ~50% → ~80%): each tier carries all of the previous tier's questions into its score and adds deeper evidence on top.

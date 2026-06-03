@@ -24,7 +24,7 @@ def truemax(model):
 
 def test_models_load_and_have_expected_question_counts():
     assert len(load_model(1)["questions"]) == 12
-    assert len(load_model(2)["questions"]) == 31
+    assert len(load_model(2)["questions"]) == 32
     assert "questions" not in load_model(3)  # tier 3 is a spec, not a quiz
 
 
