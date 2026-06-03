@@ -6,6 +6,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions are the
 fields, stamped into every result's `model_version`) and checksummed in
 `centenarian_phenotype/models/MANIFEST.sha256`.
 
+## [0.2.1] — 2026-06-03
+
+Release-quality fixes from a follow-up review, plus the per-feature mortality analysis.
+
+### Fixed
+- **Mapper ↔ Tier-3 key alignment:** `ldl_cholesterol` now aliases to the Tier-3 `cholesterol`
+  feature (accepted in strict mode); `map_panel()` resolves aliases and returns only
+  tier-3-scoreable features in `clinical`, listing the rest (apob, systolic_bp, waist_circumference,
+  alt, gait_speed) under `not_scoreable` — so its output is safe for `score(3, strict=True)`.
+- **Security:** `posterior_kwargs` (Naive Bayes prior/likelihood overrides) removed from the public
+  HTTP API to prevent client-side posterior manipulation; still available in the Python `score()`.
+- **Doc consistency:** AUDIT_FIXES "Validated now" reconciled (preliminary NHANES signal, 88 tests);
+  README test count (88) and validation-plan blurb; MODEL_CARD artifact version (tier2 v1.1).
+
+### Added
+- **Per-feature mortality association** (`scripts/validation/feature_association.py`): age/sex-adjusted
+  per-feature association with all-cause mortality + a **landmark/lag** sensitivity (drops early
+  deaths) as a reverse-causation guard. Cohort builder now emits `f_<feature>` alignment columns.
+
 ## [0.2.0] — 2026-06-03
 
 Scientific framing, validation, and packaging overhaul. **Headline score math unchanged** (Layer-1

@@ -8,7 +8,7 @@ abstract: >-
   held-out NHANES 1999-2016 10-year all-cause-mortality calibration. NOT a validated
   centenarian-prediction or medical-diagnostic tool (see MODEL_CARD.md).
 type: software
-version: "0.2.0"
+version: "0.2.1"
 date-released: "2026-06-03"
 license: MIT
 repository-code: "https://github.com/Rejuve/centenarian-phenotype-model"

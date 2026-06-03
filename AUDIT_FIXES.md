@@ -79,9 +79,12 @@ score math is unchanged (Layer-1 range still 25.9–97.5%), so existing integrat
 - Complete model card + validation plan; reconciled docs.
 
 ### Validated now
-- **Nothing is externally validated.** Behaviour is guarded by 57 unit tests (ranges, invariants,
-  NB responsiveness, validation, mappers, decomposition). No retrospective/calibration/subgroup/
-  ablation/missingness/temporal/external validation has been run.
+- **Preliminary internal signal only — not externally validated.** In pooled NHANES 1999–2016
+  (N=53,255; 9,103 deaths) the untrained score is associated with lower all-cause mortality
+  independent of age and in both sexes, with a **held-out 10-year mortality calibration**
+  (out-of-sample AUC 0.896, ECE 0.020) — see VALIDATION_PLAN §3b–3c. This is a survival *proxy*, not
+  centenarian attainment; single US cohort; **not** externally replicated, subgroup-fairness-audited
+  at scale, or clinically validated. Behaviour is otherwise guarded by 88 unit tests.
 
 ### Planned next
 - **Acquire the P1 sources** in `docs/SOURCE_REGISTRY.md` (NHANES mortality linkage; HRS /

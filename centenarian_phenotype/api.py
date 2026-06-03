@@ -48,8 +48,9 @@ class ScoreRequest(BaseModel):
     context: Optional[dict[str, Any]] = Field(
         None, description="optional {country, sex, age, bio_age_delta} for a relative-longevity "
                           "context (validated population baseline + calibration-pending band)")
-    posterior_kwargs: Optional[dict[str, Any]] = Field(
-        None, description="advanced: override Naive Bayes priors/likelihoods (mostly for research)")
+    # NOTE: Naive Bayes prior/likelihood overrides (posterior_kwargs) are intentionally NOT exposed
+    # on the HTTP API — a client could manipulate posterior outputs. They remain available only in
+    # the Python `score()` for research use.
 
 
 def _resolve_origins(layers: tuple[int, ...], cors_origins: Optional[list[str]]) -> list[str]:
@@ -101,7 +102,7 @@ def create_app(layers=(1, 2, 3), cors_origins: Optional[list[str]] = None,
     def _score(layer: int, body: ScoreRequest) -> dict[str, Any]:
         try:
             return score(layer, body.answers, clinical=body.clinical, strict=body.strict,
-                         context=body.context, posterior_kwargs=body.posterior_kwargs)
+                         context=body.context)
         except ValidationError as e:
             raise HTTPException(status_code=422, detail={"error": "input validation failed",
                                                          "report": e.report})

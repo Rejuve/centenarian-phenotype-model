@@ -85,6 +85,10 @@ _MODIFIABLE_FEATURES = {
     "waist_circumference", "grip_strength", "muscle_strength", "gait_speed",
 }
 
+# Mapper canonical name -> tier-3 feature name. Lets a supplied/mapped `ldl_cholesterol` resolve to
+# the tier-3 `cholesterol` feature (which is LDL-directional) so strict mode does not reject it.
+CLINICAL_ALIASES = {"ldl_cholesterol": "cholesterol"}
+
 _MODEL_FILES = {1: "tier1_model.yaml", 2: "tier2_model.yaml", 3: "tier3_model.yaml"}
 _CACHE: dict[int, dict] = {}
 
@@ -115,6 +119,10 @@ def _feature_defs(spec) -> dict:
     for c in spec.get("epigenetic_methylation", []):
         defs[c["clock"]] = dict(weight=c["weight"], basis=c.get("basis", "epigenetic"),
                                 gwas=bool(c.get("gwas_corroborated")), domain="epigenetic")
+    # accept canonical mapper aliases (e.g. ldl_cholesterol -> cholesterol) in strict validation
+    for src, dst in CLINICAL_ALIASES.items():
+        if dst in defs and src not in defs:
+            defs[src] = defs[dst]
     return defs
 
 
