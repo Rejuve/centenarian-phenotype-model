@@ -178,10 +178,11 @@ more under landmarking (its huge raw AUC 0.78 is largely age/illness), illustrat
   from established literature (obesity-paradox / late-life frailty); whether that shape actually holds
   in-cohort must be **tested empirically** (mortality by BMI band), **not assumed** — flagged for the
   data-derived shape review (§4).
-- **LDL ("cholesterol") slightly positive** — the well-documented late-life *cholesterol paradox*
-  (low LDL tracks frailty/illness in older adults). A naïve "fit the data" model would wrongly learn
-  "high LDL is protective"; this is exactly why shapes need causal care (landmarking, age-strata),
-  not raw curve-fitting. Flags LDL direction for age-stratified review.
+- **LDL ("cholesterol") slightly positive** — the inverse LDL–mortality association reported in older
+  adults (Ravnskov et al., BMJ Open 2016, PMID 27292972), attributed here to reverse causation
+  (declining LDL with frailty and illness), not a protective effect of high LDL. A naïve "fit the
+  data" model would wrongly learn "high LDL is protective"; this is exactly why shapes need causal
+  care (landmarking, age-strata), not raw curve-fitting. Flags LDL direction for age-stratified review.
 - `q_pa_frequency` underpowered here (only 2007+ cycles; 846 deaths) — treat as noisy.
 
 > **Note on provenance (data vs imposed).** Per-feature *alignment shapes* in v1 are **curated from
@@ -216,9 +217,10 @@ now feasible via the NHANES mortality linkage. `incremental_value.py` + `feature
 
 ## 3f. Benchmark against PhenoAge (clinical biological-age gold standard)
 
-*`phenoage_benchmark.py` on NHANES 2005–2010 (N=7,964 with the nine PhenoAge inputs; 1,256 deaths).
-PhenoAge computed per Levine et al. 2018 (Aging 10:573). All-cause mortality; single national cohort;
-aggregate results (NCHS-cited).*
+*`phenoage_benchmark.py` on the subset of NHANES 2005–2010 with all nine PhenoAge inputs present
+(N=7,964; 1,256 deaths) — a smaller, lab-complete cohort than §3b/§3e, so its baseline AUCs are not
+directly comparable to those sections. PhenoAge computed per Levine et al. 2018 (Aging 10:573).
+All-cause mortality; single national cohort; aggregate results (NCHS-cited).*
 
 ### Concurrent validity — does the phenotype track measured biological age?
 
@@ -228,25 +230,33 @@ to a biologically *younger* profile on the clinical gold standard. Per-feature a
 PhenoAge acceleration are in the favourable direction, including features **not** part of PhenoAge —
 self-rated health (β −0.24), functional mobility (−0.22), depression (−0.11), smoking (−0.11), diet
 (−0.12) — establishing non-circular concurrent validity of the behavioral/self-report layer. LDL
-shows the paradoxical positive sign also seen in §3d (low LDL tracks frailty/older biological age).
+("cholesterol") shows a positive coefficient, consistent with the inverse LDL–mortality association
+reported in older adults and attributed here to reverse causation (declining LDL with frailty and
+illness), not a protective effect of high LDL (Ravnskov et al., BMJ Open 2016, PMID 27292972; see §3d).
 
-### Mortality predictiveness — head-to-head and incremental (held-out, 70/30)
+### Mortality discrimination — head-to-head and incremental (held-out, 70/30)
 
-| model | held-out mortality AUC |
+Logistic regression predicting all-cause mortality; predictors entered as covariates.
+
+| logistic model (covariates) | held-out mortality AUC |
 |---|---:|
-| age + sex | 0.874 |
-| age + sex + PhenoAge acceleration | 0.899 |
-| age + sex + phenotype score | 0.887 |
-| age + sex + PhenoAge acceleration + behavioral/psychosocial block | **0.909** |
+| age, sex | 0.874 |
+| age, sex, PhenoAge acceleration | 0.899 |
+| age, sex, phenotype score (single composite predictor) | 0.887 |
+| age, sex, PhenoAge acceleration, + 9 behavioral/psychosocial feature variables | **0.909** |
 
-- The **behavioral/psychosocial block** (depression, self-rated health, functional mobility, activity,
-  diet, sleep, alcohol, smoking, social partnership) adds **+0.010 AUC on top of PhenoAge** —
-  mortality signal the clinical-biomarker panel does not capture. This low-cost, self-report layer is
-  the model's distinct contribution relative to molecular/clinical biological-age clocks.
+- As a single age/sex-adjusted predictor, the composite phenotype score (0.887) approaches PhenoAge
+  acceleration (0.899).
+- **Incremental test (last row):** entering the nine behavioral/psychosocial feature variables
+  (depression, self-rated health, functional mobility, activity, diet, sleep, alcohol, smoking, social
+  partnership) as covariates **alongside** PhenoAge acceleration raises held-out AUC from 0.899 to
+  0.909. This is an added-predictor test — the behavioral variables jointly with PhenoAge, not a
+  blend of two scoring algorithms — showing these self-report variables carry mortality signal the
+  PhenoAge biomarkers do not.
 - PhenoAge, trained directly on NHANES mortality, is the stronger single clinical predictor; the
-  phenotype panel is complementary to it, not a replacement.
+  phenotype panel is complementary to it.
 
-Next: confirm the increment with DeLong / bootstrap confidence intervals; replicate on a second cohort.
+Next: confidence intervals on the increment (DeLong / bootstrap); replication in an independent cohort.
 
 ## 4. Sequencing
 
