@@ -236,14 +236,17 @@ illness), not a protective effect of high LDL (Ravnskov et al., BMJ Open 2016, P
 
 ### Mortality discrimination — head-to-head and incremental (held-out, 70/30)
 
-Logistic regression predicting all-cause mortality; predictors entered as covariates.
+Logistic regression predicting all-cause mortality; predictors entered as covariates. Rows 2–3 are
+**parallel alternatives** (PhenoAge acceleration *vs.* the phenotype score, each added to the same
+age/sex baseline — the head-to-head); row 4 **combines** PhenoAge acceleration with the behavioral
+variables (the incremental test). The rows are not a single cumulative sequence.
 
 | logistic model (covariates) | held-out mortality AUC |
 |---|---:|
-| age, sex | 0.874 |
-| age, sex, PhenoAge acceleration | 0.899 |
-| age, sex, phenotype score (single composite predictor) | 0.887 |
-| age, sex, PhenoAge acceleration, + 9 behavioral/psychosocial feature variables | **0.909** |
+| age, sex (baseline) | 0.874 |
+| baseline + PhenoAge acceleration | 0.899 |
+| baseline + phenotype score (single composite predictor) | 0.887 |
+| baseline + PhenoAge acceleration + 9 behavioral/psychosocial feature variables | **0.909** |
 
 - As a single age/sex-adjusted predictor, the composite phenotype score (0.887) approaches PhenoAge
   acceleration (0.899).
