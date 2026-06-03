@@ -38,10 +38,10 @@ from build_cohort_from_xpt import YEAR, _xpt
 
 GAMMA = 0.0076927
 
-# behavioral/psychosocial features (exclude clinical labs that overlap PhenoAge) for the incremental test
-BEHAVIORAL = ["f_q_depression", "f_q_self_rated_health", "f_q_functional_mobility",
-              "f_q_pa_frequency", "f_q_diet", "f_q_sleep", "f_q_alcohol", "f_q_smoking",
-              "f_q_family_partner"]
+# Features that ARE PhenoAge inputs (or direct derivatives) — excluded from the "incremental over
+# PhenoAge" blocks so the added-predictor test is non-circular. PhenoAge uses albumin, creatinine,
+# glucose, CRP, lymphocyte %, MCV, RDW, alkaline phosphatase, WBC.
+PHENOAGE_OVERLAP = {"f_glucose", "f_c_reactive_protein", "f_egfr"}
 
 
 def phenoage(alb_gL, creat_umol, gluc_mmol, crp_mgdl, lymph_pct, mcv, rdw, alp, wbc, age):
@@ -140,7 +140,7 @@ def _std_beta(df, y, x, covars):
     return round(float(beta[1]), 4), len(d)
 
 
-def concurrent_validity(df, fcols, behavioral):
+def concurrent_validity(df, fcols):
     """Does the phenotype track PhenoAge itself? Lower PhenoAge accel = biologically younger;
     higher phenotype alignment is favourable, so favourable signal should give NEGATIVE coefficients."""
     d = df.dropna(subset=["phenoage_accel", "score_full"])
@@ -158,7 +158,8 @@ def concurrent_validity(df, fcols, behavioral):
         "score_vs_phenoage_accel_spearman": spearman,
         "score_adjusted_std_beta": adj_beta,  # negative = higher score -> younger PhenoAge
         "per_feature_std_beta_vs_phenoage_accel": dict(sorted(per_feat.items(), key=lambda kv: kv[1])),
-        "behavioral_only": {k[2:]: per_feat.get(k[2:]) for k in behavioral if k[2:] in per_feat},
+        "self_report_features_only": {k: v for k, v in sorted(per_feat.items(), key=lambda kv: kv[1])
+                                      if k.startswith("q_")},
         "interpretation": "negative = favourable phenotype associates with decelerated (younger) PhenoAge",
     }
 
@@ -181,36 +182,51 @@ def main():
     df = df.dropna(subset=["phenoage", "age"])
     df["risk_score"] = -df["score_full"].astype(float)  # higher = worse, to align with mortality
 
-    have_beh = [c for c in BEHAVIORAL if c in df.columns]
+    fcols = [c for c in df.columns if c.startswith("f_")]
+    base = ["age", "male"]
 
-    # 1. raw mortality discrimination
+    # Objective, rule-based feature blocks for the incremental test (no hand-picking):
+    #   - self_report : every self-report questionnaire feature (f_q_*) — definitionally not a PhenoAge lab
+    #   - non_phenoage: every model feature except the PhenoAge inputs/derivatives (non-circular)
+    blocks = {
+        "all_self_report_features": [c for c in fcols if c.startswith("f_q_")],
+        "all_non_phenoage_features": [c for c in fcols if c not in PHENOAGE_OVERLAP],
+    }
+
+    # raw mortality discrimination
     auc_pa = metrics.auc(list(df["phenoage"]), list(df["deceased"]))
     sub = df.dropna(subset=["risk_score"])
     auc_score = metrics.auc(list(sub["risk_score"]), list(sub["deceased"]))
 
-    # 2 & 3. out-of-sample models
-    base = ["age", "male"]
-    auc_base, n_base, _ = _auc_oos(df, base)
+    # out-of-sample models
+    auc_base, _, _ = _auc_oos(df, base)
     auc_pa_adj, _, _ = _auc_oos(df, base + ["phenoage_accel"])
     auc_score_adj, _, _ = _auc_oos(df, base + ["risk_score"])
-    auc_pa_beh, n_inc, _ = _auc_oos(df.assign(**{c: df[c].fillna(0.5) for c in have_beh}),
-                                    base + ["phenoage_accel"] + have_beh)
+
+    incremental = {}
+    for name, cols in blocks.items():
+        present = [c for c in cols if c in df.columns]
+        auc_blk, _, _ = _auc_oos(df.assign(**{c: df[c].fillna(0.5) for c in present}),
+                                 base + ["phenoage_accel"] + present)
+        incremental[name] = {
+            "n_features": len(present),
+            "auc_phenoageAccel_plus_block": round(auc_blk, 4) if auc_blk else None,
+            "increment_over_phenoageAccel": (round(auc_blk - auc_pa_adj, 4)
+                                             if auc_blk and auc_pa_adj else None),
+        }
 
     out = {
         "n_with_phenoage": int(df["phenoage"].notna().sum()),
         "deaths": int(df["deceased"].sum()),
         "cycles": cycles,
+        "phenoage_overlap_features_excluded": sorted(PHENOAGE_OVERLAP),
         "raw_mortality_auc": {"phenoage": round(auc_pa, 4) if auc_pa else None,
                               "phenotype_score": round(auc_score, 4) if auc_score else None},
         "oos_auc": {"age_sex": round(auc_base, 4) if auc_base else None,
                     "age_sex_phenoageAccel": round(auc_pa_adj, 4) if auc_pa_adj else None,
-                    "age_sex_phenotypeScore": round(auc_score_adj, 4) if auc_score_adj else None,
-                    "age_sex_phenoageAccel_plus_behavioral": round(auc_pa_beh, 4) if auc_pa_beh else None},
-        "incremental_behavioral_over_phenoage": (round(auc_pa_beh - auc_pa_adj, 4)
-                                                 if auc_pa_beh and auc_pa_adj else None),
-        "behavioral_features_used": have_beh,
-        "concurrent_validity_vs_phenoage": concurrent_validity(
-            df, [c for c in df.columns if c.startswith("f_")], BEHAVIORAL),
+                    "age_sex_phenotypeScore": round(auc_score_adj, 4) if auc_score_adj else None},
+        "incremental_over_phenoage_by_block": incremental,
+        "concurrent_validity_vs_phenoage": concurrent_validity(df, fcols),
         "note": "All-cause mortality (survival proxy), single US cohort. PhenoAge per Levine 2018.",
     }
     os.makedirs(args.out, exist_ok=True)

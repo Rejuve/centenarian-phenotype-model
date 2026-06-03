@@ -234,28 +234,29 @@ self-rated health (β −0.24), functional mobility (−0.22), depression (−0.
 reported in older adults and attributed here to reverse causation (declining LDL with frailty and
 illness), not a protective effect of high LDL (Ravnskov et al., BMJ Open 2016, PMID 27292972; see §3d).
 
-### Mortality discrimination — head-to-head and incremental (held-out, 70/30)
+### Mortality discrimination and incremental value (held-out, 70/30)
 
-Logistic regression predicting all-cause mortality; predictors entered as covariates. Rows 2–3 are
-**parallel alternatives** (PhenoAge acceleration *vs.* the phenotype score, each added to the same
-age/sex baseline — the head-to-head); row 4 **combines** PhenoAge acceleration with the behavioral
-variables (the incremental test). The rows are not a single cumulative sequence.
+Logistic regression predicting all-cause mortality. Rows 2–3 are **parallel alternatives** (PhenoAge
+acceleration *vs.* the phenotype score, each added to the age/sex baseline — the head-to-head); rows
+4–5 **add a rule-based phenotype feature block** on top of PhenoAge acceleration (the incremental
+test). Not a cumulative sequence. Feature blocks are defined **objectively, not hand-selected**: *all
+self-report features* (every questionnaire item) and *all non-PhenoAge features* (every model feature
+except the PhenoAge inputs — glucose, CRP, creatinine/eGFR — excluded to keep the test non-circular).
 
 | logistic model (covariates) | held-out mortality AUC |
 |---|---:|
 | age, sex (baseline) | 0.874 |
 | baseline + PhenoAge acceleration | 0.899 |
 | baseline + phenotype score (single composite predictor) | 0.887 |
-| baseline + PhenoAge acceleration + 9 behavioral/psychosocial feature variables | **0.909** |
+| baseline + PhenoAge acceleration + all self-report features (17) | 0.910 |
+| baseline + PhenoAge acceleration + all non-PhenoAge features (22) | 0.910 |
 
 - As a single age/sex-adjusted predictor, the composite phenotype score (0.887) approaches PhenoAge
   acceleration (0.899).
-- **Incremental test (last row):** entering the nine behavioral/psychosocial feature variables
-  (depression, self-rated health, functional mobility, activity, diet, sleep, alcohol, smoking, social
-  partnership) as covariates **alongside** PhenoAge acceleration raises held-out AUC from 0.899 to
-  0.909. This is an added-predictor test — the behavioral variables jointly with PhenoAge, not a
-  blend of two scoring algorithms — showing these self-report variables carry mortality signal the
-  PhenoAge biomarkers do not.
+- **Incremental value:** adding a phenotype feature block as covariates alongside PhenoAge
+  acceleration raises held-out AUC by **+0.011** (0.899 → 0.910), and the increment is **robust to the
+  block definition** (all self-report features +0.0109; all non-PhenoAge features +0.0115) rather than
+  an artifact of feature selection. Predictors are entered jointly with PhenoAge, not blended as scores.
 - PhenoAge, trained directly on NHANES mortality, is the stronger single clinical predictor; the
   phenotype panel is complementary to it.
 
