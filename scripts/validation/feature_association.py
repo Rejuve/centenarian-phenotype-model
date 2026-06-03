@@ -64,10 +64,16 @@ def main():
     ap.add_argument("--out", default="reports/feature_association")
     ap.add_argument("--lag-months", type=float, default=24)
     ap.add_argument("--min-n", type=int, default=300)
-    ap.add_argument("--iters", type=int, default=2500)
+    ap.add_argument("--iters", type=int, default=600)
+    ap.add_argument("--min-age", type=float, default=None, help="restrict to age >= this (e.g. 75)")
+    ap.add_argument("--max-age", type=float, default=None)
     args = ap.parse_args()
 
     df = pd.read_csv(args.cohort)
+    if args.min_age is not None:
+        df = df[pd.to_numeric(df["age"], errors="coerce") >= args.min_age]
+    if args.max_age is not None:
+        df = df[pd.to_numeric(df["age"], errors="coerce") <= args.max_age]
     df = df[pd.to_numeric(df["deceased"], errors="coerce").isin([0, 1])].copy()
     df["deceased"] = df["deceased"].astype(int)
     df["permth_exm"] = pd.to_numeric(df.get("permth_exm"), errors="coerce")
