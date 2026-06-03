@@ -173,11 +173,22 @@ which argues they are *not* merely "baseline-sick people die soon." Kidney funct
 more under landmarking (its huge raw AUC 0.78 is largely age/illness), illustrating the guard working.
 
 **Honest nulls / paradoxes (motivate the weight review, not a bug):**
-- **BMI ≈ 0** linear coefficient — expected: the model already treats BMI as **U-shaped**, which a
-  linear association cannot see (both high and low BMI are adverse). Confirms the U-shape choice.
+- **BMI ≈ 0** linear coefficient — a *linear* term cannot detect a U-shaped relationship, so this is
+  **consistent with, but does not prove,** a U-shape. The BMI mapper currently *imposes* a U-shape
+  from established literature (obesity-paradox / late-life frailty); whether that shape actually holds
+  in-cohort must be **tested empirically** (mortality by BMI band), **not assumed** — flagged for the
+  data-derived shape review (§4).
 - **LDL ("cholesterol") slightly positive** — the well-documented late-life *cholesterol paradox*
-  (low LDL tracks frailty/illness in older adults); flags LDL weighting/direction for age-stratified review.
+  (low LDL tracks frailty/illness in older adults). A naïve "fit the data" model would wrongly learn
+  "high LDL is protective"; this is exactly why shapes need causal care (landmarking, age-strata),
+  not raw curve-fitting. Flags LDL direction for age-stratified review.
 - `q_pa_frequency` underpowered here (only 2007+ cycles; 846 deaths) — treat as noisy.
+
+> **Note on provenance (data vs imposed).** Per-feature *alignment shapes* in v1 are **curated from
+> literature** (tagged by `basis`), not learned from our statistics. The data-driven goal (§4) is to
+> **derive shapes empirically** where outcome data exists — with reverse-causation/confounding
+> safeguards — and to label every shape as *data-derived*, *literature*, or *reasoned*, never imposing
+> one silently. See §4.
 
 **Implication:** measured mortality association **corroborates** the behavioral-first design and the
 inflammatory axis, and **pinpoints** features whose curated weights diverge from measured signal
@@ -185,9 +196,15 @@ inflammatory axis, and **pinpoints** features whose curated weights diverge from
 
 ## 4. Sequencing
 
-1. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).
-2. Calibrate NB likelihoods from labelled per-class feature distributions → lift
+1. **Data-derived feature shapes + provenance labels.** Replace *imposed* mapper shapes with shapes
+   **estimated from outcome data** where it exists (e.g. nonparametric BMI→mortality by band to test
+   whether the U-shape holds; age-stratified LDL to handle the late-life paradox), each tagged
+   `data_derived` / `literature` / `reasoned`. Use causal safeguards (landmarking, age strata, and —
+   from aggregate GWAS — Mendelian-randomization where feasible) so we do not learn confounded
+   artifacts (e.g. "low LDL is bad"). Goal: no shape imposed silently.
+2. Source a nonagenarian reference set (closes the largest gap; calibrates the missing NB class).
+3. Calibrate NB likelihoods from labelled per-class feature distributions → lift
    `calibration` from `heuristic_pending` to `calibrated`.
-3. Run distribution + ablation + missingness suites on NHANES (+ mortality linkage).
-4. Subgroup + temporal + external validation.
-5. Promote results into `MODEL_CARD.md` §10 and gate public claims on the acceptance gates above.
+4. Ablation-guided re-weighting: reconcile curated weights with measured per-feature association (§3d).
+5. Subgroup + temporal + external validation; distribution + missingness suites.
+6. Promote results into `MODEL_CARD.md` §10 and gate public claims on the acceptance gates above.
