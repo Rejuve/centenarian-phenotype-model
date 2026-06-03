@@ -13,7 +13,7 @@ Attach a `source_tier` to every piece of evidence, orthogonal to the existing `b
 
 | tier | sources | individual-level? | outcome-linked? | use |
 |---|---|---|---|---|
-| **S — research cohorts** | NHANES+Linked Mortality, HRS, ELSA, SHARE, UK Biobank, Long Life Family Study, New England Centenarian Study | yes | yes (mortality/health) | **train + validate** |
+| **S — research cohorts** | NHANES+Linked Mortality (no AI clause → full use); HRS/MIDUS (**aggregate-only for us**, §1a); ELSA/SHARE (screen first); UK Biobank/LLFS/NECS (application) | yes | yes (mortality/health) | **train + validate** — but only where the AI/LLM policy permits (§1a) |
 | **A — validated longevity registries** | LongeviQuest, GRG, IDL (gerontology-validated 110+/100+) | yes | age verified, no contrast | validate age; descriptive |
 | **B — curated structured biography** | Wikidata/Wikipedia verified 100+ public figures (politicians, artists, scientists) with documented traits | yes | no | **descriptive enrichment only** |
 | **C — news / obituary / oral-history** | current corpus (10k academic, 2.8k news/obit) | yes (named) | no | descriptive; documentation-biased |
@@ -23,6 +23,46 @@ Key rule: **only Tier S can validate survival or train survival weights**; Tiers
 long-lived people look like* (trait frequencies, co-occurrence) but cannot establish that a trait
 *predicts* longevity (no comparison group, heavy selection bias). This keeps descriptive enrichment
 from being mistaken for causal/predictive evidence.
+
+## 1a. AI/LLM-use policy — a first-class access screen
+
+Several cohorts now publish **AI/LLM-use policies** that must be screened *before* any acquisition,
+because this repository is built and run by an **AI coding agent** — that counts as "LLM use."
+
+**HRS (and MIDUS/ICPSR, same taxonomy) — the governing rule:**
+- **Person-level (micro) data: prohibited with *any* LLM** — Type 1 (retains data, e.g. GPT/Llama),
+  Type 2 (institution-licensed, no retention), and even Type 3 (isolated/offline). Not accepted for
+  Public-Use *or* Restricted-Use. Feeding their microdata to an LLM counts as redistribution and
+  violates the Data Use Agreement.
+- **Permitted with LLMs/AI:** "public-facing documentation, codebooks, and study-level metadata,
+  **including group or population estimates**." (Taxonomy credit: ICPSR / S. Karcher, Syracuse.)
+
+**What this means for us (the compliant boundary):**
+- ❌ We never run HRS/MIDUS **microdata** through this AI-operated pipeline (no `build_*_cohort` on it).
+- ✅ We *may* use their **published aggregate/population estimates, codebooks, and metadata** — this is
+  the basis of `docs/EVIDENCE_LONGEVITY_FACTORS.md`.
+- ✅ We *may* use **open-source packages that distribute only aggregate insights** (coefficients/
+  algorithms, no names/data) — a permitted population-level artifact (see §1b).
+- 🔁 Microdata validation (if ever needed) is a **human + standard-package** job done *outside* this
+  environment, returning only aggregate artifacts (the shape of `survival_calibration.yaml`).
+
+Screening status of candidate sources: **NHANES/NCHS** — no AI/LLM clause → full pipeline use (proven).
+**HRS, MIDUS** — aggregate/metadata-only for us. **ELSA, SHARE** — screen each before use (TBD).
+
+## 1b. Open-source aggregate-coefficient packages (permitted, high value)
+
+Packages that ship the *insight* (model coefficients / algorithms) derived from cohorts but containing
+**no microdata** are population-level artifacts — usable here, and they often save reimplementation:
+
+| package | provides | use |
+|---|---|---|
+| `methylclock`, `dnaMethyAge` (R) | DNAm clock coefficients (Horvath/Hannum/PhenoAge/…); GrimAge restricted | operationalize Tier-3 epigenetic clocks (`clocks.py`) |
+| `BioAge` (R, Kwon & Crimmins) | Klemera-Doubal biological age + clinical PhenoAge from routine labs | a clinical-chemistry "clock" feature |
+| published risk equations (ASCVD, SCORE2, Framingham, CKD-EPI) | open coefficient tables | cardiovascular / kidney sub-scores (CKD-EPI already used) |
+| frailty-index algorithms (deficit accumulation) | computation rule | functional-age feature |
+
+These are aggregate coefficients (like the clock references already cited in `clocks.py`), not data —
+verify each package's own licence, but none requires cohort microdata.
 
 ## 2. Filling the missing Layer-2 constructs
 

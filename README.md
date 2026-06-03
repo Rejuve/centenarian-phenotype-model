@@ -132,7 +132,8 @@ docs/                project documentation (below)
 - **VALIDATION_PLAN.md** — cohorts, metrics, acceptance gates (nothing validated yet).
 - **AUDIT_FIXES.md** — what the latest audit changed, what's deferred, and the model-status statement.
 - **docs/SOURCE_REGISTRY.md** — enriched source schema, current sources, and prioritized freely-available candidates toward validation.
-- **docs/DATA_STRATEGY.md** — tiered source-quality ranking, plan for filling missing constructs, nonagenarian/public-figure data, early-life factors, and the behaviour/genetics/experience variance decomposition.
+- **docs/DATA_STRATEGY.md** — tiered source-quality ranking, AI/LLM-use screening (person-level data vs permitted aggregate/package use), plan for filling missing constructs, nonagenarian/public-figure data, early-life factors, and the behaviour/genetics/experience variance decomposition.
+- **docs/EVIDENCE_LONGEVITY_FACTORS.md** — curated, cited aggregate evidence for the model's domains (social, purpose, nonagenarian cohorts), compliant literature backbone.
 - **METHODS.md** — methodology, decisions, known limitations, changelog.
 - **docs/data_dictionary.md** — schema and join keys for every processed file.
 - **docs/ARCHITECTURE.md** — data flow, lineage, join keys, schema quirks.
