@@ -185,9 +185,9 @@ def main():
     fcols = [c for c in df.columns if c.startswith("f_")]
     base = ["age", "male"]
 
-    # Objective, rule-based feature blocks for the incremental test (no hand-picking):
-    #   - self_report : every self-report questionnaire feature (f_q_*) — definitionally not a PhenoAge lab
-    #   - non_phenoage: every model feature except the PhenoAge inputs/derivatives (non-circular)
+    # Feature blocks for the incremental test:
+    #   - all_self_report_features : every self-report questionnaire feature (f_q_*)
+    #   - all_non_phenoage_features: every model feature except the PhenoAge inputs/derivatives
     blocks = {
         "all_self_report_features": [c for c in fcols if c.startswith("f_q_")],
         "all_non_phenoage_features": [c for c in fcols if c not in PHENOAGE_OVERLAP],

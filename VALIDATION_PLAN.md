@@ -115,12 +115,12 @@ Self-report and labs are now **comparable and complementary** — the full score
 wellbeing)**, self-rated health, physical activity, alcohol, sleep, diet — carries signal on par with
 the labs, consistent with the model's behavioral-first design and the product's top-of-funnel quiz.
 
-**Mapping honesty:** ~15 of 31 Layer-2 questions are mapped from real NHANES variables; the remaining
+**Mapping coverage:** ~15 of 31 Layer-2 questions are mapped from real NHANES variables; the remaining
 ~16 are constructs NHANES never measured (social ties, purpose/meaning, cognitive hobbies, faith,
 family-history-of-longevity) and are left unmapped rather than fabricated — so the true full-survey
 score would draw on *more* signal than measured here.
 
-**What this is / isn't:** an honest, *out-of-the-box* (untrained) signal that a higher phenotype score
+**What this is / isn't:** an *out-of-the-box* (untrained) signal that a higher phenotype score
 is associated with **lower all-cause mortality** over up to ~20 years, independent of age and in both
 sexes, in one US cohort. It is **not** centenarian attainment (a survival proxy), **not** trained on
 this data, and **not** externally replicated. It satisfies the *machinery* of gates 1, 4, and the
@@ -137,7 +137,7 @@ cycles via `build_cohort_from_xpt.py --cycles ...`.
 
 A small logistic model calibrates the phenotype score to a **fixed 10-year all-cause mortality
 horizon** (so differing cycle follow-up does not confound it): `P(die within 120 months) =
-sigmoid(b0 + w·z(score, age, sex_male))`. Honesty guardrail: metrics are **out-of-sample** (70/30
+sigmoid(b0 + w·z(score, age, sex_male))`. Metrics are **out-of-sample** (70/30
 train/test); coefficients then refit on the full eligible cohort for deployment.
 
 - Eligible n = 32,082 (deaths ≤120mo, or known alive ≥120mo; censored-before-horizon excluded);
@@ -172,7 +172,7 @@ after excluding early deaths** (e.g. smoking, self-rated health, social partners
 which argues they are *not* merely "baseline-sick people die soon." Kidney function (eGFR) attenuates
 more under landmarking (its huge raw AUC 0.78 is largely age/illness), illustrating the guard working.
 
-**Honest nulls / paradoxes (motivate the weight review, not a bug):**
+**Null and paradoxical associations (inputs to the weight review):**
 - **BMI ≈ 0** linear coefficient — a *linear* term cannot detect a U-shaped relationship, so this is
   **consistent with, but does not prove,** a U-shape. The BMI mapper currently *imposes* a U-shape
   from established literature (obesity-paradox / late-life frailty); whether that shape actually holds
@@ -203,8 +203,8 @@ now feasible via the NHANES mortality linkage. `incremental_value.py` + `feature
 
 - **Incremental value (all ages):** age+sex alone discriminate mortality at AUC 0.872; adding the
   phenotype features reaches 0.906, and the first ~6 inputs (depression, smoking, functional mobility,
-  bone health, self-rated health, eGFR) capture most of the gain. *Ethos:* a sparse profile is already
-  meaningful; the model keeps all features and gains confidence as more are added.
+  bone health, self-rated health, eGFR) capture most of the gain. A sparse profile already carries
+  most of this discrimination; the model uses all available features and gains confidence as more are added.
 - **75+ stratum (the "healthspan" group):** age+sex discrimination falls to AUC 0.71 (age is far less
   informative once everyone is old), and **phenotype adds much more there** (→ ~0.84). The strongest
   age-independent protective signals at 75+ are **self-rated health, functional mobility, C-reactive
@@ -238,8 +238,8 @@ illness), not a protective effect of high LDL (Ravnskov et al., BMJ Open 2016, P
 
 Logistic regression predicting all-cause mortality. Rows 2–3 are **parallel alternatives** (PhenoAge
 acceleration *vs.* the phenotype score, each added to the age/sex baseline — the head-to-head); rows
-4–5 **add a rule-based phenotype feature block** on top of PhenoAge acceleration (the incremental
-test). Not a cumulative sequence. Feature blocks are defined **objectively, not hand-selected**:
+4–5 **add a phenotype feature block** on top of PhenoAge acceleration (the incremental test). Not a
+cumulative sequence. The two feature blocks are:
 
 - **All self-report features (17):** smoking, alcohol, diet, sleep, physical-activity frequency,
   depression, self-rated health, functional mobility, family/partnership, body-mass-index band, waist
@@ -258,10 +258,9 @@ test). Not a cumulative sequence. Feature blocks are defined **objectively, not 
 
 - As a single age/sex-adjusted predictor, the composite phenotype score (0.887) approaches PhenoAge
   acceleration (0.899).
-- **Incremental value:** adding a phenotype feature block as covariates alongside PhenoAge
-  acceleration raises held-out AUC by **+0.011** (0.899 → 0.910), and the increment is **robust to the
-  block definition** (all self-report features +0.0109; all non-PhenoAge features +0.0115) rather than
-  an artifact of feature selection. Predictors are entered jointly with PhenoAge, not blended as scores.
+- **Incremental value:** entering a phenotype feature block as covariates alongside PhenoAge
+  acceleration raises held-out AUC by **+0.011** (0.899 → 0.910). The increment is consistent across
+  both block definitions (all self-report features +0.0109; all non-PhenoAge features +0.0115).
 - PhenoAge, trained directly on NHANES mortality, is the stronger single clinical predictor; the
   phenotype panel is complementary to it.
 
