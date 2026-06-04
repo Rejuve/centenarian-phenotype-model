@@ -55,3 +55,6 @@ Thumbs.db
 
 # ---- Claude Code local config ----
 .claude/
+
+# Local-only working docs (strategy/notes; never pushed)
+*.private.md
