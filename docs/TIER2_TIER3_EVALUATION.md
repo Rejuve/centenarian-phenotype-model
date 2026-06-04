@@ -103,10 +103,8 @@ Age/sex-adjusted mortality association (rebuilt cohort with the widened panel):
 | LDL cholesterol | 22,032 | 0.493 | +0.025 | +0.018 | **null/inverted** — see §6 |
 
 Seven of nine NHANES-testable lab biomarkers show protective age/sex-adjusted associations robust to
-landmarking (LDL is the documented paradox; the remaining Tier-3 lab features — IL-6, cortisol,
-testosterone, thyroid — are scored from a panel but not in standard NHANES).
-The remaining Tier-3 clinical features (IL-6, cortisol, testosterone, thyroid, muscle strength, calf
-circumference) are scored from a user's panel but are not in standard NHANES, so are not validated here.
+landmarking (LDL is the documented paradox). The remaining Tier-3 lab features — IL-6, cortisol,
+testosterone, thyroid — are scored from a user's panel and sit outside standard NHANES.
 
 ### 3b. DNA-methylation clocks (epigenetic) — NHANES-testable (1999–2002 subsample)
 
