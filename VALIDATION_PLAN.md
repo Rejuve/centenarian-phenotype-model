@@ -7,6 +7,13 @@ specific ages*, large-scale subgroup fairness, ablation-guided re-weighting, and
 replication — remains outstanding. This plan defines the remaining work and the acceptance gates
 before any "validated" claim.*
 
+> **Current executed results** (Tier-2/Tier-3 per-feature + tiered mortality association, the expanded
+> measured panel incl. WBC/grip/telomere, DNA-methylation-clock validation, and the PhenoAge benchmark)
+> are consolidated in [`docs/TIER2_TIER3_EVALUATION.md`](docs/TIER2_TIER3_EVALUATION.md). Headline:
+> Tier 2 (self-report + anthropometric) AUC→survival 0.655 → Tier 3 (+ lab biomarkers) 0.686; DNAm
+> clocks (GrimAge, DunedinPACE, PhenoAge) are the strongest single signals; concurrent validity with
+> PhenoAge r −0.59 and +0.02 AUC incremental over it.
+
 ## 0a. Endpoint & validation standards
 
 The model is evolving from "similarity to verified centenarians" toward a **relative
@@ -101,13 +108,15 @@ File, 2019 (doi:10.15620/cdc:117142). Analysis/interpretation are the authors', 
 
 **Ablation by feature class** (adjusted weight on the class score; more negative = more protective):
 
-| feature class | n | AUC(→survival) | adj. weight |
+| tier (by `access`) | n | AUC(→survival) | adj. weight |
 |---|---:|---:|---:|
-| self-report (~15 NHANES-mapped Layer-2 questions) | 53,255 | 0.660 | −0.32 |
-| measured labs (HDL/LDL/TG/glucose/HbA1c/eGFR/CRP/BMI) | 50,541 | 0.652 | −0.27 |
-| **full (combined)** | 53,255 | **0.687** | **−0.39** |
+| Tier 2: self-report + anthropometric (grip, BMI) | 53,255 | 0.655 | −0.333 |
+| lab biomarkers only (HDL/LDL/TG/glucose/HbA1c/eGFR/CRP/WBC/telomere) | 48,214 | 0.677 | −0.362 |
+| **Tier 3: + lab biomarkers (combined)** | 53,255 | **0.686** | **−0.410** |
 
-Self-report and labs are now **comparable and complementary** — the full score beats either alone.
+Self-report and lab data are **complementary** — the combined Tier-3 score beats either alone. Full
+per-feature + tiered detail (incl. epigenetic clocks and the PhenoAge benchmark):
+[`docs/TIER2_TIER3_EVALUATION.md`](docs/TIER2_TIER3_EVALUATION.md).
 
 **Progression (a real signal strengthens as information is added):** full-score AUC→survival rose
 0.590 → 0.661 → **0.687** as the lab panel widened (5→8 markers) and the self-report mapping widened

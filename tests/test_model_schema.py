@@ -27,8 +27,8 @@ def test_quiz_model_schema(layer):
 def test_tier3_schema():
     t3 = load_model(3)
     assert t3["scoring"]["completeness_pct"] == 80
-    for grp in ("clinical_biomarkers", "clinical_disease_flags", "genomic_variants",
-                "epigenetic_methylation"):
+    assert "clinical_disease_flags" not in t3  # disease diagnoses are self-report at Layer 2
+    for grp in ("clinical_biomarkers", "genomic_variants", "epigenetic_methylation"):
         assert t3[grp], f"{grp} empty"
         for f in t3[grp]:
             assert isinstance(f["weight"], (int, float))

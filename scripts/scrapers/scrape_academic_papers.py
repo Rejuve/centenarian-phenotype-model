@@ -150,6 +150,32 @@ QUERIES = [
     ("bio_dhea",                 "DHEA centenarian"),
     ("bio_dheas",                "DHEAS longevity"),
     ("bio_testosterone",         "testosterone longevity centenarian"),
+
+    # ── Foundational aging-biology backbone ───────────────────────────────
+    # Not centenarian-specific: the core geroscience literature that grounds
+    # the model's biology (hallmarks of aging series, geroscience/geromedicine
+    # framing, and each hallmark). Good-practice corpus completeness; expected
+    # to inform provenance/grading more than to add new quiz features.
+    ("found_hallmarks_aging",      "hallmarks of aging"),
+    ("found_hallmarks_ageing",     "hallmarks of ageing"),
+    ("found_geroscience",          "geroscience hypothesis aging"),
+    ("found_geromedicine",         "geromedicine"),
+    ("found_biology_of_aging",     "biology of aging review"),
+    ("found_compression_morbidity","compression of morbidity longevity"),
+    ("found_rate_of_aging",        "rate of aging biomarkers humans"),
+    ("found_geroprotectors",       "geroprotectors aging intervention"),
+    ("found_cellular_senescence",  "cellular senescence aging"),
+    ("found_senolytics",           "senescent cells senolytics aging"),
+    ("found_nutrient_sensing",     "nutrient sensing longevity mTOR IGF-1"),
+    ("found_autophagy",            "autophagy longevity aging"),
+    ("found_mito_dysfunction",     "mitochondrial dysfunction aging"),
+    ("found_proteostasis",         "proteostasis loss aging"),
+    ("found_epigenetic_alt",       "epigenetic alterations aging"),
+    ("found_genomic_instability",  "genomic instability aging"),
+    ("found_telomere_attrition",   "telomere attrition aging"),
+    ("found_stem_cell_exhaustion", "stem cell exhaustion aging"),
+    ("found_inflammaging_comm",    "inflammaging intercellular communication aging"),
+    ("found_dysbiosis_aging",      "gut dysbiosis aging hallmark"),
 ]
 
 # ================================================================================

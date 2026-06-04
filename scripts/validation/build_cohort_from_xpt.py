@@ -72,18 +72,28 @@ def manifest(cycle):
     m = {"demo": f"DEMO{s}", "bmx": f"BMX{s}", "smq": f"SMQ{s}", "diq": f"DIQ{s}"}
     # labs
     if yr >= 2005:
-        m.update(hdl=f"HDL{s}", lipid=f"TRIGLY{s}", glu=f"GLU{s}", ghb=f"GHB{s}", bio=f"BIOPRO{s}")
+        m.update(hdl=f"HDL{s}", lipid=f"TRIGLY{s}", glu=f"GLU{s}", ghb=f"GHB{s}", bio=f"BIOPRO{s}",
+                 cbc=f"CBC{s}")
         if yr <= 2010:
             m["crp"] = f"CRP{s}"          # LBXCRP mg/dL
         elif yr >= 2015:
             m["crp"] = f"HSCRP{s}"        # LBXHSCRP mg/L
         # 2011-2014: no CRP
     elif yr == 1999:
-        m.update(hdl="LAB13", lipid="LAB13AM", glu="LAB10AM", ghb="LAB10", crp="LAB11", bio="LAB18")
+        m.update(hdl="LAB13", lipid="LAB13AM", glu="LAB10AM", ghb="LAB10", crp="LAB11", bio="LAB18",
+                 cbc="LAB25")
     else:  # 2001-2002, 2003-2004 lowercase 'l..' lab files
         low = s.lower()
         m.update(hdl=f"l13{low}", lipid=f"l13am{low}", glu=f"l10am{low}", ghb=f"l10{low}",
-                 crp=f"l11{low}", bio=f"l40{low}")
+                 crp=f"l11{low}", bio=f"l40{low}", cbc=f"l25{low}")
+    # grip strength: NHANES muscle-strength exam, 2011-2014 only (MGX_G / MGX_H)
+    if yr in (2011, 2013):
+        m["mgx"] = f"MGX{s}"
+    # leukocyte telomere length (T/S ratio): special release, 1999-2002 only (best-effort; skips on 404)
+    if yr == 1999:
+        m["telo"] = "TELO_A"
+    elif yr == 2001:
+        m["telo"] = "TELO_B"
     # questionnaires (behavioral + self-report health). Loader skips any 404 (coverage varies).
     for base in ("BPQ", "MCQ", "PFQ", "ALQ", "PAQ", "DBQ", "HUQ", "HSQ", "DPQ", "SLQ", "OSQ"):
         m[base.lower()] = qfile(base, cycle)
@@ -199,6 +209,9 @@ def build(cycle):
         crp_raw = val("crp", seqn, crp_var)
         if crp_raw is not None:
             add("c_reactive_protein", "c_reactive_protein", crp_raw * crp_to_mgL)
+        add("white_blood_cell", "white_blood_cell", val("cbc", seqn, "LBXWBCSI"))
+        add("grip_strength", "grip_strength", val("mgx", seqn, "MGDCGSZ"))  # combined grip (kg), 2011-2014
+        add("telomere_length", "telomere_length", val("telo", seqn, "TELOMEAN"))  # T/S ratio, 1999-2002
 
         # ---- self-report Layer-2 answers mapped from NHANES (coverage varies by cycle) ----
         answers = {}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "centenarian-phenotype"
-version = "0.2.1"
+version = "0.2.2"
 description = "Centenarian Longevity Phenotype Model — three-tier similarity scoring engine (not a lifespan predictor)."
 readme = "README.md"
 requires-python = ">=3.9"

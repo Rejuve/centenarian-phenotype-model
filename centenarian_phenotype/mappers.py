@@ -183,6 +183,12 @@ def _telomere(v, sex, age):
     return _interp(v, [(0.5, 0.2), (1.0, 0.6), (1.5, 0.9), (2.0, 1.0)])
 
 
+def _wbc(v, sex, age):
+    # WBC count (x10^9/L). Lower-normal favourable (inflammaging); leukopenia and leukocytosis both
+    # adverse. PhenoAge treats higher WBC as a mortality-increasing component.
+    return _interp(v, [(2.5, 0.3), (4.5, 1.0), (6.0, 0.95), (7.5, 0.7), (11.0, 0.4), (15.0, 0.15)])
+
+
 MAPPERS: dict[str, Mapper] = {
     "hdl_cholesterol": Mapper("hdl_cholesterol", "mg/dL", (10, 150), _hdl, "higher_favorable",
                               "NCEP ATP III HDL cut-offs", "A", sex_adjusted=True),
@@ -220,6 +226,9 @@ MAPPERS: dict[str, Mapper] = {
                                "lower_favorable", "DunedinPACE (Belsky 2022)", "B"),
     "telomere_length": Mapper("telomere_length", "T/S ratio (relative)", (0.2, 3.0), _telomere,
                               "longer_favorable", "Leukocyte telomere-length ageing literature", "C"),
+    "white_blood_cell": Mapper("white_blood_cell", "x10^9/L", (1.0, 30.0), _wbc,
+                               "mid_range_favorable", "Clinical WBC reference; inflammaging / PhenoAge"
+                               " mortality component", "B"),
 }
 
 
