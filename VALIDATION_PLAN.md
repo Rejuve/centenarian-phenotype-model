@@ -215,9 +215,9 @@ now feasible via the NHANES mortality linkage. `incremental_value.py` + `feature
   centenarian phenotype shows up as a measurable **healthspan signal in the oldest measurable group**.
   This motivates the predictive-trajectory model (time-to-event + interactions + aging-rate biomarkers).
 
-## 3f. Benchmark against PhenoAge (clinical biological-age gold standard)
+## 3f. Evaluation against PhenoAge (clinical biological-age gold standard)
 
-*`phenoage_benchmark.py` on the subset of NHANES 2005–2010 with all nine PhenoAge inputs present
+*`phenoage_comparison.py` on the subset of NHANES 2005–2010 with all nine PhenoAge inputs present
 (N=7,964; 1,256 deaths) — a smaller, lab-complete cohort than §3b/§3e, so its baseline AUCs are not
 directly comparable to those sections. PhenoAge computed per Levine et al. 2018 (Aging 10:573).
 All-cause mortality; single national cohort; aggregate results (NCHS-cited).*

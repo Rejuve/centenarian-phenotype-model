@@ -1,6 +1,6 @@
-"""Benchmark the phenotype panel against PhenoAge (Levine 2018), the clinical-biomarker biological-age
-gold standard, on NHANES all-cause mortality — and test the incremental value of the cheap
-behavioral/psychosocial block on top of PhenoAge.
+"""Evaluate the phenotype panel against PhenoAge (Levine 2018), the clinical-biomarker biological-age
+gold standard, on NHANES all-cause mortality: concurrent validity, head-to-head mortality
+discrimination, and the incremental value of phenotype features on top of PhenoAge.
 
 PhenoAge is computed from its published 9-biomarker + age formula (Levine et al., 2018, Aging
 10:573), trained/validated on NHANES mortality:
@@ -20,8 +20,8 @@ Restricted to cycles with the modern lab-file naming (2005-2016). All-cause mort
 proxy; single national cohort. Aggregate results only.
 
 Usage:
-  python scripts/validation/phenoage_benchmark.py --cohort data/processed/nhanes_cohort_feat.csv \
-      --cycles 2005-2006,2007-2008,2009-2010 --out reports/phenoage_benchmark
+  python scripts/validation/phenoage_comparison.py --cohort data/processed/nhanes_cohort_feat.csv \
+      --cycles 2005-2006,2007-2008,2009-2010 --out reports/phenoage_comparison
 """
 from __future__ import annotations
 
@@ -168,7 +168,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cohort", required=True)
     ap.add_argument("--cycles", default="2005-2006,2007-2008,2009-2010")
-    ap.add_argument("--out", default="reports/phenoage_benchmark")
+    ap.add_argument("--out", default="reports/phenoage_comparison")
     args = ap.parse_args()
     cycles = [c.strip() for c in args.cycles.split(",")]
 
@@ -231,7 +231,7 @@ def main():
         "note": "All-cause mortality (survival proxy), single US cohort. PhenoAge per Levine 2018.",
     }
     os.makedirs(args.out, exist_ok=True)
-    with open(os.path.join(args.out, "phenoage_benchmark.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(args.out, "phenoage_comparison.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
     print(json.dumps(out, indent=2))
 
