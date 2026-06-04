@@ -1,6 +1,6 @@
 model: centenarian_longevity_phenotype_tier2
 layer: 2
-version: "1.2"
+version: "1.1"
 description: >
   Layer 2 (free app) is a STANDALONE, comprehensive mobile survey — NOT a carry-over of the
   12-question Layer-1 teaser. It re-asks the behavioral domains at NHANES-module depth, mapped to
@@ -9,7 +9,7 @@ description: >
   carry-over or pre-fill from Layer 1. The app survey is more detailed than the 12-question quiz,
   so a clean re-capture is more accurate than trying to map coarser teaser answers onto it.
   Scored on its own (score_profile([tier2], answers)); completeness ~50%.
-  Behavioral block ~19 q (NHANES PAQ/SLQ/SMQ/ALQ/DBQ/SSQ/PFQ-aligned, incl. subjective loneliness) + 13 clinical/health items + 1 socioeconomic (education) = 33 items.
+  Behavioral block ~19 q (NHANES PAQ/SLQ/SMQ/ALQ/DBQ/SSQ/PFQ-aligned, incl. subjective loneliness) + 13 clinical/health items.
 narrative_template: "Your lifestyle and self-reported health share {score}% similarity with verified centenarians."
 scoring:
   method: evidence_weighted_alignment
@@ -345,19 +345,3 @@ questions:
       - {label: "No", trait_tags: [no_osteoporosis], alignment: 1.0, basis: clinical_literature}
       - {label: "Osteopenia / borderline", trait_tags: [], alignment: 0.65, basis: clinical_literature}
       - {label: "Yes", trait_tags: [osteoporosis], alignment: 0.4, basis: clinical_literature}
-
-  # ---- socioeconomic ----
-  - id: q_education
-    domain: socioeconomic   # NHANES DMDEDUC2; robust population mortality gradient
-    weight: 0.40
-    # SES/education gradient in mortality is among the most robust epidemiologic findings (Hummer &
-    # Hernandez 2013; Montez 2012) — a marker of cognitive reserve, health literacy, and resources.
-    # NHANES age/sex-adjusted association is strong and landmark-robust (std coef -0.25). It is a
-    # population longevity determinant rather than a historical-centenarian-enriched trait (cohort/era
-    # effect: many born ~1900-1920 had limited formal schooling), so it is scored from external evidence.
-    text: "What is the highest level of education you completed?"
-    options:
-      - {label: "College degree or higher", trait_tags: [higher_education], alignment: 1.0, basis: meta_analytic}
-      - {label: "Some college or associate degree", trait_tags: [], alignment: 0.8, basis: reasoned_gradient}
-      - {label: "High school diploma or GED", trait_tags: [], alignment: 0.6, basis: reasoned_gradient}
-      - {label: "Less than high school", trait_tags: [], alignment: 0.4, basis: meta_analytic}

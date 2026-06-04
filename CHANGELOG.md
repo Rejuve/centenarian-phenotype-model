@@ -8,20 +8,30 @@ fields, stamped into every result's `model_version`) and checksummed in
 
 ## [0.2.3] — 2026-06-04
 
-Enabled the gut-microbiome layer and added an education/SES feature.
+Enabled the gut-microbiome layer (literature-grounded), tightened the Naïve Bayes posterior, and
+addressed audit findings.
 
 ### Added
 - **Gut microbiome (Tier 3, `access: microbiome`)** — replaced the pending block with two scoreable,
   literature-grounded features: alpha-diversity and centenarian-associated-taxa enrichment (Akkermansia
   muciniphila, Christensenellaceae, Bifidobacterium, SCFA-producers). Cited (Gut Microbes 2024
-  PMC11364081; Biagi; Hainan cohort). Literature-grounded; not validated on our mortality cohort
-  (NHANES has no microbiome).
-- **Education / SES (Tier 2, `q_education`)** — NHANES age/sex-adjusted mortality association is strong
-  and landmark-robust (std coef −0.25, n=49,315; top unmodelled candidate from the data-first
-  re-check). Scored from external evidence (population SES gradient; cohort/era nuance documented).
+  PMC11364081; Biagi; Hainan cohort). Literature-grounded; **not validated on any cohort** (NHANES has
+  no microbiome) — plan to derive a centenarian-vs-control reference from open data is documented.
 
 ### Changed
-- tier2 v1.1 → v1.2 (33 items); tier3 v1.2 → v1.3; package 0.2.2 → 0.2.3.
+- **Demoted the four-class Naïve Bayes posterior to experimental/research-only.** It is heuristic with
+  no 90–99 data and declared (not learned) centroids. It is now **suppressed for sparse inputs**
+  (`< 4` scored features, so a near-empty profile no longer shows class mass) and **hidden from the
+  public HTTP API** (Python `score()` retains it for research). README/MODEL_CARD reframed so the
+  evidence-weighted similarity score (the validated core) leads, not the posterior.
+- tier3 v1.2 → v1.3; package 0.2.2 → 0.2.3.
+
+### Fixed (audit)
+- A profile with **no scoreable inputs now raises `ValidationError` even in non-strict mode** (was
+  returning a hollow score with a degenerate CI).
+- `requirements.txt` Python-version comment corrected (tested on 3.10+, not "3.14").
+- Tidied a split string in the `white_blood_cell` mapper definition.
+- Documented the `ldl_cholesterol → cholesterol` Tier-3 alias and the rationale for the news corpus.
 
 ## [0.2.2] — 2026-06-04
 

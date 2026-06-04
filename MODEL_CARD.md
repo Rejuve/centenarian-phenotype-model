@@ -1,6 +1,6 @@
 # Model Card — Centenarian Longevity Phenotype Model
 
-*Version 0.2.3 · model artifacts: tier1 v1.2, tier2 v1.2, tier3 v1.3 · last updated 2026-06-04.*
+*Version 0.2.3 · model artifacts: tier1 v1.2, tier2 v1.1, tier3 v1.3 · last updated 2026-06-04.*
 
 This card states plainly **what is implemented now, what is validated now, what is planned, and what
 is not safe to claim**. It supersedes `docs/model_card_stub.md`.
@@ -14,18 +14,20 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
   100+**. Output: "this profile is *X%* similar to verified centenarians."
 - **Deployed scoring method (v1):** **evidence-weighted alignment** of per-feature signal (each
   feature → alignment in [0,1]; score = evidence-weighted mean). This is the user-facing number.
-- **Derived probabilistic layer:** a genuine **four-class Naive Bayes posterior** (general
-  population / nonagenarian 90–99 / centenarian 100–109 / supercentenarian 110+) computed on top of
-  the same evidence. **The math is implemented and tested; the likelihoods are
-  `calibration: "heuristic_pending"`** (declared monotone class centroids, not estimated from
-  labelled per-class feature distributions — see §8 bias/limitations and §7 known failure modes).
+- **Experimental probabilistic layer (research-only, NOT a core output):** a four-class Naive Bayes
+  posterior (general population / nonagenarian 90–99 / centenarian 100–109 / supercentenarian 110+).
+  The math is implemented and tested, but the likelihoods are `calibration: "heuristic_pending"`:
+  the class centroids are **declared monotone assumptions, not estimated from labelled per-class
+  feature distributions**; there is **no 90–99 training data** (corpus age-floored at 100); and the
+  centenarian-vs-supercentenarian split is not empirically delineated. It is **suppressed for sparse
+  inputs** (`< 4` scored features) and is **not surfaced by the public API**. Treat as ordinal
+  resemblance only, never as calibrated probability (see §7, §8, and the rebuild plan in §10).
 - **Tiers (compounding; boundary = necessity of a biospecimen/assay, encoded per feature as an
   `access` tag):**
   - Tier 1 — 12-question behavioral teaser.
-  - Tier 2 — standalone 33-item app survey (19 NHANES-aligned behavioral incl. loneliness + 13
-    self-report clinical/health + 1 socioeconomic [education]) **plus non-invasive measured features**
-    (`access: anthropometric` — grip strength, BMI, calf, plus waist/BP; free/consumer-obtainable,
-    assumed true for insights).
+  - Tier 2 — standalone 32-item app survey (19 NHANES-aligned behavioral incl. loneliness + 13
+    self-report clinical/health) **plus non-invasive measured features** (`access: anthropometric` —
+    grip strength, BMI, calf, plus waist/BP; free/consumer-obtainable, assumed true for insights).
   - Tier 3 — Tier 2 + features needing a biospecimen/assay (`access: lab|genomic|epigenetic|microbiome`):
     14 lab biomarkers, 21 scored genomic variants (+ an 80-variant scoreable catalogue), DNA-methylation
     clocks + telomere length, and gut-microbiome signatures (literature-grounded). Disease *diagnoses*
@@ -80,12 +82,24 @@ This is split by evidence status (see `longevity.py` / `longevity_context`):
 
 ## 5. Data & source registry
 
+**On the news/obituary corpus:** validated 100+ individuals are rare, so published profiles, obituaries
+and oral histories are a genuinely valuable (and hard-to-source) record of personal testimony and
+incidental clinical detail on extreme-age individuals. It is used deliberately but conservatively —
+direction/presence only, provenance-tagged (`documented_positive` vs `neutral_context`/`external_evidence`),
+and **absence of a trait is scored as neutral, never as measured depletion** — to use the signal without
+importing narrative selection bias as if it were measured prevalence.
+
 Backbone: ~18,100 academic abstracts (incl. a foundational aging-biology backbone — hallmarks of
 aging, geroscience, compression-of-morbidity) + 2,788 news/profile articles + validated
 supercentenarian registry (LongeviQuest, 3,924) + NHANES/WHO/UN WPP/HMD/GWAS reference datasets. Full registry:
 `data/processed/source_registry.csv` and `data/sources.md`; methodology in `METHODS.md` §2–§3.
 
 ## 6. Evidence grades & provenance
+
+**Tier-3 alias:** the Tier-3 `cholesterol` feature is **LDL-directional** (lower value → higher
+alignment, per NCEP ATP III); `ldl_cholesterol` is accepted as an explicit alias for it
+(`CLINICAL_ALIASES`), so a supplied `ldl_cholesterol` scores against the `cholesterol` reference. HDL is
+a separate feature (`hdl_cholesterol`, higher → favourable).
 
 Every option/feature carries a **`basis`** tag, and every result reports **`evidence_basis_pct`**
 (share of the score by provenance) and **`evidence_confidence_pct`** (model depth × response

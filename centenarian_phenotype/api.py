@@ -99,10 +99,19 @@ def create_app(layers=(1, 2, 3), cors_origins: Optional[list[str]] = None,
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
 
+    # The experimental four-class posterior is heuristic/calibration-pending (no 90-99 data; declared
+    # centroids) — research-only, so it is NOT surfaced on the public HTTP API. It remains in the Python
+    # score() for research use. See naive_bayes.py and MODEL_CARD §7/§10.
+    _RESEARCH_ONLY_FIELDS = ("class_posteriors", "centenarian_posterior", "supercentenarian_posterior",
+                             "calibration", "posterior_status", "posterior_disclaimer")
+
     def _score(layer: int, body: ScoreRequest) -> dict[str, Any]:
         try:
-            return score(layer, body.answers, clinical=body.clinical, strict=body.strict,
-                         context=body.context)
+            result = score(layer, body.answers, clinical=body.clinical, strict=body.strict,
+                           context=body.context)
+            for f in _RESEARCH_ONLY_FIELDS:
+                result.pop(f, None)
+            return result
         except ValidationError as e:
             raise HTTPException(status_code=422, detail={"error": "input validation failed",
                                                          "report": e.report})
