@@ -68,11 +68,13 @@ def test_non_strict_request_is_permissive():
     assert "q_bogus" in r.json()["warnings"]["unknown_inputs"]
 
 
-def test_score_returns_posteriors_and_product_fields():
+def test_score_returns_product_fields_but_not_research_posteriors():
     r = client.post("/v1/score/layer1",
                     json={"answers": {"q_smoking": 0, "q_family": 0, "q_social": 0}}).json()
-    assert "class_posteriors" in r and "centenarian_posterior" in r
     assert "domain_scores" in r and "missing_high_value_inputs" in r
+    # the experimental four-class posterior is research-only and must NOT be surfaced on the public API
+    assert "class_posteriors" not in r and "centenarian_posterior" not in r
+    assert "supercentenarian_posterior" not in r
 
 
 def test_layer_scoped_apps_are_independent():

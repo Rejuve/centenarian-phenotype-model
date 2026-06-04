@@ -135,6 +135,19 @@ genotypes, so the genomic layer is literature-grounded (GWAS Catalog effect dire
 validated on linked individual-level mortality**. External validation requires a genotyped + mortality
 cohort (UK Biobank / dbGaP) — a collaborator-dependent item.
 
+### 3d-bis. Gut microbiome — NOT NHANES-testable
+
+**Plan:** move from literature-direction to data-grounded by deriving a centenarian-vs-control taxa
+reference from open datasets (Zenodo 6579480; SRA centenarian metagenomes — PRJNA895352/PRJNA772518)
+and seeking an outcome-linked cohort for validation; until then it is a documented, conservative-weight
+placeholder.
+
+Two scoreable features (`access: microbiome`): alpha-diversity and centenarian-associated-taxa
+enrichment (Akkermansia muciniphila, Christensenellaceae, Bifidobacterium, SCFA-producers), with
+direction from consistent cross-population centenarian signatures (Gut Microbes 2024 PMC11364081;
+Biagi; Hainan cohort). Literature-grounded and conservative-weighted; NHANES has no microbiome, so this
+layer is **not validated on our mortality cohort** — like genomics, it needs an outcome-linked cohort.
+
 ---
 
 ## 3d. Intended use: Tier 3 as a longevity-trajectory indicator
@@ -216,19 +229,19 @@ longevity/centenarian-focused subset (n≈2,700):
   diet (32%), social (27%), physical activity (24%), sleep (15%), inflammation (12%), glucose (11%),
   lipids (11%), functional/epigenetic/APOE/hormones/microbiome/telomere/IGF-1/FOXO3 below that — all
   already represented.
-- **Top non-modelled candidate: education / socioeconomic status** (~3.3% of the focused subset) — a
-  well-established mortality determinant, self-reportable (Tier 2). Flagged for evidence grading; not
-  auto-added.
+- **Most-mentioned non-modelled construct: education / socioeconomic status** (~3.3% of the focused
+  subset). Examined and **not included**: it is a general mortality/SES determinant, not a
+  centenarian-specific trait, and is era-confounded (many of today's centenarians had limited formal
+  schooling), so it does not meet the centenarian-linkage bar the model requires.
 - **Parental/offspring longevity** appears strongly (~2.7%) and is **already captured** by the Tier-2
   family-history-of-longevity item — a confirmation, not a gap.
-- **Moderate candidates** for future evidence grading (not added): sleep apnea, oral/periodontal,
-  vitamin D.
+- **Other constructs** screened and not included: sleep apnea, oral/periodontal, vitamin D.
 - **Spurious-correlate guard:** "hearing aid / prosthetic / wheelchair" — the kind of artefact a
   chronological-age regression throws up — is near-absent in the focused longevity literature (~0.2%),
   confirming the corpus-driven rule avoids those artefacts.
 
-This is a screen (a strong signal is a candidate, not an automatic inclusion); it confirms the current
-set and surfaces education/SES as the one construct worth grading next.
+This is a screen (a strong corpus signal is a candidate, not an automatic inclusion); it **confirms the
+current feature set** — no screened construct met the centenarian-linkage bar for inclusion.
 
 ## 6. Feature-validity nuance: BMI and LDL
 

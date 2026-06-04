@@ -1,5 +1,5 @@
 # Rejuve Centenarian Clock — Python dependencies
-# Python 3.14. Install with:  pip install -r requirements.txt
+# Tested on Python 3.10+ (CI matrix 3.10-3.13). Install with:  pip install -r requirements.txt
 # Then download the spaCy model:  python -m spacy download en_core_web_sm
 
 # --- core data ---

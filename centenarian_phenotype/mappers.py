@@ -227,8 +227,8 @@ MAPPERS: dict[str, Mapper] = {
     "telomere_length": Mapper("telomere_length", "T/S ratio (relative)", (0.2, 3.0), _telomere,
                               "longer_favorable", "Leukocyte telomere-length ageing literature", "C"),
     "white_blood_cell": Mapper("white_blood_cell", "x10^9/L", (1.0, 30.0), _wbc,
-                               "mid_range_favorable", "Clinical WBC reference; inflammaging / PhenoAge"
-                               " mortality component", "B"),
+                               "mid_range_favorable",
+                               "Clinical WBC reference; inflammaging / PhenoAge mortality component", "B"),
 }
 
 

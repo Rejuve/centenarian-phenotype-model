@@ -96,12 +96,36 @@ def class_posteriors(items, priors=None, mu=None, sigma=None):
     return {c: exps[c] / z for c in CLASSES}
 
 
+# Below this many scored features the posterior is just the prior (no evidence), so we do NOT report
+# class probabilities — this prevents a near-empty profile from showing, e.g., supercentenarian mass.
+MIN_POSTERIOR_ITEMS = 4
+
+
 def posterior_summary(items, priors=None, mu=None, sigma=None):
-    """Posteriors plus the two product-relevant marginals, JSON-serialisable and rounded."""
+    """Posteriors plus the two product-relevant marginals, JSON-serialisable and rounded.
+
+    EXPERIMENTAL / RESEARCH-ONLY. The four-class layer is heuristic and `calibration_pending`: it has
+    NO 90-99 (nonagenarian) training data (the corpus is age-floored at 100), and the centenarian vs
+    supercentenarian centroids are *declared monotone assumptions*, not estimated from labelled
+    per-class feature distributions. Treat as ordinal resemblance, never as calibrated probabilities.
+    """
+    if len([it for it in items if it.get("eff_weight", it.get("weight", 0)) > 0]) < MIN_POSTERIOR_ITEMS:
+        return {
+            "class_posteriors": None,
+            "centenarian_posterior": None,
+            "supercentenarian_posterior": None,
+            "calibration": LIKELIHOOD_CALIBRATION,
+            "posterior_status": f"suppressed: needs >={MIN_POSTERIOR_ITEMS} scored features "
+                                "(too little evidence to exceed the prior)",
+            "posterior_disclaimer": "experimental/research-only; heuristic, calibration-pending; "
+                                    "no 90-99 data; cent vs supercent centroids are declared, not learned",
+        }
     post = class_posteriors(items, priors=priors, mu=mu, sigma=sigma)
     return {
         "class_posteriors": {c: round(post[c], 4) for c in CLASSES},
         "centenarian_posterior": round(post["centenarian_100_109"], 4),
         "supercentenarian_posterior": round(post["supercentenarian_110_plus"], 4),
         "calibration": LIKELIHOOD_CALIBRATION,
+        "posterior_disclaimer": "experimental/research-only; heuristic, calibration-pending; "
+                                "no 90-99 data; cent vs supercent centroids are declared, not learned",
     }

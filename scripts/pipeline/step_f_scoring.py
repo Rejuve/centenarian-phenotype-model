@@ -110,6 +110,10 @@ def _clinical_items(spec, alignments):
     for c in spec.get("epigenetic_methylation", []):
         defs[c["clock"]] = dict(weight=c["weight"], basis=c.get("basis", "epigenetic"),
                                 gwas=bool(c.get("gwas_corroborated")))
+    for m in spec.get("microbiome", []):
+        if m.get("weight", 0) and m.get("basis") != "pending":
+            defs[m["feature"]] = dict(weight=m["weight"], basis=m.get("basis", "microbiome_literature"),
+                                      gwas=bool(m.get("gwas_corroborated")))
     items = []
     for feat, al in alignments.items():
         d = defs.get(feat)

@@ -4,26 +4,26 @@ An open-source model that scores how similar a person's lifestyle, biomarker, an
 
 > **This is a similarity score, not a lifespan predictor.** The output is "your profile is *X%* similar to verified centenarians" — never a predicted age at death. Higher confidence requires deeper data, and your result can change as more data is added. This is not medical advice or diagnosis.
 
-**Model status.** The deployed scorer is an evidence-weighted alignment model over curated, provenance-graded features. It also returns a four-class Naive Bayes posterior (general population / nonagenarian / centenarian / supercentenarian) and, given country, sex, and age, a relative-longevity context built on Human Mortality Database life tables. Scope, evidence grades, and limitations are in [`MODEL_CARD.md`](MODEL_CARD.md); validation methodology and results in [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).
+**Model status.** The deployed scorer is an evidence-weighted alignment model over curated, provenance-graded features — this similarity score is the model's output. It is calibrated to all-cause mortality on a held-out NHANES 1999–2016 cohort and, given country/sex/age, set against a relative-longevity context from Human Mortality Database life tables. A four-class resemblance posterior (general / nonagenarian / centenarian / supercentenarian) also exists but is **experimental and research-only**: it is heuristic and calibration-pending, has **no 90–99 (nonagenarian) data** (the corpus is age-floored at 100), and its centenarian-vs-supercentenarian centroids are *declared* assumptions rather than learned from labelled per-class data — so it is **not** a core output and is suppressed for sparse inputs. Scope, evidence grades, and limitations are in [`MODEL_CARD.md`](MODEL_CARD.md); validation methodology and results in [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).
 
 The model ships in three tiers, each an evolution of the one before:
 
 - **Tier 1** — 12-question behavioral teaser quiz, instant shareable similarity score (free web/ad widget).
 - **Tier 2** — standalone 32-item app survey (19 NHANES-aligned behavioral incl. subjective loneliness + 13 self-report clinical/health items) **plus non-invasive measured features** (grip strength, BMI, waist, basic body composition, BP) — anything obtainable without a blood draw.
-- **Tier 3** — **Tier 2 in full** plus features that require a biospecimen/assay: 14 blood/lab biomarkers, 21 scored genomic variants, DNA-methylation clocks + telomere length (microbiome pending). This molecular panel is the deepest layer of the longevity-trajectory indicator (repeated-measures use to evaluate intervention efficacy is a future direction, not a current claim).
+- **Tier 3** — **Tier 2 in full** plus features that require a biospecimen/assay: 14 blood/lab biomarkers, 21 scored genomic variants, DNA-methylation clocks + telomere length, and gut-microbiome signatures. This molecular panel is the deepest layer of the longevity-trajectory indicator (repeated-measures use to evaluate intervention efficacy is a future direction, not a current claim).
 
 The Tier 2/3 boundary is the **necessity of a blood draw or specialized assay** (encoded per feature as an `access` tag), kept independent of any product/subscription gating.
 
 Completeness accumulates across the tiers (~30% → ~50% → ~80%): each tier carries all of the previous tier's questions into its score and adds deeper evidence on top.
 
-Built data-first from an academic + news corpus and validated reference datasets (NHANES, WHO, UN WPP, HMD, GWAS, LongeviQuest). Designed to interoperate with OpenCog Hyperon / PLN: the four-class Naive Bayes posteriors map to PLN truth values (strength, confidence).
+Built data-first from an academic + news corpus and validated reference datasets (NHANES, WHO, UN WPP, HMD, GWAS, LongeviQuest). The news corpus is used deliberately: validated 100+ individuals are rare, so the personal testimony and incidental clinical detail in obituaries/profiles are a genuine, hard-to-source signal — handled conservatively (direction/presence only, provenance-tagged, absence treated as neutral, never as measured depletion). Designed to interoperate with OpenCog Hyperon / PLN (the experimental posterior layer maps to PLN truth values; strength, confidence).
 
 ## Scope & limitations
 
 - **Similarity, not prediction.** The score expresses resemblance to verified centenarians, not a predicted age at death or probability of reaching a given age.
 - **Endpoint.** The primary endpoint is similarity to verified 100+ survival; validation to date uses all-cause mortality in NHANES as a survival proxy.
 - **Cohort.** Validation is in a single US cohort (NHANES); external replication is in progress.
-- **Posteriors.** The four-class Naive Bayes posteriors are resemblance posteriors, calibration-pending — interpret as ordinal, not as class probabilities.
+- **Posteriors (experimental, research-only).** The four-class resemblance posteriors are heuristic and calibration-pending, have no 90–99 data, use declared (not learned) class centroids, and are suppressed for sparse inputs — never interpret them as class probabilities.
 - **Not medical advice**, diagnosis, or an actuarial tool.
 
 Known failure modes, bias risks, and evidence grades: [`MODEL_CARD.md`](MODEL_CARD.md) §6–§10. Validation methodology and results: [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).

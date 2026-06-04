@@ -90,6 +90,9 @@ def finalize(report, scored_count, strict, min_items=1):
     if scored_count < min_items:
         report["missing_required_inputs"].append(
             f"need at least {min_items} valid scored item(s); got {scored_count}")
+        # A score with no scoreable inputs is meaningless (weighted mean over an empty set), so this is
+        # a hard error even in non-strict mode — never return a hollow score with a degenerate CI.
+        raise ValidationError(report)
     if strict:
         hard = ("unknown_inputs", "invalid_inputs", "out_of_range_values", "missing_required_inputs")
         if any(report[k] for k in hard):

@@ -1,6 +1,6 @@
 model: centenarian_longevity_phenotype_tier3
 layer: 3
-version: "1.2"
+version: "1.3"
 description: >
   Layer 3 (clinical) adds objectively MEASURED data ON TOP of Layers 1-2. Scientific tier membership
   follows each feature's `access` tag (see access_legend), not the file it lives in: non-invasive
@@ -34,6 +34,7 @@ basis_legend:
   measured_clinical:   "Standard clinical reference cut-offs; centenarian-favourable direction from biomarker meta-analysis in the academic corpus (METHODS 3.4, DerSimonian-Laird pooled, A/B/C graded)."
   epigenetic:          "DNA-methylation clock. Favourable = negative epigenetic age acceleration (biological < chronological) or a slow pace of ageing. Among the strongest molecular mortality predictors (Marioni 2015; Lu 2019; Belsky 2022). Measured from a methylation array — Layer 3 only."
   genomic:             "Genotype at a longevity-associated variant. Protective allele -> high alignment, adverse allele -> low. Effect direction + pathway from gwas_biomarker_pathways.csv (gwas_corroborated=True)."
+  microbiome_literature: "Direction from consistent centenarian-vs-control gut-microbiome signatures across longevous populations (Gut Microbes 2024 PMC11364081; Biagi; Hainan cohort). Silver/C-grade; not validated on our mortality cohort."
   pending:             "Feature acquired but not yet scoreable (no validated reference distribution wired in). Carries zero weight until enabled."
 
 # Scientific tier membership is derived from `access` (the necessity of a biospecimen / specialized
@@ -44,6 +45,7 @@ access_legend:
   lab:            "Requires a blood draw and a laboratory assay. TIER 3."
   genomic:        "Requires genotyping. TIER 3."
   epigenetic:     "Requires a DNA-methylation array. TIER 3."
+  microbiome:     "Requires a stool sample + 16S/metagenomic sequencing. TIER 3."
 # TIER 2 (scientific) = self-report quiz + access:anthropometric.  TIER 3 = TIER 2 + access:{lab,genomic,epigenetic}.
 
 # ---- measured biomarkers. `access` sets scientific tier: anthropometric=Tier 2, lab=Tier 3 ----
@@ -133,7 +135,15 @@ epigenetic_methylation:
   - {clock: grimage_2019,    tissue: blood,      metric: age_acceleration, direction: lower_favorable, reference: "lower GrimAge accel favourable; strongest single mortality/lifespan clock (Lu 2019)", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
   - {clock: dunedinpace_2022, tissue: blood,     metric: pace_of_aging,    direction: lower_favorable, reference: "<1.0 = ageing slower than 1 yr/yr favourable (Belsky 2022)", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
 
-# ---- microbiome: acquired, not yet scoreable ----
+# ---- gut microbiome (access: microbiome — requires a stool sample + sequencing; TIER 3) ----
+# Direction from consistent centenarian-vs-control signatures across longevous populations
+# (Ghosh/Biagi; Gut Microbes 2024 "Consistent signatures in the human gut microbiome of longevous
+# populations", PMC11364081; Sardinian and Hainan centenarian cohorts). Silver/C-grade; literature-
+# grounded and NOT validated on our mortality cohort (NHANES has no microbiome). Weight is conservative.
 microbiome:
-  - {feature: gut_microbiome_diversity, status: pending, weight: 0.00, basis: pending,
-     note: "Centenarian gut bacteriophage + diversity data acquired (Zenodo 6579480; PLOS One pone.0305583). No validated reference distribution wired in yet; zero weight until enabled."}
+  - {feature: gut_microbiome_diversity, access: microbiome, direction: higher_favorable, weight: 0.45,
+     gwas_corroborated: false, basis: microbiome_literature,
+     reference: "Higher alpha-diversity favourable; long-lived cohorts retain/raise diversity vs younger elderly"}
+  - {feature: gut_centenarian_taxa, access: microbiome, direction: higher_favorable, weight: 0.45,
+     gwas_corroborated: false, basis: microbiome_literature,
+     reference: "Enrichment of consistently centenarian-associated taxa favourable: Akkermansia muciniphila, Christensenellaceae, Bifidobacterium, and SCFA-producers"}
