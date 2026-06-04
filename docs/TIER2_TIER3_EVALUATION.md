@@ -54,6 +54,7 @@ excludes deaths < 24 months as a reverse-causation guard):
 | functional mobility | −0.389 | −0.354 |
 | smoking | −0.362 | −0.357 |
 | self-rated health | −0.346 | −0.318 |
+| education / SES | −0.246 | −0.246 |
 | depression (absence) | −0.230 | −0.204 |
 | cardiovascular event (absence) | −0.222 | −0.204 |
 | partnership | −0.216 | −0.196 |
@@ -134,6 +135,14 @@ mortality clock in the literature (Lu 2019; Belsky 2022).
 genotypes, so the genomic layer is literature-grounded (GWAS Catalog effect directions) but **not yet
 validated on linked individual-level mortality**. External validation requires a genotyped + mortality
 cohort (UK Biobank / dbGaP) — a collaborator-dependent item.
+
+### 3d-bis. Gut microbiome — NOT NHANES-testable
+
+Two scoreable features (`access: microbiome`): alpha-diversity and centenarian-associated-taxa
+enrichment (Akkermansia muciniphila, Christensenellaceae, Bifidobacterium, SCFA-producers), with
+direction from consistent cross-population centenarian signatures (Gut Microbes 2024 PMC11364081;
+Biagi; Hainan cohort). Literature-grounded and conservative-weighted; NHANES has no microbiome, so this
+layer is **not validated on our mortality cohort** — like genomics, it needs an outcome-linked cohort.
 
 ---
 

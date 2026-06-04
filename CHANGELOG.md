@@ -6,6 +6,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions are the
 fields, stamped into every result's `model_version`) and checksummed in
 `centenarian_phenotype/models/MANIFEST.sha256`.
 
+## [0.2.3] — 2026-06-04
+
+Enabled the gut-microbiome layer and added an education/SES feature.
+
+### Added
+- **Gut microbiome (Tier 3, `access: microbiome`)** — replaced the pending block with two scoreable,
+  literature-grounded features: alpha-diversity and centenarian-associated-taxa enrichment (Akkermansia
+  muciniphila, Christensenellaceae, Bifidobacterium, SCFA-producers). Cited (Gut Microbes 2024
+  PMC11364081; Biagi; Hainan cohort). Literature-grounded; not validated on our mortality cohort
+  (NHANES has no microbiome).
+- **Education / SES (Tier 2, `q_education`)** — NHANES age/sex-adjusted mortality association is strong
+  and landmark-robust (std coef −0.25, n=49,315; top unmodelled candidate from the data-first
+  re-check). Scored from external evidence (population SES gradient; cohort/era nuance documented).
+
+### Changed
+- tier2 v1.1 → v1.2 (33 items); tier3 v1.2 → v1.3; package 0.2.2 → 0.2.3.
+
 ## [0.2.2] — 2026-06-04
 
 Tier-boundary clarification, expanded measured panel with validation, and an aging-biology corpus

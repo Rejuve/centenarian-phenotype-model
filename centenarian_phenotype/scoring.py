@@ -66,7 +66,7 @@ _BASIS_QUALITY = {
     "measured": 1.0, "measured_clinical": 0.9, "genomic": 0.95, "epigenetic": 0.9,
     "heritability": 0.85, "clinical_literature": 0.8, "disease_escape": 0.8,
     "academic_corroborated": 0.75, "documented_positive": 0.7, "external_evidence": 0.6,
-    "meta_analytic": 0.85, "reasoned_gradient": 0.5, "neutral_context": 0.45,
+    "meta_analytic": 0.85, "microbiome_literature": 0.6, "reasoned_gradient": 0.5, "neutral_context": 0.45,
     "pending": 0.0, "unspecified": 0.5,
 }
 
@@ -115,6 +115,10 @@ def _feature_defs(spec) -> dict:
     for c in spec.get("epigenetic_methylation", []):
         defs[c["clock"]] = dict(weight=c["weight"], basis=c.get("basis", "epigenetic"),
                                 gwas=bool(c.get("gwas_corroborated")), domain="epigenetic")
+    for m in spec.get("microbiome", []):
+        if m.get("weight", 0) and m.get("basis") != "pending":
+            defs[m["feature"]] = dict(weight=m["weight"], basis=m.get("basis", "microbiome_literature"),
+                                      gwas=bool(m.get("gwas_corroborated")), domain="microbiome")
     # accept canonical mapper aliases (e.g. ldl_cholesterol -> cholesterol) in strict validation
     for src, dst in CLINICAL_ALIASES.items():
         if dst in defs and src not in defs:

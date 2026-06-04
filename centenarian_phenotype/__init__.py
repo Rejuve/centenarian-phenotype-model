@@ -14,4 +14,4 @@ __all__ = ["score", "get_quiz", "load_model", "MODEL_VERSIONS", "CONSTRUCT_MAP",
            "ValidationError", "map_value", "map_panel", "MAPPERS",
            "compute_clock", "compute_panel", "to_clinical_alignments", "CLOCKS",
            "population_baseline", "relative_longevity", "list_countries", "calibrated_mortality"]
-__version__ = "0.2.2"
+__version__ = "0.2.3"

@@ -1,6 +1,6 @@
 # Model Card — Centenarian Longevity Phenotype Model
 
-*Version 0.2.2 · model artifacts: tier1 v1.2, tier2 v1.1, tier3 v1.2 · last updated 2026-06-04.*
+*Version 0.2.3 · model artifacts: tier1 v1.2, tier2 v1.2, tier3 v1.3 · last updated 2026-06-04.*
 
 This card states plainly **what is implemented now, what is validated now, what is planned, and what
 is not safe to claim**. It supersedes `docs/model_card_stub.md`.
@@ -22,14 +22,15 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
 - **Tiers (compounding; boundary = necessity of a biospecimen/assay, encoded per feature as an
   `access` tag):**
   - Tier 1 — 12-question behavioral teaser.
-  - Tier 2 — standalone 32-item app survey (19 NHANES-aligned behavioral incl. loneliness + 13
-    self-report clinical/health) **plus non-invasive measured features** (`access: anthropometric` —
-    grip strength, BMI, calf, plus waist/BP; free/consumer-obtainable, assumed true for insights).
-  - Tier 3 — Tier 2 + features needing a biospecimen/assay (`access: lab|genomic|epigenetic`): 14 lab
-    biomarkers, 21 scored genomic variants (+ an 80-variant scoreable catalogue), DNA-methylation
-    clocks + telomere length; microbiome pending. Disease *diagnoses* are self-report at Tier 2 (no
-    confirmed-vs-reported field exists in the data); Tier 3 does not re-score them but measures the
-    underlying state (glucose/HbA1c, eGFR, CRP).
+  - Tier 2 — standalone 33-item app survey (19 NHANES-aligned behavioral incl. loneliness + 13
+    self-report clinical/health + 1 socioeconomic [education]) **plus non-invasive measured features**
+    (`access: anthropometric` — grip strength, BMI, calf, plus waist/BP; free/consumer-obtainable,
+    assumed true for insights).
+  - Tier 3 — Tier 2 + features needing a biospecimen/assay (`access: lab|genomic|epigenetic|microbiome`):
+    14 lab biomarkers, 21 scored genomic variants (+ an 80-variant scoreable catalogue), DNA-methylation
+    clocks + telomere length, and gut-microbiome signatures (literature-grounded). Disease *diagnoses*
+    are self-report at Tier 2 (no confirmed-vs-reported field exists in the data); Tier 3 does not
+    re-score them but measures the underlying state (glucose/HbA1c, eGFR, CRP).
   - **Intended Tier-3 use:** the lab/molecular panel indicates whether a profile is on a trajectory
     consistent with exceptional, healthy longevity (cross-sectional mortality association validated).
     Repeated-measures use to evaluate whether an intervention shifts that trajectory is a future
@@ -164,7 +165,7 @@ validation remain outstanding. Invariants are guarded by **91 unit tests**; the 
 
 ## 11. Versioning & update policy
 
-- **Package** `__version__` (currently 0.2.2) + per-tier model `version` fields stamped into every
+- **Package** `__version__` (currently 0.2.3) + per-tier model `version` fields stamped into every
   result's `model_version`.
 - Model YAML changes require a `version` bump and a passing `tests/` run (regression guard).
 - Likelihood/mapper changes are versioned independently (`MAPPER_SET_VERSION`, NB

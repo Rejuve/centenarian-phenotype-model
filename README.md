@@ -9,8 +9,8 @@ An open-source model that scores how similar a person's lifestyle, biomarker, an
 The model ships in three tiers, each an evolution of the one before:
 
 - **Tier 1** — 12-question behavioral teaser quiz, instant shareable similarity score (free web/ad widget).
-- **Tier 2** — standalone 32-item app survey (19 NHANES-aligned behavioral incl. subjective loneliness + 13 self-report clinical/health items) **plus non-invasive measured features** (grip strength, BMI, waist, basic body composition, BP) — anything obtainable without a blood draw.
-- **Tier 3** — **Tier 2 in full** plus features that require a biospecimen/assay: 14 blood/lab biomarkers, 21 scored genomic variants, DNA-methylation clocks + telomere length (microbiome pending). This molecular panel is the deepest layer of the longevity-trajectory indicator (repeated-measures use to evaluate intervention efficacy is a future direction, not a current claim).
+- **Tier 2** — standalone 33-item app survey (19 NHANES-aligned behavioral incl. subjective loneliness + 13 self-report clinical/health + education) **plus non-invasive measured features** (grip strength, BMI, waist, basic body composition, BP) — anything obtainable without a blood draw.
+- **Tier 3** — **Tier 2 in full** plus features that require a biospecimen/assay: 14 blood/lab biomarkers, 21 scored genomic variants, DNA-methylation clocks + telomere length, and gut-microbiome signatures. This molecular panel is the deepest layer of the longevity-trajectory indicator (repeated-measures use to evaluate intervention efficacy is a future direction, not a current claim).
 
 The Tier 2/3 boundary is the **necessity of a blood draw or specialized assay** (encoded per feature as an `access` tag), kept independent of any product/subscription gating.
 

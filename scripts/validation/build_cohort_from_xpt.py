@@ -266,6 +266,11 @@ def build(cycle):
         if mar in (1, 2, 3, 4, 5, 6):
             put("q_family_partner", {1: 0, 6: 1, 2: 2, 3: 3, 4: 3, 5: 3}[mar])
 
+        # education (DMDEDUC2 1=<9th..5=college grad) -> socioeconomic gradient
+        edu = val("demo", seqn, "DMDEDUC2")
+        if edu in (1, 2, 3, 4, 5):
+            put("q_education", {5: 0, 4: 1, 3: 2, 2: 3, 1: 3}[edu])
+
         # body composition self-report bands (deepest-layer L3 BMI supersedes in the full score)
         bmi = val("bmx", seqn, "BMXBMI")
         if bmi is not None:

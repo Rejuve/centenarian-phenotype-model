@@ -16,7 +16,7 @@ def test_health():
 
 def test_quiz_layers():
     assert len(client.get("/v1/quiz/1").json()["questions"]) == 12
-    assert len(client.get("/v1/quiz/2").json()["questions"]) == 32
+    assert len(client.get("/v1/quiz/2").json()["questions"]) == 33
     assert client.get("/v1/quiz/3").status_code == 404  # layer 3 is not a quiz
 
 
