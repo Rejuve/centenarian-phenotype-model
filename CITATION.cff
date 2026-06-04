@@ -8,7 +8,7 @@ abstract: >-
   held-out NHANES 1999-2016 10-year all-cause-mortality calibration. NOT a validated
   centenarian-prediction or medical-diagnostic tool (see MODEL_CARD.md).
 type: software
-version: "0.2.3"
+version: "0.2.4"
 date-released: "2026-06-04"
 license: MIT
 repository-code: "https://github.com/Rejuve/centenarian-phenotype-model"
@@ -58,3 +58,9 @@ references:
       - name: "National Center for Health Statistics (CDC)"
     url: "https://wwwn.cdc.gov/nchs/nhanes/dnam/"
     notes: "Public DNAm epigenetic-clock estimates (Horvath, Hannum, SkinBlood, PhenoAge, GrimAge, DunedinPACE), published 2024; used for epigenetic-clock mortality validation (aggregate results only)."
+  - type: database
+    title: "PGS Catalog — Polygenic Score Catalog (longevity, EFO:0004300)"
+    authors:
+      - name: "Lambert, S.A. et al."
+    url: "https://www.pgscatalog.org/trait/EFO_0004300/"
+    notes: "Open polygenic-score coefficient files (e.g. PGS000906) used as the Tier-3 longevity-PGS inputs (aggregate score weights; no person-level data)."
