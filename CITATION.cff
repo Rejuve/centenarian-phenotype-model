@@ -34,3 +34,21 @@ references:
       - name: "University of California, Berkeley, and Max Planck Institute for Demographic Research"
     url: "https://www.mortality.org"
     notes: "Country x sex period life tables underlying the relative-longevity population baselines."
+  - type: data
+    title: "National Health and Nutrition Examination Survey (Continuous NHANES)"
+    authors:
+      - name: "National Center for Health Statistics (CDC)"
+    url: "https://www.cdc.gov/nchs/nhanes/"
+    notes: "Survey data (demographics, examination, laboratory, questionnaire) for the validation cohorts."
+  - type: article
+    title: "The NHGRI-EBI GWAS Catalog: knowledgebase and deposition resource"
+    authors:
+      - name: "Sollis, E. et al."
+    doi: "10.1093/nar/gkac1010"
+    notes: "Nucleic Acids Research 2023;51(D1):D977-D985. Source of the curated longevity-variant panel."
+  - type: database
+    title: "LongeviQuest validated supercentenarian/centenarian records"
+    authors:
+      - name: "LongeviQuest"
+    url: "https://longeviquest.com"
+    notes: "Validated extreme-longevity registry used as a primary corpus source (attribution requested)."
