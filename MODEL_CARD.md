@@ -30,9 +30,10 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
     clocks + telomere length; microbiome pending. Disease *diagnoses* are self-report at Tier 2 (no
     confirmed-vs-reported field exists in the data); Tier 3 does not re-score them but measures the
     underlying state (glucose/HbA1c, eGFR, CRP).
-  - **Intended Tier-3 use:** the lab/molecular panel, measured repeatedly, is a longevity-trajectory /
-    therapeutic-efficacy instrument (cross-sectional mortality association validated; within-person
-    sensitivity-to-change pending).
+  - **Intended Tier-3 use:** the lab/molecular panel indicates whether a profile is on a trajectory
+    consistent with exceptional, healthy longevity (cross-sectional mortality association validated).
+    Repeated-measures use to evaluate whether an intervention shifts that trajectory is a future
+    direction, not a current claim.
 
 ## 2. Intended use
 
@@ -137,9 +138,9 @@ insurance/actuarial decisions, or any individual medical decision. **This is not
 **Preliminary signal only; not yet validated for any claim.** Pooled NHANES 1999–2016 linked mortality
 (**N=53,255; 9,104 deaths; up to ~20-yr follow-up**) shows the *untrained* phenotype score is
 associated with **lower all-cause mortality independent of age** (protective within every age band and
-both sexes). The compounding tiers discriminate as: **Tier 2 (self-report) AUC→survival 0.660 →
-Tier 3 (Tier 2 + measured) 0.692** (age/sex-adjusted score weight −0.318 → −0.439); self-report and
-measured data are complementary.
+both sexes). The compounding tiers discriminate as: **Tier 2 (self-report + anthropometric) AUC→survival 0.655 →
+Tier 3 (+ lab biomarkers) 0.686** (age/sex-adjusted score weight −0.333 → −0.410); the lab/molecular
+layer adds over self-report.
 
 Per-feature (age/sex-adjusted, reverse-causation landmark): self-report leaders are functional
 mobility (−0.39), smoking (−0.36), self-rated health (−0.35); Tier-3 **lab biomarkers** CRP (−0.31),

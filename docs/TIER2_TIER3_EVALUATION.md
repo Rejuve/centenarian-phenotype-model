@@ -137,16 +137,17 @@ cohort (UK Biobank / dbGaP) — a collaborator-dependent item.
 
 ---
 
-## 3d. Intended use: Tier 3 as a longevity-trajectory / efficacy instrument
+## 3d. Intended use: Tier 3 as a longevity-trajectory indicator
 
-The Tier-3 measured panel, taken **together and measured repeatedly**, is intended as a longevity-
-trajectory predictor: an objective instrument to evaluate whether a therapeutic or protocol is placing a
-person on a healthier trajectory toward 100+. A single reading estimates current standing; the change in
-the panel between readings is the trajectory signal, and serves as a surrogate read-out of intervention
-efficacy.
+The model's initial goal is to indicate, with reproducible and reputable certainty, whether a profile is
+on an aging trajectory **consistent with reaching an exceptional, healthy old age** — and which modifiable
+features could move it toward that trajectory. The Tier-3 lab/molecular panel is the deepest, most
+objective layer of that indicator, and is the natural instrument for clinical and aging-research use.
 
-This use favours features that are both mortality-predictive (§3a–b) **and responsive to change**.
-Several components are purpose-built or well-suited for repeated-measures tracking:
+A future milestone — **not a claim of this model** — is repeated-measures use to evaluate whether a
+therapeutic or protocol shifts a person's trajectory; that requires longitudinal/interventional data and
+is out of scope here. Features that are both mortality-predictive (§3a–b) **and responsive to change**
+position the panel for that future use:
 
 - **DunedinPACE** — pace of ageing per calendar year; designed to detect intervention effects in trials.
 - **Epigenetic age acceleration** (GrimAge/PhenoAge/Hannum/Horvath) — the strongest mortality signals
@@ -154,30 +155,31 @@ Several components are purpose-built or well-suited for repeated-measures tracki
 - **CRP / WBC** (inflammatory load), **HbA1c / glucose** (glycaemic control), **grip strength**
   (function), **HDL / triglycerides** (lipids) — established, modifiable, repeatable markers.
 
-The cross-sectional mortality association in this document establishes that the panel **tracks survival**.
-Using it as an *efficacy* instrument additionally requires **within-person sensitivity-to-change**
-validation (a repeated-measures or interventional cohort) and links to the cause-specific trajectory
-model (`scripts/validation/trajectory_model.py`). Both are collaborator/data-dependent and are stated as
-pending, not claimed.
+The cross-sectional mortality association in this document establishes that the panel **tracks survival**
+(the trajectory-indicator claim). The future intervention-efficacy direction would additionally require
+**within-person sensitivity-to-change** evidence from longitudinal/interventional data — out of scope
+here and explicitly not claimed.
 
 ## 4. Tiered score → mortality discrimination (compounding)
 
-The composite score at each tier, as a predictor of all-cause survival (age/sex-adjusted weight;
-negative = higher score lowers modelled mortality):
+Each tier's score (evidence-weighted mean of its features' alignments, partitioned by `access`) as a
+predictor of all-cause survival, age/sex-adjusted (negative weight = higher score lowers modelled
+mortality; 24-month landmark in parentheses). Reproduced by `tier_ablation_by_access.py`:
 
-| score | n | deaths | AUC→survival | age/sex-adj weight |
-|---|---:|---:|---:|---:|
-| **Tier 2** (self-report quiz) | 53,255 | 9,104 | 0.660 | −0.318 |
-| measured-only (all clinical inputs) | 50,559 | 8,155 | 0.662 | −0.374 |
-| **Tier 3 = self-report + measured** | 53,255 | 9,104 | **0.692** | **−0.439** |
+| tier | features | AUC→survival | age/sex-adj weight |
+|---|---|---:|---:|
+| **Tier 2** | self-report + anthropometric | 0.655 | −0.333 (−0.303) |
+| **Tier 3** | + lab biomarkers | **0.686** | **−0.410 (−0.378)** |
+| *(reference)* self-report only | quiz | 0.660 | −0.318 |
+| *(reference)* lab only | blood/lab | 0.677 | −0.362 |
 
-Self-report and measured data are complementary: the compounded score discriminates better than either
-component alone, and carries the strongest age/sex-adjusted protective weight. Two caveats: (1) this
-composite does not yet fold in the epigenetic clocks of §3b, which were validated separately and are the
-strongest individual signals; integrating them is a pending step. (2) The "measured-only" row pools all
-clinical inputs as run; under the `access` taxonomy the anthropometric features (grip/BMI/calf) belong to
-Tier 2, so a fully access-partitioned re-run (self-report+anthropometric vs lab/omics) is a refinement —
-it does not change the conclusion that the layers compound.
+n = 53,255 (9,104 deaths). The layers **compound**: adding the lab/molecular block lifts discrimination
+and the protective weight over Tier 2. The anthropometric features contribute little on their own
+(BMI is the documented null of §6; grip has limited cycle coverage), so the lift is carried by the lab
+layer. Two notes: (1) this cross-sectional composite does not fold in the §3b epigenetic clocks — the
+strongest individual signals — which are available only in the 1999–2002 DNAm subsample; integrating
+them is pending. (2) The deployed composite scorer (with its gwas-corroboration bonus) gives a
+held-out Tier-3 AUC of ~0.69, consistent with the above.
 
 Calibration of the composite (held-out): ECE 0.018, Brier 0.090.
 
