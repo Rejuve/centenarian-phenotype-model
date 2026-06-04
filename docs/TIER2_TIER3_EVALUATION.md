@@ -189,12 +189,27 @@ mortality; 24-month landmark in parentheses). Reproduced by `tier_ablation_by_ac
 n = 53,255 (9,104 deaths). The layers **compound**: adding the lab/molecular block lifts discrimination
 and the protective weight over Tier 2. The anthropometric features contribute little on their own
 (BMI is the documented null of §6; grip has limited cycle coverage), so the lift is carried by the lab
-layer. Two notes: (1) this cross-sectional composite does not fold in the §3b epigenetic clocks — the
-strongest individual signals — which are available only in the 1999–2002 DNAm subsample; integrating
-them is pending. (2) The deployed composite scorer (with its gwas-corroboration bonus) gives a
-held-out Tier-3 AUC of ~0.69, consistent with the above.
+layer. The full-cohort composite above does not include the §3b epigenetic clocks (available only in the
+1999–2002 DNAm subsample); their contribution is quantified in §4a. The deployed composite scorer (with
+its gwas-corroboration bonus) gives a held-out Tier-3 AUC of ~0.69, consistent with the above.
 
 Calibration of the composite (held-out): ECE 0.018, Brier 0.090.
+
+### 4a. Composite + epigenetic clocks (DNAm subsample)
+
+On the 1999–2002 DNAm subsample (n = 2,532, 1,361 deaths), folding the clocks into the composite
+Tier-3 score (`composite_with_clocks.py`):
+
+| composite | AUC→survival | age/sex-adj weight |
+|---|---:|---:|
+| Tier 3, no clocks | 0.617 | −0.499 (−0.488) |
+| **Tier 3 + clocks** | 0.568 | **−0.652 (−0.632)** |
+
+Adding the clocks **substantially strengthens the age/sex-adjusted protective signal** (−0.50 → −0.65,
+landmark-robust) — the strongest in the model. The raw AUC dips because clock *acceleration* is
+age-confounded (the same pattern documented for individual clocks in §3b), so for an age-independent
+score the **age-adjusted coefficient is the correct read**. This confirms the clocks belong in the
+composite where a methylation array is available.
 
 ---
 
