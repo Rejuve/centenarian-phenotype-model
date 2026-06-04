@@ -1,6 +1,6 @@
 model: centenarian_longevity_phenotype_tier3
 layer: 3
-version: "1.3"
+version: "1.4"
 description: >
   Layer 3 (clinical) adds objectively MEASURED data ON TOP of Layers 1-2. Scientific tier membership
   follows each feature's `access` tag (see access_legend), not the file it lives in: non-invasive
@@ -113,6 +113,19 @@ genomic_panel_extended:
   caveats:
     - "cent_WGS.txt corroboration is limited: GRCh38 GWAS positions vs the WGS build match for only 2 variants (build mismatch), and the WGS centenarian sample is small (~27). Used for candidate corroboration, not discovery."
     - "Nothing invented: effect direction is read from the catalog trait + OR/BETA; ambiguous cases stay 'reported'."
+
+# ---- polygenic scores (access: genomic; aggregate, whole-genome). Open coefficient files from the
+# PGS Catalog longevity trait EFO:0004300, applied when a user's genotype yields the score. Higher
+# longevity/lifespan PGS -> higher alignment. Evidence class = literature-grounded (published score
+# weights + their GWAS), like the single variants; cohort validation awaits a genotyped,
+# outcome-linked dataset (UK Biobank / dbGaP). ----
+polygenic_scores:
+  - {feature: pgs_longevity, access: genomic, pgs_id: PGS000906, direction: higher_favorable, weight: 0.70,
+     gwas_corroborated: true, basis: genomic,
+     reference: "Longevity polygenic score (PGS Catalog PGS000906, trait EFO:0004300); higher favourable"}
+  - {feature: pgs_parental_lifespan, access: genomic, direction: higher_favorable, weight: 0.70,
+     gwas_corroborated: true, basis: genomic,
+     reference: "Parental-lifespan PGS (Timmers 2019, ~1M parental lifespans; PGS Catalog EFO:0004300); higher favourable"}
 
 # ---- DNA methylation / epigenetic clocks (weight 0.66; measured from a methylation array) ----
 # Direction: negative epigenetic age acceleration (biological age < chronological) or pace < 1.0

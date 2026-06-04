@@ -112,6 +112,9 @@ def _feature_defs(spec) -> dict:
     for v in spec.get("genomic_variants", []):
         defs[v["variant"]] = dict(weight=v["weight"], basis=v.get("basis", "genomic"), gwas=True,
                                   domain="genomic")
+    for p in spec.get("polygenic_scores", []):
+        defs[p["feature"]] = dict(weight=p["weight"], basis=p.get("basis", "genomic"),
+                                  gwas=bool(p.get("gwas_corroborated")), domain="genomic")
     for c in spec.get("epigenetic_methylation", []):
         defs[c["clock"]] = dict(weight=c["weight"], basis=c.get("basis", "epigenetic"),
                                 gwas=bool(c.get("gwas_corroborated")), domain="epigenetic")

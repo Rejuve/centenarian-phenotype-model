@@ -6,6 +6,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions are the
 fields, stamped into every result's `model_version`) and checksummed in
 `centenarian_phenotype/models/MANIFEST.sha256`.
 
+## [0.2.4] — 2026-06-05
+
+### Added
+- **Open longevity polygenic scores (Tier 3, `access: genomic`)** — `pgs_longevity` (PGS Catalog
+  PGS000906) and `pgs_parental_lifespan` (Timmers 2019), drawn from the PGS Catalog longevity trait
+  (EFO:0004300). Open coefficient files, applied when a user's genotype yields the score; same
+  literature-grounded evidence class as the single variants, with cohort validation awaiting a
+  genotyped, outcome-linked dataset (UK Biobank / dbGaP).
+- **Validated folding the DNA-methylation clocks into the composite Tier-3 score** on the 1999–2002
+  DNAm subsample (`composite_with_clocks.py`): age/sex-adjusted signal strengthens −0.50 → −0.65.
+- **README "Validation (preliminary)" section** with the current NHANES + PhenoAge readouts.
+
+### Changed
+- tier3 v1.3 → v1.4; package 0.2.3 → 0.2.4.
+
 ## [0.2.3] — 2026-06-04
 
 Enabled the gut-microbiome layer (literature-grounded), tightened the Naïve Bayes posterior, and

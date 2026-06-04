@@ -40,7 +40,7 @@ Evaluated on **NHANES 1999–2016** linked mortality (N = 53,255; 9,104 deaths),
 - **Concurs with — and adds to — PhenoAge.** Against the clinical biological-age standard (Levine 2018), the score shows concurrent validity (r = −0.59) and adds **+0.02 AUC over PhenoAge + age + sex** — i.e. it carries mortality information beyond the gold-standard clock.
 - **Calibrated and reproducible.** A held-out 10-year all-cause-mortality calibration gives ECE ≈ 0.02; every figure above is reproducible from `scripts/validation/`.
 
-These results establish that the score tracks **all-cause mortality** (a survival proxy) independent of age, and agrees with PhenoAge, in a single unweighted US cohort. They do not by themselves establish prediction of survival to 100, and are not externally replicated; external validation, survey-weighted estimation, and reaching-100 calibration are described in `MODEL_CARD.md` §10.
+These results establish that the score tracks **all-cause mortality** (a survival proxy) independent of age, and agrees with PhenoAge, in a single US cohort. The next steps toward a prediction claim — external replication, survey-weighted estimation, and calibration to reaching 100 — are set out in `MODEL_CARD.md` §10.
 
 ---
 

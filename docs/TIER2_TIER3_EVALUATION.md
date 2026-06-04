@@ -130,10 +130,12 @@ mortality clock in the literature (Lu 2019; Belsky 2022).
 
 ### 3c. Genomic variants — NOT NHANES-testable
 
-21 inlined longevity variants + an 80-variant scoreable curated catalogue. NHANES releases no public
-genotypes, so the genomic layer is literature-grounded (GWAS Catalog effect directions) but **not yet
-validated on linked individual-level mortality**. External validation requires a genotyped + mortality
-cohort (UK Biobank / dbGaP) — a collaborator-dependent item.
+21 inlined longevity variants + an 80-variant scoreable curated catalogue, plus open longevity
+**polygenic scores** from the PGS Catalog (`pgs_longevity` PGS000906; `pgs_parental_lifespan`,
+Timmers 2019; trait EFO:0004300) applied when a user's genotype yields the score. The genomic layer is
+literature-grounded (GWAS/PGS Catalog effect directions); validating it on linked individual-level
+mortality is the next step and requires a genotyped, outcome-linked cohort (UK Biobank / dbGaP) — a
+collaborator-dependent item.
 
 ### 3d-bis. Gut microbiome — NOT NHANES-testable
 
