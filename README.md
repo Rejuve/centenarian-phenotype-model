@@ -4,7 +4,7 @@ An open-source model that scores how similar a person's lifestyle, biomarker, an
 
 > **This is a similarity score, not a lifespan predictor.** The output is "your profile is *X%* similar to verified centenarians" — never a predicted age at death. Higher confidence requires deeper data, and your result can change as more data is added. This is not medical advice or diagnosis.
 
-**Model status (read this first):** the deployed v1 scorer is an **evidence-weighted alignment** model built from a curated evidence corpus — *not* the output of a supervised training run, and *not* yet externally validated. It additionally returns a **four-class Naive Bayes posterior** (general population / nonagenarian / centenarian / supercentenarian) as a *derived, calibration-pending* output. A score can be framed **relative to your own country and sex** using a *validated* demographic baseline (HMD life tables), while the mapping from phenotype to personal survival odds stays *calibration-pending*. A fully calibrated Naive Bayes and external validation are the **planned v2**. See [`MODEL_CARD.md`](MODEL_CARD.md), [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md), and [`AUDIT_FIXES.md`](AUDIT_FIXES.md) for exactly what is implemented, validated, planned, and not-yet-safe-to-claim.
+**Model status.** The deployed scorer is an evidence-weighted alignment model over curated, provenance-graded features. It also returns a four-class Naive Bayes posterior (general population / nonagenarian / centenarian / supercentenarian) and, given country, sex, and age, a relative-longevity context built on Human Mortality Database life tables. Scope, evidence grades, and limitations are in [`MODEL_CARD.md`](MODEL_CARD.md); validation methodology and results in [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).
 
 The model ships in three tiers, each an evolution of the one before:
 
@@ -15,6 +15,16 @@ The model ships in three tiers, each an evolution of the one before:
 Completeness accumulates across the tiers (~30% → ~50% → ~80%): each tier carries all of the previous tier's questions into its score and adds deeper evidence on top.
 
 Built data-first from an academic + news corpus and validated reference datasets (NHANES, WHO, UN WPP, HMD, GWAS, LongeviQuest). Designed to interoperate with OpenCog Hyperon / PLN: the four-class Naive Bayes posteriors map to PLN truth values (strength, confidence).
+
+## Scope & limitations
+
+- **Similarity, not prediction.** The score expresses resemblance to verified centenarians, not a predicted age at death or probability of reaching a given age.
+- **Endpoint.** The primary endpoint is similarity to verified 100+ survival; validation to date uses all-cause mortality in NHANES as a survival proxy.
+- **Cohort.** Validation is in a single US cohort (NHANES); external replication is in progress.
+- **Posteriors.** The four-class Naive Bayes posteriors are resemblance posteriors, calibration-pending — interpret as ordinal, not as class probabilities.
+- **Not medical advice**, diagnosis, or an actuarial tool.
+
+Known failure modes, bias risks, and evidence grades: [`MODEL_CARD.md`](MODEL_CARD.md) §6–§10. Validation methodology and results: [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md).
 
 ---
 
@@ -62,7 +72,7 @@ longevity-baselines`.
 ## Development & security
 
 ```bash
-pip install -e ".[test,api]" && python -m pytest -q   # 88 tests
+pip install -e ".[test,api]" && python -m pytest -q   # 91 tests
 git config core.hooksPath .githooks                    # enable the secret-scan pre-commit hook
 ```
 
