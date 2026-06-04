@@ -266,6 +266,28 @@ cumulative sequence. The two feature blocks are:
 
 Next: confidence intervals on the increment (DeLong / bootstrap); replication in an independent cohort.
 
+## 3g. Cause-specific trajectory model (controlling for non-aging mortality)
+
+*`trajectory_model.py` — discrete-time (pooled-logistic) survival over yearly follow-up on NHANES
+1999–2014 (N=44,998; 7,684 aging-related deaths). Deaths coded as unintentional injuries
+(UCOD_LEADING 004; 264 deaths) are censored, so the endpoint is **aging-related** survival rather than
+all-cause. Predictors: phenotype score, age, sex, follow-up time. Out-of-sample (70/30); aggregate,
+NCHS-cited. This is the first step of the roadmap's predictive-trajectory extension.*
+
+- The phenotype score is protective for aging-related survival (standardized hazard coefficient −0.32).
+- Held-out time-dependent discrimination: AUC **0.88 (5-yr), 0.90 (10-yr, 95% CI 0.89–0.91), 0.92
+  (15-yr)**.
+- Censoring non-aging (accident) deaths raises discrimination at every horizon relative to the
+  all-cause endpoint (10-yr 0.899 vs 0.893; 5-yr 0.882 vs 0.875; 15-yr 0.918 vs 0.912), consistent
+  with removing deaths the phenotype is not expected to predict.
+- The fitted hazard produces a per-person predicted aging-related survival to a horizon — the
+  trajectory output to wire into `longevity_context`.
+
+AUC reflects the full model (age and follow-up time are strong predictors); the phenotype's
+independent contribution is the hazard coefficient. Single cohort; competing-risks sensitivity and
+external replication remain. Next: a reaching-90/100 trajectory conditional on current age; interaction
+terms; PGS and clock inputs; replication.
+
 ## 4. Sequencing
 
 1. **Data-derived feature shapes + provenance labels.** Replace *imposed* mapper shapes with shapes
