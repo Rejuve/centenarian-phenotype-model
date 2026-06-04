@@ -40,7 +40,7 @@ def test_every_option_has_alignment_and_basis(layer):
 
 def test_tier3_features_have_weight_and_basis():
     t3 = load_model(3)
-    for grp in ("clinical_biomarkers", "clinical_disease_flags", "genomic_variants", "epigenetic_methylation"):
+    for grp in ("clinical_biomarkers", "genomic_variants", "epigenetic_methylation"):
         for f in t3[grp]:
             assert "weight" in f
             assert f.get("basis"), f"{grp} entry missing basis"
@@ -108,9 +108,10 @@ def test_layer3_is_higher_confidence_than_layer2():
 
 def test_deepest_layer_wins_dedup():
     t2 = load_model(2)
-    # supplying measured diabetes should supersede the L2 self-report q_diabetes
-    r = score(3, opt0(t2), clinical={"diabetes": 1.0})
-    assert "q_diabetes" in r["superseded_by_l3"]
+    # supplying a measured Layer-3 biomarker should supersede the coarse L2 self-report for the same
+    # construct (disease *diagnoses* stay self-report; only measured constructs supersede)
+    r = score(3, opt0(t2), clinical={"body_mass_index": 1.0})
+    assert "q_body_mass_index" in r["superseded_by_l3"]
 
 
 # ---------- provenance + versioning ----------

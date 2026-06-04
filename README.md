@@ -9,8 +9,10 @@ An open-source model that scores how similar a person's lifestyle, biomarker, an
 The model ships in three tiers, each an evolution of the one before:
 
 - **Tier 1** — 12-question behavioral teaser quiz, instant shareable similarity score (free web/ad widget).
-- **Tier 2** — standalone 32-item app survey: 19 NHANES-aligned behavioral (incl. subjective loneliness) + 13 self-report clinical/health items (free app).
-- **Tier 3** — **Tier 2 in full** plus blood biomarkers, 21 genomic variants, DNA-methylation clocks + telomere length, and microbiome pending (subscription).
+- **Tier 2** — standalone 32-item app survey (19 NHANES-aligned behavioral incl. subjective loneliness + 13 self-report clinical/health items) **plus non-invasive measured features** (grip strength, BMI, waist, basic body composition, BP) — anything obtainable without a blood draw.
+- **Tier 3** — **Tier 2 in full** plus features that require a biospecimen/assay: 14 blood/lab biomarkers, 21 scored genomic variants, DNA-methylation clocks + telomere length (microbiome pending). This molecular panel is the intended longevity-trajectory / therapeutic-efficacy instrument.
+
+The Tier 2/3 boundary is the **necessity of a blood draw or specialized assay** (encoded per feature as an `access` tag), kept independent of any product/subscription gating.
 
 Completeness accumulates across the tiers (~30% → ~50% → ~80%): each tier carries all of the previous tier's questions into its score and adds deeper evidence on top.
 
@@ -108,7 +110,7 @@ All scrapers are idempotent (skip-if-exists / ID dedup) and save incrementally.
 
 | source | records | role |
 |---|---:|---|
-| Academic papers (PubMed/EuropePMC/Semantic Scholar) | 10,105 | primary corpus (abstracts) |
+| Academic papers (PubMed/EuropePMC/Semantic Scholar) | ~18,100 | primary corpus (abstracts; incl. foundational aging-biology backbone — hallmarks of aging, geroscience, compression-of-morbidity) |
 | News / obituary / oral-history / GDELT | 2,788 | lifestyle-trait corpus |
 | LongeviQuest atlas + profiles | 3,924 + ~3,800 | validated 110+ registry & biographical profiles |
 | Wikipedia / TidyTuesday supercentenarians | 219 / 124 | registry cross-reference |
@@ -140,6 +142,7 @@ docs/                project documentation (below)
 
 - **MODEL_CARD.md** — complete model card: intended/non-intended use, endpoint, evidence grades, bias, failure modes, regulatory disclaimer, versioning, validation status.
 - **VALIDATION_PLAN.md** — cohorts, metrics, acceptance gates, and the preliminary NHANES mortality signal + held-out calibration (not externally replicated; not centenarian-attainment validation).
+- **docs/TIER2_TIER3_EVALUATION.md** — compounding Tier-2/Tier-3 variable spec, NHANES-testability matrix, per-feature + tiered mortality association, epigenetic-clock validation, and the PhenoAge benchmark.
 - **AUDIT_FIXES.md** — what the latest audit changed, what's deferred, and the model-status statement.
 - **docs/SOURCE_REGISTRY.md** — enriched source schema, current sources, and prioritized freely-available candidates toward validation.
 - **docs/DATA_STRATEGY.md** — tiered source-quality ranking, AI/LLM-use screening (person-level data vs permitted aggregate/package use), plan for filling missing constructs, nonagenarian/public-figure data, early-life factors, and the behaviour/genetics/experience variance decomposition.

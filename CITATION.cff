@@ -8,8 +8,8 @@ abstract: >-
   held-out NHANES 1999-2016 10-year all-cause-mortality calibration. NOT a validated
   centenarian-prediction or medical-diagnostic tool (see MODEL_CARD.md).
 type: software
-version: "0.2.1"
-date-released: "2026-06-03"
+version: "0.2.2"
+date-released: "2026-06-04"
 license: MIT
 repository-code: "https://github.com/Rejuve/centenarian-phenotype-model"
 authors:
@@ -52,3 +52,9 @@ references:
       - name: "LongeviQuest"
     url: "https://longeviquest.com"
     notes: "Validated extreme-longevity registry used as a primary corpus source (attribution requested)."
+  - type: data
+    title: "NHANES 1999-2002 DNA Methylation Array and Epigenetic Biomarkers"
+    authors:
+      - name: "National Center for Health Statistics (CDC)"
+    url: "https://wwwn.cdc.gov/nchs/nhanes/dnam/"
+    notes: "Public DNAm epigenetic-clock estimates (Horvath, Hannum, SkinBlood, PhenoAge, GrimAge, DunedinPACE), published 2024; used for epigenetic-clock mortality validation (aggregate results only)."

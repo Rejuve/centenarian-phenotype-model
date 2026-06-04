@@ -6,6 +6,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions are the
 fields, stamped into every result's `model_version`) and checksummed in
 `centenarian_phenotype/models/MANIFEST.sha256`.
 
+## [0.2.2] — 2026-06-04
+
+Tier-boundary clarification, expanded measured panel with validation, and an aging-biology corpus
+backbone — toward publication-grade evidence.
+
+### Changed
+- **Tier boundary is now the necessity of a biospecimen/assay**, encoded per feature as an `access`
+  tag (`self_report | anthropometric | lab | genomic | epigenetic`). Tier 2 = self-report +
+  `anthropometric` (non-invasive, free/consumer-obtainable, assumed true for insights); Tier 3 =
+  Tier 2 + `lab|genomic|epigenetic`. `grip_strength`, `muscle_strength`, `calf_circumference`,
+  `body_mass_index` are now Tier 2; the 14 lab biomarkers + genomics + clocks are Tier 3.
+- **Disease diagnoses are Tier-2 self-report only.** Removed the `clinical_disease_flags` block from
+  `tier3_model.yaml` (the escaper/delayer phenotype is carried by Tier-2 self-report and the
+  `disease_escape_similarity` decomposition); pruned `CONSTRUCT_MAP`/`CORE_L3_PANEL` accordingly.
+- Tier-3 model artifact **v1.0 → v1.2**; package **0.2.1 → 0.2.2**.
+
+### Added
+- **Measured features WBC, grip strength, telomere length** pulled into the validation cohort
+  (NHANES CBC / MGX 2011–2014 / TELO 1999–2002) with a `white_blood_cell` mapper; all three validate
+  (age/sex-adjusted, landmark-robust).
+- **DNA-methylation clock validation** — fetched the public NHANES DNAm file (`build_epi_cohort.py`);
+  GrimAge/DunedinPACE/PhenoAge clocks are the strongest mortality signals in the set.
+- **`docs/TIER2_TIER3_EVALUATION.md`** — compounding tier spec, NHANES-testability matrix, per-feature
+  + tiered mortality association, PhenoAge benchmark, and the Tier-3 trajectory/efficacy-instrument use.
+- **Aging-biology corpus backbone** — foundational queries (hallmarks of aging, geroscience,
+  compression-of-morbidity, etc.) added to the academic scraper.
+
+### Note
+- Product/paywall gating is intentionally **not** represented in the open model (a separate app
+  concern); the open artifacts carry only the scientific `access` taxonomy.
+
 ## [0.2.1] — 2026-06-03
 
 Release-quality fixes from a follow-up review, plus the per-feature mortality analysis.

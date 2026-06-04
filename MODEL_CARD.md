@@ -1,6 +1,6 @@
 # Model Card — Centenarian Longevity Phenotype Model
 
-*Version 0.2.1 · model artifacts: tier1 v1.2, tier2 v1.1, tier3 v1.0 · last updated 2026-06-03.*
+*Version 0.2.2 · model artifacts: tier1 v1.2, tier2 v1.1, tier3 v1.2 · last updated 2026-06-04.*
 
 This card states plainly **what is implemented now, what is validated now, what is planned, and what
 is not safe to claim**. It supersedes `docs/model_card_stub.md`.
@@ -19,10 +19,20 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
   the same evidence. **The math is implemented and tested; the likelihoods are
   `calibration: "heuristic_pending"`** (declared monotone class centroids, not estimated from
   labelled per-class feature distributions — see §8 bias/limitations and §7 known failure modes).
-- **Tiers:** Tier 1 — 12-question behavioral teaser; Tier 2 — standalone 32-item app survey
-  (19 NHANES-aligned behavioral incl. loneliness + 13 self-report clinical/health); Tier 3 — Tier 2 + blood
-  biomarkers, 21 scored genomic variants, DNA-methylation clocks + telomere length, microbiome
-  (pending).
+- **Tiers (compounding; boundary = necessity of a biospecimen/assay, encoded per feature as an
+  `access` tag):**
+  - Tier 1 — 12-question behavioral teaser.
+  - Tier 2 — standalone 32-item app survey (19 NHANES-aligned behavioral incl. loneliness + 13
+    self-report clinical/health) **plus non-invasive measured features** (`access: anthropometric` —
+    grip strength, BMI, calf, plus waist/BP; free/consumer-obtainable, assumed true for insights).
+  - Tier 3 — Tier 2 + features needing a biospecimen/assay (`access: lab|genomic|epigenetic`): 14 lab
+    biomarkers, 21 scored genomic variants (+ an 80-variant scoreable catalogue), DNA-methylation
+    clocks + telomere length; microbiome pending. Disease *diagnoses* are self-report at Tier 2 (no
+    confirmed-vs-reported field exists in the data); Tier 3 does not re-score them but measures the
+    underlying state (glucose/HbA1c, eGFR, CRP).
+  - **Intended Tier-3 use:** the lab/molecular panel, measured repeatedly, is a longevity-trajectory /
+    therapeutic-efficacy instrument (cross-sectional mortality association validated; within-person
+    sensitivity-to-change pending).
 
 ## 2. Intended use
 
@@ -68,8 +78,9 @@ This is split by evidence status (see `longevity.py` / `longevity_context`):
 
 ## 5. Data & source registry
 
-Backbone: 10,105 academic abstracts + 2,788 news/profile articles + validated supercentenarian
-registry (LongeviQuest, 3,924) + NHANES/WHO/UN WPP/HMD/GWAS reference datasets. Full registry:
+Backbone: ~18,100 academic abstracts (incl. a foundational aging-biology backbone — hallmarks of
+aging, geroscience, compression-of-morbidity) + 2,788 news/profile articles + validated
+supercentenarian registry (LongeviQuest, 3,924) + NHANES/WHO/UN WPP/HMD/GWAS reference datasets. Full registry:
 `data/processed/source_registry.csv` and `data/sources.md`; methodology in `METHODS.md` §2–§3.
 
 ## 6. Evidence grades & provenance
@@ -123,27 +134,36 @@ insurance/actuarial decisions, or any individual medical decision. **This is not
 
 ## 10. Validation status
 
-**Preliminary signal only; not yet validated for any claim.** A first external run against pooled
-NHANES 1999–2016 linked mortality (**N=53,255; 9,106 deaths; up to ~20-yr follow-up**) shows the
-*untrained* phenotype score is associated with **lower all-cause mortality independent of age**
-(age/sex-adjusted standardized weight −0.39; protective within every age band **and in both sexes**;
-AUC score→survival 0.69; well-calibrated, ECE 0.019). Ablation shows the **behavioral/self-report
-block (~15 NHANES-mapped questions incl. PHQ-9 depression, self-rated health, activity, sleep, diet)
-and the 8-marker lab panel carry comparable, complementary signal** (AUC→survival 0.66 vs 0.65; full
-0.69). Full-score discrimination rose 0.59→0.66→0.69 as the lab and self-report mappings widened — the
-progression expected of a genuine signal. This is a **survival proxy, not centenarian attainment**, in
-a single US cohort, untrained and unreplicated — encouraging but **not** a validated claim. A bundled,
-**held-out** calibration (`survival_calibration.yaml`; NHANES 1999–2016, n=32,082) now maps the score
-to **10-year all-cause mortality** (out-of-sample AUC 0.896, ECE 0.020; age/sex-adjusted score weight
-−0.555) and feeds `longevity_context.calibrated_mortality` — *all-cause mortality, not centenarian
-attainment*. Calibration of the trajectory band to *reaching specific ages*, nonagenarian-class NB
-calibration, ablation-guided re-weighting, temporal, and external validation remain outstanding. Invariants
-are guarded by 81 unit tests; the harness lives in `scripts/validation/`. Full detail:
-[`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) §3b.
+**Preliminary signal only; not yet validated for any claim.** Pooled NHANES 1999–2016 linked mortality
+(**N=53,255; 9,104 deaths; up to ~20-yr follow-up**) shows the *untrained* phenotype score is
+associated with **lower all-cause mortality independent of age** (protective within every age band and
+both sexes). The compounding tiers discriminate as: **Tier 2 (self-report) AUC→survival 0.660 →
+Tier 3 (Tier 2 + measured) 0.692** (age/sex-adjusted score weight −0.318 → −0.439); self-report and
+measured data are complementary.
+
+Per-feature (age/sex-adjusted, reverse-causation landmark): self-report leaders are functional
+mobility (−0.39), smoking (−0.36), self-rated health (−0.35); Tier-3 **lab biomarkers** CRP (−0.31),
+WBC (−0.22), triglycerides (−0.19), eGFR (−0.19), telomere (−0.16), glucose, HbA1c, HDL are protective
+and landmark-robust; the Tier-2 anthropometric grip strength (−0.17) likewise. BMI and LDL read null
+for documented reasons (U-shape; the elderly LDL paradox). **DNA-methylation clocks** (NHANES DNAm
+1999–2002, n=2,532) are the strongest signals — **GrimAge −0.65, DunedinPACE −0.47, PhenoAge −0.37**.
+Against the clinical biological-age gold standard, the score shows **concurrent validity with PhenoAge**
+(r −0.59) and adds **+0.02 AUC over PhenoAge + age + sex** (non-circular).
+
+This is a **survival proxy, not centenarian attainment**, in a single US cohort, untrained and
+unreplicated — encouraging but **not** a validated claim. A bundled **held-out** calibration
+(`survival_calibration.yaml`; NHANES 1999–2016) maps the score to 10-year all-cause mortality
+(out-of-sample AUC 0.896, ECE 0.020) and feeds `longevity_context.calibrated_mortality`. The genomic
+layer is literature-grounded but **not** validated on linked individual-level mortality (needs an
+external genotyped cohort). Trajectory-band calibration to *reaching specific ages*, within-person
+sensitivity-to-change for the efficacy use, survey-design weighting, competing risks, and external
+validation remain outstanding. Invariants are guarded by **91 unit tests**; the harness lives in
+`scripts/validation/`. Full detail: [`VALIDATION_PLAN.md`](VALIDATION_PLAN.md) and
+[`docs/TIER2_TIER3_EVALUATION.md`](docs/TIER2_TIER3_EVALUATION.md).
 
 ## 11. Versioning & update policy
 
-- **Package** `__version__` (currently 0.2.0) + per-tier model `version` fields stamped into every
+- **Package** `__version__` (currently 0.2.2) + per-tier model `version` fields stamped into every
   result's `model_version`.
 - Model YAML changes require a `version` bump and a passing `tests/` run (regression guard).
 - Likelihood/mapper changes are versioned independently (`MAPPER_SET_VERSION`, NB

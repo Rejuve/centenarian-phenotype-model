@@ -7,6 +7,13 @@ specific ages*, large-scale subgroup fairness, ablation-guided re-weighting, and
 replication — remains outstanding. This plan defines the remaining work and the acceptance gates
 before any "validated" claim.*
 
+> **Current executed results** (Tier-2/Tier-3 per-feature + tiered mortality association, the expanded
+> measured panel incl. WBC/grip/telomere, DNA-methylation-clock validation, and the PhenoAge benchmark)
+> are consolidated in [`docs/TIER2_TIER3_EVALUATION.md`](docs/TIER2_TIER3_EVALUATION.md). Headline:
+> Tier 2 (self-report) AUC→survival 0.660 → Tier 3 (Tier 2 + measured) 0.692; DNAm clocks (GrimAge,
+> DunedinPACE, PhenoAge) are the strongest single signals; concurrent validity with PhenoAge r −0.59
+> and +0.02 AUC incremental over it.
+
 ## 0a. Endpoint & validation standards
 
 The model is evolving from "similarity to verified centenarians" toward a **relative

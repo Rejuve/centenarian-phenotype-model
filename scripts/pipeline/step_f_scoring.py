@@ -102,10 +102,9 @@ def _clinical_items(spec, alignments):
     alignment in [0,1] against the feature's reference; this engine only weights them.
     """
     defs = {}
-    for grp in ("clinical_biomarkers", "clinical_disease_flags"):
-        for f in spec.get(grp, []):
-            defs[f["feature"]] = dict(weight=f["weight"], basis=f.get("basis"),
-                                      gwas=bool(f.get("gwas_corroborated")))
+    for f in spec.get("clinical_biomarkers", []):
+        defs[f["feature"]] = dict(weight=f["weight"], basis=f.get("basis"),
+                                  gwas=bool(f.get("gwas_corroborated")))
     for v in spec.get("genomic_variants", []):
         defs[v["variant"]] = dict(weight=v["weight"], basis=v.get("basis", "genomic"), gwas=True)
     for c in spec.get("epigenetic_methylation", []):

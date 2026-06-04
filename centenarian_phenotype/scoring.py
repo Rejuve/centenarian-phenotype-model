@@ -40,27 +40,24 @@ from .longevity import relative_longevity
 from .validation import (ValidationError, _empty_report, finalize, validate_clinical,
                          validate_quiz_answers)
 
-# Layer-2 self-report question -> the Layer-3 measured feature(s) for the SAME construct.
+# Layer-2 self-report question -> the Layer-3 MEASURED feature(s) for the SAME construct.
 # When the deeper measured feature is supplied, the coarse self-report is dropped (deepest wins).
+# Disease *diagnoses* are not re-scored at Layer 3 (they stay self-report), so only constructs with a
+# genuinely measured Layer-3 counterpart appear here (body composition, strength, lipids).
 CONSTRUCT_MAP = {
-    "q_diabetes": {"diabetes"},
-    "q_hypertension": {"hypertension", "blood_pressure"},
     "q_body_mass_index": {"body_mass_index"},
-    "q_waist_circumference": {"waist_circumference"},
-    "q_cardiovascular_event": {"cardiovascular_disease", "myocardial_infarction", "stroke", "coronary_heart_disease"},
-    "q_cancer_history": {"breast_cancer", "skin_cancer"},
-    "q_functional_mobility": {"grip_strength", "frailty", "activities_of_daily_living", "muscle_strength"},
+    "q_functional_mobility": {"grip_strength", "muscle_strength"},
     "q_cholesterol": {"cholesterol", "hdl_cholesterol", "triglycerides"},
-    "q_disease_burden": {"multimorbidity", "comorbidity"},
-    "q_bone_health": {"osteoporosis"},
 }
 
 # Highest-value clinical inputs expected at Layer 3 (strongest mortality / longevity signals that
 # are freely measurable). Used for response_completeness and missing_high_value_inputs ranking.
+# Tier-3 (access: lab/genomic/epigenetic) high-value inputs — the biospecimen/molecular panel.
+# Anthropometric measures (grip, BMI, ...) are Tier 2 (access: anthropometric) and are not listed here.
 CORE_L3_PANEL = [
     "grimage_2019", "phenoage_2018", "dunedinpace_2022", "c_reactive_protein", "hdl_cholesterol",
-    "cholesterol", "triglycerides", "telomere_length", "grip_strength", "cardiovascular_disease",
-    "diabetes", "dementia", "rs429358", "rs2802295",
+    "cholesterol", "triglycerides", "glucose", "hba1c", "egfr", "telomere_length",
+    "rs429358", "rs2802295",
 ]
 
 # Provenance quality (0..1) — feeds evidence_confidence_pct. Measured/genomic/epigenetic gold
@@ -109,10 +106,9 @@ MODEL_VERSIONS = {layer: load_model(layer).get("version", "0") for layer in _MOD
 def _feature_defs(spec) -> dict:
     """Map every scoreable Layer-3 feature name -> its weight/basis/gwas def."""
     defs = {}
-    for grp in ("clinical_biomarkers", "clinical_disease_flags"):
-        for f in spec.get(grp, []):
-            defs[f["feature"]] = dict(weight=f["weight"], basis=f.get("basis"),
-                                      gwas=bool(f.get("gwas_corroborated")), domain="clinical_biomarker")
+    for f in spec.get("clinical_biomarkers", []):
+        defs[f["feature"]] = dict(weight=f["weight"], basis=f.get("basis"),
+                                  gwas=bool(f.get("gwas_corroborated")), domain="clinical_biomarker")
     for v in spec.get("genomic_variants", []):
         defs[v["variant"]] = dict(weight=v["weight"], basis=v.get("basis", "genomic"), gwas=True,
                                   domain="genomic")
