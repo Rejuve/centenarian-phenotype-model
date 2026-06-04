@@ -30,6 +30,20 @@ Known failure modes, bias risks, and evidence grades: [`MODEL_CARD.md`](MODEL_CA
 
 ---
 
+## Validation (preliminary)
+
+Evaluated on **NHANES 1999–2016** linked mortality (N = 53,255; 9,104 deaths), using all-cause mortality as a survival proxy. Full methodology and per-feature results: [`docs/TIER2_TIER3_EVALUATION.md`](docs/TIER2_TIER3_EVALUATION.md).
+
+- **Independent of age.** The similarity score is associated with lower all-cause mortality after adjusting for age and sex — in both sexes and within every age band — so it is not merely an age proxy.
+- **The tiers compound.** Discrimination rises as deeper data is added: Tier 2 (self-report + anthropometric) AUC→survival **0.655** → Tier 3 (+ lab biomarkers) **0.686** (age/sex-adjusted score weight −0.33 → −0.41).
+- **The strongest signals are established ageing markers.** Age/sex-adjusted: C-reactive protein, white blood cell count, eGFR, triglycerides, grip strength, and telomere length; the DNA-methylation clocks are strongest of all (GrimAge −0.65, DunedinPACE −0.47), and adding them to the composite strengthens its adjusted signal to **−0.65** on the methylation subsample. Associations hold under a reverse-causation sensitivity check (deaths within 24 months excluded).
+- **Concurs with — and adds to — PhenoAge.** Against the clinical biological-age standard (Levine 2018), the score shows concurrent validity (r = −0.59) and adds **+0.02 AUC over PhenoAge + age + sex** — i.e. it carries mortality information beyond the gold-standard clock.
+- **Calibrated and reproducible.** A held-out 10-year all-cause-mortality calibration gives ECE ≈ 0.02; every figure above is reproducible from `scripts/validation/`.
+
+These results establish that the score tracks **all-cause mortality** (a survival proxy) independent of age, and agrees with PhenoAge, in a single unweighted US cohort. They do not by themselves establish prediction of survival to 100, and are not externally replicated; external validation, survey-weighted estimation, and reaching-100 calibration are described in `MODEL_CARD.md` §10.
+
+---
+
 ## Quickstart
 
 ```bash
