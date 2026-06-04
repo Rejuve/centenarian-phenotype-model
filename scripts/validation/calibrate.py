@@ -10,9 +10,9 @@ confound the estimate):
 
     P(y=1) = sigmoid(b0 + w_score·z(score) + w_age·z(age) + w_sex·sex_male)
 
-Honesty guardrail: metrics are reported on a held-out test split (the score was NOT trained on
-mortality, and the *calibration* is evaluated out-of-sample). The bundled coefficients are then refit
-on the full cohort for deployment, with the held-out metrics recorded in the artifact.
+Metrics are reported on a held-out test split; the score is not trained on mortality and the
+calibration is evaluated out-of-sample. The bundled coefficients are then refit on the full cohort
+for deployment, with the held-out metrics recorded in the artifact.
 
 Output: centenarian_phenotype/models/survival_calibration.yaml (bundled; aggregate coefficients only,
 no individual data). All-cause US mortality — NOT centenarian attainment.

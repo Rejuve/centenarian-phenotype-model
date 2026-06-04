@@ -1,6 +1,6 @@
 # AUDIT_FIXES.md
 
-What changed in response to the audit, what was deferred, and an honest statement of model status.
+What changed in response to the audit, what was deferred, and a statement of model status.
 This PR targets the audit's **Priority 1** in full plus the high-value Priority 2/3 items that fix
 production-safety and contradiction risks; remaining Priority 2/3 work is scoped as *planned* below
 rather than stubbed.

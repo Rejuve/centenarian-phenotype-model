@@ -1,11 +1,9 @@
 """Incremental-value / high-yield-input analysis.
 
-ETHOS (not feature pruning): the model should give a *meaningful* read from a few accessible inputs
-(the low-barrier teaser), and get *more confident* as a profile is filled in — it never discards
-features. This quantifies how much out-of-sample survival discrimination a **sparse** profile already
+Quantifies how much out-of-sample survival discrimination a **sparse** profile already
 carries, and the order in which inputs add the most value (so we can ask the highest-yield questions
-first). The deployed model always uses **all** available features; this is about accessibility, not
-minimization.
+first). The deployed model uses all available features; this analysis characterises performance under
+sparse input.
 
 Method: greedy forward ordering by held-out mortality-AUC gain, on top of age + sex (always-in). The
 curve shows diminishing returns; the full ("all features") model is reported for reference. Missing
@@ -109,8 +107,7 @@ def main():
     tag = f" (age {int(args.min_age)}+)" if args.min_age else ""
     lines = [f"# Incremental value of inputs — survival discrimination, out-of-sample{tag}", "",
              f"N={out['n']}, deaths={out['deaths']}. Age+sex alone AUC={out['base_age_sex_auc']}; "
-             f"all {len(fcols)} features AUC={out['full_all_features_auc']}. "
-             "Ethos: meaningful from few inputs, richer with more — all features retained.", "",
+             f"all {len(fcols)} features AUC={out['full_all_features_auc']}.", "",
              "| inputs added | test AUC (mortality) | gain |", "|---|---:|---:|"]
     for t in traj:
         lines.append(f"| +{t['added']} | {t['test_auc']} | {t.get('gain', '')} |")
