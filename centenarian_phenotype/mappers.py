@@ -189,6 +189,25 @@ def _wbc(v, sex, age):
     return _interp(v, [(2.5, 0.3), (4.5, 1.0), (6.0, 0.95), (7.5, 0.7), (11.0, 0.4), (15.0, 0.15)])
 
 
+def _tsh(v, sex, age):
+    # Serum TSH (mIU/L). LONGEVITY-SHIFTED, not the standard "any-normal-is-good": the optimum sits
+    # in the high-normal / mildly-elevated zone. Centenarians carry higher serum TSH (Atzmon 2009,
+    # JCEM "Extreme longevity is associated with increased serum thyrotropin"; Leiden 85-plus). Overt
+    # dysfunction at BOTH ends is adverse — low TSH (hyperthyroid) and overtly high TSH (hypothyroid).
+    return _interp(v, [(0.1, 0.25), (0.4, 0.6), (1.0, 0.75), (2.5, 0.9), (4.5, 1.0),
+                       (7.0, 0.85), (10.0, 0.5), (20.0, 0.2)])
+
+
+def _testosterone(v, sex, age):
+    # Total testosterone (ng/dL), sex-specific. Low T tracks frailty/mortality but is heavily
+    # confounded by acute illness (reverse causation), so this is a CONSERVATIVE, declared shape
+    # (grade C) rather than a longevity cut-off. Mid-to-high reference favourable; supraphysiologic
+    # (often exogenous) discounted.
+    if sex == "F":
+        return _interp(v, [(5, 0.45), (20, 0.85), (40, 1.0), (70, 0.85), (120, 0.55)])
+    return _interp(v, [(150, 0.3), (300, 0.6), (450, 0.85), (600, 1.0), (900, 0.95), (1200, 0.75)])
+
+
 MAPPERS: dict[str, Mapper] = {
     "hdl_cholesterol": Mapper("hdl_cholesterol", "mg/dL", (10, 150), _hdl, "higher_favorable",
                               "NCEP ATP III HDL cut-offs", "A", sex_adjusted=True),
@@ -229,6 +248,13 @@ MAPPERS: dict[str, Mapper] = {
     "white_blood_cell": Mapper("white_blood_cell", "x10^9/L", (1.0, 30.0), _wbc,
                                "mid_range_favorable",
                                "Clinical WBC reference; inflammaging / PhenoAge mortality component", "B"),
+    "thyroid_tsh": Mapper("thyroid_tsh", "mIU/L", (0.05, 50.0), _tsh, "longevity_shifted_high_normal",
+                          "Atzmon 2009 JCEM thyroid paradox (centenarians have higher TSH); "
+                          "overt thyroid dysfunction at either end adverse", "B", age_adjusted=True),
+    "testosterone": Mapper("testosterone", "ng/dL (total)", (5, 1500), _testosterone,
+                           "sex_specific_normal",
+                           "Sex-specific adult reference ranges; low T tracks frailty/mortality but is "
+                           "illness-confounded — conservative declared shape", "C", sex_adjusted=True),
 }
 
 

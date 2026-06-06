@@ -9,9 +9,13 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
 
 ## 1. Overview
 
-- **Name:** Centenarian Longevity Phenotype Model
-- **Primary endpoint:** *similarity to verified centenarians* — people who **verifiably reached
-  100+**. Output: "this profile is *X%* similar to verified centenarians."
+- **Name:** Centenarian Longevity Phenotype Model (the score it produces: **Exceptional Longevity
+  Concordance, ELC**).
+- **Primary endpoint — Exceptional Longevity Concordance (ELC):** how closely a profile matches the
+  multi-domain pattern of people who reach exceptional age in good health — scored on **age attained** and
+  **self-rated/functional good health** (see §4). Output: "this profile is *X%* concordant with verified
+  exceptional healthy longevity." Lower biological age and a slower pace of ageing are expected correlates
+  of a high score.
 - **Deployed scoring method (v1):** **evidence-weighted alignment** of per-feature signal (each
   feature → alignment in [0,1]; score = evidence-weighted mean). This is the user-facing number.
 - **Experimental probabilistic layer (research-only, NOT a core output):** a four-class Naive Bayes
@@ -29,7 +33,8 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
     self-report clinical/health) **plus non-invasive measured features** (`access: anthropometric` —
     grip strength, BMI, calf, plus waist/BP; free/consumer-obtainable, assumed true for insights).
   - Tier 3 — Tier 2 + features needing a biospecimen/assay (`access: lab|genomic|epigenetic|microbiome`):
-    14 lab biomarkers, 21 scored genomic variants (+ an 80-variant scoreable catalogue) + open
+    13 lab biomarkers, 21 scored genomic variants (with an 80-variant direction-resolved reserve
+    catalogue, not scored live) + open
     longevity polygenic scores (PGS Catalog), DNA-methylation clocks + telomere length, and
     gut-microbiome signatures (literature-grounded). Disease *diagnoses*
     are self-report at Tier 2 (no confirmed-vs-reported field exists in the data); Tier 3 does not
@@ -56,18 +61,51 @@ is not safe to claim**. It supersedes `docs/model_card_stub.md`.
 
 ## 4. Endpoint definition
 
-**Primary endpoint (now):** similarity to *verified* survival to 100+. Survivor/delayer/escaper
-subtypes and the interpretive `domain_scores` (cardiovascular, metabolic, inflammatory, functional,
-cognitive, social, genetic, epigenetic, disease-escape) **enrich interpretation but never replace**
-the primary endpoint.
+**Primary endpoint — Exceptional Longevity Concordance (ELC).** ELC measures how closely a profile
+matches the multi-domain pattern of people who **reach exceptional age while functioning and rating
+themselves in good health**. Two literal, outcome-based endpoints:
+- **Reaching a longevity threshold** — attaining an age that is *exceptional relative to the person's own
+  population*: beyond the life expectancy for their era, region and sex (HMD life-table anchor), set at the
+  **upper tail** rather than merely above median — with absolute waypoints of **≥90 → 100+** toward the
+  human limit for interpretability. This is a *threshold target*: ELC scores concordance with reaching it
+  and produces no age estimate — there is no age regression and no biological-age output.
+- **Lived-well at that age** — the person's own assessment that life is good/satisfying (self-rated health
+  is among the strongest mortality signals in our own cohort, adj. coef −0.42), together with **functional
+  independence**: independence in activities of daily living and instrumental ADL (shopping, cooking,
+  finances, medication, transport), corroborated where measured by objective performance — gait speed
+  ≥0.8 m/s and grip strength above the EWGSOP2 sex cut-offs (low: <27 kg men / <16 kg women).
 
-**Endpoint evolution (planned, in progress):** toward a **relative healthspan/longevity** statement —
-whether a profile is consistent with *outliving the typical survival trajectory for the person's own
-country and sex*, with less age-related decline and higher odds of reaching 100 **on their current
-trajectory** (absent sudden lifestyle change/injury, and incorporating chronic-disease risk). The
-unifying construct across ages is **reduced biological age at any chronological age** (clocks +
-age/sex-adjusted markers), so the model need not always say "will reach 100" — it can say "this looks
-younger/healthier than typical for your age and country."
+"Concordance" is plain agreement with that demonstrated pattern (defined here to distinguish it from the
+survival C-index). The endpoint is **joint** — a profile is concordant when it aligns with reaching
+extreme age *and* doing so in good health.
+
+A high-ELC profile will, as a natural consequence, tend to carry a lower biological age, a slower pace of
+ageing, and fewer years lived in sickness. These are **expected molecular and temporal correlates of the
+endpoint — supporting features and validation benchmarks**, while the target stays the lived outcome
+(how long, how well). Anchoring on the lived outcome lets ELC recognise profiles that clock- or
+diagnosis-based measures would miss: someone whose condition is managed well enough that it does not
+constrain their function or satisfaction **scores high if they reach 90+ in good functional and subjective
+health**. Such cases are treated as informative data on how a condition's biological impact varies across
+individuals and management — the population-trained clocks predict the *average* outcome for a signature,
+so a well-managed individual is a meaningful outlier to learn from.
+
+Survivor/delayer/escaper subtypes and the interpretive `domain_scores` (cardiovascular, metabolic,
+inflammatory, functional, cognitive, social, genetic, epigenetic, disease-escape) **enrich interpretation
+but never replace** the endpoint.
+
+**Construct scope (the ELC differentiator).** ELC spans the modifiable **exposome** (lifestyle, behaviour,
+function) *and* the **molecular** domains, and quantifies the **coupling** between them — expressed in
+terms of what the underlying biology *does* (DNA-repair capacity, inflammatory tone, methylation fidelity,
+xenobiotic clearance) rather than gene identity. A first pass (`scripts/validation/exposome_molecular_coupling.py`)
+shows inflammatory/lipid markers are lifestyle-coupled while renal function is age-locked. This coupling,
+and the **modifiable-headroom vs fixed-ceiling** decomposition it supports, is what makes ELC actionable —
+the basis on which it can speak to *moving* a trajectory, not only rating it.
+
+**Methodological note.** Self-rated health and functional measures are part of the concordance pattern by
+design and remain inputs (removing them would break the construct). Where ELC makes a *predictive* claim
+about the healthspan outcome specifically, we assess the **incremental contribution of the molecular and
+lifestyle domains beyond** the concurrent self-report, rather than crediting self-report for predicting
+itself.
 
 This is split by evidence status (see `longevity.py` / `longevity_context`):
 - **Validated anchor:** the population survival baseline by country × sex (HMD life tables — open

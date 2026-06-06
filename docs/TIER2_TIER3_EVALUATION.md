@@ -86,7 +86,7 @@ Tier 3 = Tier 2 **plus** features that require a **blood draw + lab assay, genot
 array** (`access: lab | genomic | epigenetic`). The testability column states whether each is
 validatable on NHANES today (the genomic block is not — it requires an external genotyped cohort).
 
-### 3a. Lab biomarkers (blood draw + assay, 14) — NHANES-testable
+### 3a. Lab biomarkers (blood draw + assay, 13) — NHANES-testable
 
 Age/sex-adjusted mortality association (rebuilt cohort with the widened panel):
 
@@ -100,11 +100,17 @@ Age/sex-adjusted mortality association (rebuilt cohort with the widened panel):
 | HDL cholesterol | 42,548 | 0.504 | −0.125 | −0.116 | modest |
 | glucose | 23,326 | 0.636 | −0.104 | −0.100 | robust |
 | HbA1c | 48,087 | 0.649 | −0.079 | −0.075 | weak, protective |
+| thyroid TSH (longevity-shifted) | 9,199 | 0.452 | −0.080 | −0.069 | protective adjusted; strengthens to −0.099 at 65+ (thyroid paradox) |
+| testosterone (sex-specific) | 10,693 | 0.579 | −0.040 | −0.035 | weakly protective, confounded → conservative 0.40 weight |
 | LDL cholesterol | 22,032 | 0.493 | +0.025 | +0.018 | **null/inverted** — see §6 |
 
-Seven of nine NHANES-testable lab biomarkers show protective age/sex-adjusted associations robust to
-landmarking (LDL is the documented paradox). The remaining Tier-3 lab features — IL-6, cortisol,
-testosterone, thyroid — are scored from a user's panel and sit outside standard NHANES.
+Nine of eleven NHANES-testable lab biomarkers show protective age/sex-adjusted associations robust to
+landmarking (LDL is the documented paradox). **TSH and testosterone** were added in the 2007–2016 cycles
+that carry those assays: both are weakly protective after adjustment, and TSH's signal concentrates in
+the 65+ stratum exactly as the thyroid paradox of longevity predicts (its sub-0.5 univariate AUC is
+age-confounding — TSH rises with age — not an inverted direction). The two remaining lab features —
+**IL-6 and cortisol** — are not measured in standard NHANES; they carry literature-grounded direction
+(`validation_status: literature_only`) rather than a cohort result.
 
 ### 3b. DNA-methylation clocks (epigenetic) — NHANES-testable (1999–2002 subsample)
 
@@ -126,9 +132,30 @@ The raw unadjusted AUC for acceleration-based clocks is age-confounded; the **ag
 is the correct read and is the strongest in the feature set, consistent with GrimAge being the leading
 mortality clock in the literature (Lu 2019; Belsky 2022).
 
+**Empirical oldest-old anchor (the clock direction, measured not declared).** The corpus is age-floored
+at 100 and NHANES tops out at 80, so the centenarian-favourable clock direction was previously a declared
+assumption. It is now measured on AI-permissible public methylomes containing **verified 89–103-year-olds**
+(GEO GSE30870 + GSE40279; biolearn clock implementations; `epi_oldest_old_anchor.py`). Mean epigenetic age
+acceleration (clock age − chronological) deepens monotonically with survival to extreme age:
+
+| age band | n | mean acceleration (yr) | % biologically younger |
+|---|---:|---:|---:|
+| <60 | 247 | +1.1 | 38% |
+| 60–79 | 309 | −2.8 | 78% |
+| 80–89 | 91 | −6.8 | 96% |
+| 90–99 | 26 | −10.1 | **100%** |
+| 100+ | 3 | −13.7 | **100%** |
+
+All 29 individuals aged 90+ show negative acceleration — survival selection for a slow epigenetic clock.
+The 90+ per-clock centroid (Horvath −12.8, PhenoAge −15.4, SkinBlood −12.2) is the **measured**
+exceptional-longevity molecular profile that anchors the Tier-3 epigenetic layer (`epigenetic_population_anchor`
+in `tier3_model.yaml`). Small-n and cross-sectional; it grounds the *direction*, not yet a calibrated
+within-person trajectory (that needs the longitudinal/interventional methylation milestone).
+
 ### 3c. Genomic variants — NOT NHANES-testable
 
-21 inlined longevity variants + an 80-variant scoreable curated catalogue, plus open longevity
+21 inlined longevity variants (the live genomic panel) with an 80-variant direction-resolved reserve
+catalogue (documented, not scored by the engine), plus open longevity
 **polygenic scores** from the PGS Catalog (`pgs_longevity` PGS000906; `pgs_parental_lifespan`,
 Timmers 2019; trait EFO:0004300) applied when a user's genotype yields the score. The genomic layer is
 literature-grounded (GWAS/PGS Catalog effect directions); validating it on linked individual-level

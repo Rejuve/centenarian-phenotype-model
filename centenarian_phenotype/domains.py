@@ -16,7 +16,7 @@ from __future__ import annotations
 _FEATURES = {
     "cardiovascular_longevity_similarity": {
         "features": {"hdl_cholesterol", "ldl_cholesterol", "cholesterol", "triglycerides",
-                     "hypertriglyceridemia", "blood_pressure", "systolic_bp", "cardiovascular_disease",
+                     "blood_pressure", "systolic_bp", "cardiovascular_disease",
                      "coronary_heart_disease", "myocardial_infarction", "stroke"},
         "domains": {"hypertension", "cardiovascular_disease", "cholesterol"},
     },

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "centenarian-phenotype"
-version = "0.2.4"
+version = "0.2.5"
 description = "Centenarian Longevity Phenotype Model — three-tier similarity scoring engine (not a lifespan predictor)."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -17,6 +17,10 @@ dependencies = ["pyyaml>=6.0"]
 test = ["pytest>=7", "httpx>=0.24"]
 api = ["fastapi>=0.110", "uvicorn>=0.27"]
 aws = ["fastapi>=0.110", "mangum>=0.17"]
+# Epigenetic clock computation + public-methylome oldest-old anchor (scripts/validation/epi_oldest_old_anchor.py,
+# exposome_molecular_coupling.py, exposure_signature_resilience.py). On Python 3.14 biolearn's pinned `ecos`
+# solver has no wheel; install cvxpy+clarabel instead, or use Python 3.12. Tested with Python 3.12.
+omics = ["biolearn>=0.9"]
 
 [project.urls]
 Homepage = "https://rejuve.ai"

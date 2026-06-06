@@ -94,6 +94,12 @@ def manifest(cycle):
         m["telo"] = "TELO_A"
     elif yr == 2001:
         m["telo"] = "TELO_B"
+    # thyroid profile (TSH = LBXTSH): 2007-2012 only
+    if yr in (2007, 2009, 2011):
+        m["thyroid"] = f"THYROD{s}"
+    # sex steroid hormones (total testosterone = LBXTST): 2011-2016 only
+    if yr in (2011, 2013, 2015):
+        m["tst"] = f"TST{s}"
     # questionnaires (behavioral + self-report health). Loader skips any 404 (coverage varies).
     for base in ("BPQ", "MCQ", "PFQ", "ALQ", "PAQ", "DBQ", "HUQ", "HSQ", "DPQ", "SLQ", "OSQ"):
         m[base.lower()] = qfile(base, cycle)
@@ -212,6 +218,8 @@ def build(cycle):
         add("white_blood_cell", "white_blood_cell", val("cbc", seqn, "LBXWBCSI"))
         add("grip_strength", "grip_strength", val("mgx", seqn, "MGDCGSZ"))  # combined grip (kg), 2011-2014
         add("telomere_length", "telomere_length", val("telo", seqn, "TELOMEAN"))  # T/S ratio, 1999-2002
+        add("thyroid_tsh", "thyroid_tsh", val("thyroid", seqn, "LBXTSH1", "LBXTSH"))  # serum TSH (mIU/L), 2007-2012
+        add("testosterone", "testosterone", val("tst", seqn, "LBXTST"))  # total testosterone (ng/dL), 2011-2016
 
         # ---- self-report Layer-2 answers mapped from NHANES (coverage varies by cycle) ----
         answers = {}

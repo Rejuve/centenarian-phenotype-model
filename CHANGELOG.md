@@ -6,6 +6,34 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions are the
 fields, stamped into every result's `model_version`) and checksummed in
 `centenarian_phenotype/models/MANIFEST.sha256`.
 
+## [0.2.5] — 2026-06-05
+
+### Added
+- **Thyroid (serum TSH) and testosterone as validated Tier-3 lab biomarkers.** TSH uses a
+  longevity-shifted mapper (high-normal / mildly-elevated favourable — the thyroid paradox of
+  longevity, Atzmon 2009), not a plain "normal" cut-off. Both were wired into the NHANES cohort
+  builder (TSH 2007–2012 `THYROD`/`LBXTSH1`; testosterone 2011–2016 `TST`/`LBXTST`) and validated:
+  TSH age/sex-adjusted coef −0.080 (−0.099 in the 65+ stratum, landmark-robust — paradox confirmed);
+  testosterone −0.040 (weakly protective, confounded → conservative 0.40 weight).
+- **`validation_status` on every Tier-3 biomarker** (`validated_nhanes` | `literature_only`), so each
+  feature is either cohort-validated or honestly evidence-tagged — none silently in between.
+- **Empirical epigenetic oldest-old anchor** (`scripts/validation/epi_oldest_old_anchor.py`,
+  `epigenetic_population_anchor` in tier3): the centenarian-favourable clock direction is now MEASURED on
+  AI-permissible public methylomes with verified 89–103-year-olds (GEO GSE30870 + GSE40279, biolearn
+  clocks), not declared. Mean epigenetic age acceleration deepens monotonically with survival
+  (<60 +1.1 yr → 90–99 −10.1 → 100+ −13.7); all 29 individuals aged 90+ are biologically younger than
+  chronological. Replaces the previously-deferred centenarian-vs-population delta.
+
+### Changed
+- tier3 v1.4 → v1.5; package 0.2.4 → 0.2.5.
+- Renamed the vague `euthyroid` feature to `thyroid_tsh` with the corrected longevity direction.
+- Genomic catalogue described honestly: the live panel is **21 inlined variants + 2 polygenic
+  scores**; the 80-variant curated set is a **direction-resolved reserve** (`scored_by_engine: false`),
+  not part of the live feature count.
+
+### Removed
+- `hypertriglyceridemia` (redundant with the `triglycerides` feature).
+
 ## [0.2.4] — 2026-06-05
 
 ### Added

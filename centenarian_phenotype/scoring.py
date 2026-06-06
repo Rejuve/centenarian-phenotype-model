@@ -77,7 +77,7 @@ _MODIFIABLE_DOMAINS = {
     "mental_health",
 }
 _MODIFIABLE_FEATURES = {
-    "hdl_cholesterol", "ldl_cholesterol", "cholesterol", "triglycerides", "hypertriglyceridemia",
+    "hdl_cholesterol", "ldl_cholesterol", "cholesterol", "triglycerides",
     "c_reactive_protein", "glucose", "hba1c", "systolic_bp", "body_mass_index",
     "waist_circumference", "grip_strength", "muscle_strength", "gait_speed",
 }
