@@ -112,6 +112,15 @@ about the healthspan outcome specifically, we assess the **incremental contribut
 lifestyle domains beyond** the concurrent self-report, rather than crediting self-report for predicting
 itself.
 
+**Interpretation principle — evidence not proof; position not reversal.** A high or rising ELC is
+*evidence* a profile is on the favorable trajectory; the *proof* is the lived outcome realized over time.
+Biomarkers are read as *tests of* underlying processes (inflammatory tone, glycaemic control, pace of
+ageing), never as the cause or the effect. ELC scores a cross-sectional **position**; whether a *change*
+over time reflects a genuine reversal of ageing versus slowed decline or compressed morbidity is **out of
+scope** for ELC — that distinction is a longitudinal, repeated-measures intervention-evaluation question
+(requiring recovery/resilience-dynamics and damage-reversal evidence), not a cross-sectional concordance
+claim.
+
 This is split by evidence status (see `longevity.py` / `longevity_context`):
 - **Validated anchor:** the population survival baseline by country × sex (HMD life tables — open
   demography, not modelled).

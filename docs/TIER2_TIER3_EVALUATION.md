@@ -361,6 +361,24 @@ wellbeing axis is **app-collected** (SWLS / Ryff purpose / Flourishing Scale, de
 > biomarkers — reflecting mid-life risk trajectory — lose discriminating power (the same attenuation seen
 > for classic risk factors in the very old).
 
+## 8. Internal validation (optimism-corrected) — calibration layer
+
+Bootstrap optimism correction (200 resamples) of the deployed calibration model (ELC score + age + sex →
+P(death)) on the pooled NHANES cohort (n = 53,255, 9,104 deaths; `internal_validation.py`):
+
+- **Discrimination** — apparent AUC 0.884 → optimism **0.000** → **optimism-corrected AUC 0.884**.
+  Negligible optimism: a 3-parameter model on 53k subjects has little room to overfit.
+- **Calibration slope** — apparent 0.996 → **optimism-corrected 0.995** (1.0 = no shrinkage needed):
+  well-calibrated, not overfit.
+- **Decision-curve analysis** — the model adds **net benefit over treat-all and treat-none across the full
+  0.02–0.50 risk-threshold range**, i.e. useful for flagging elevated-mortality (low-ELC) individuals.
+
+**Scope.** This validates the *calibration layer* (score → outcome) as non-overfit and clinically useful on
+NHANES. It does **not** validate the upstream feature *weights* (literature-grounded; assessed by the
+per-feature association analyses, §3–§5), and it is *internal* (same population) — **external** validation
+on an independent genotyped/longitudinal cohort remains the collaborator-gated step. Per §7, validity is
+anchored on this external mortality outcome, not the circular concurrent self-report.
+
 ## 7. Reproduce
 
 ```bash

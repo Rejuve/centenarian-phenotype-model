@@ -17,6 +17,12 @@ fields, stamped into every result's `model_version`) and checksummed in
   testosterone −0.040 (weakly protective, confounded → conservative 0.40 weight).
 - **`validation_status` on every Tier-3 biomarker** (`validated_nhanes` | `literature_only`), so each
   feature is either cohort-validated or honestly evidence-tagged — none silently in between.
+- **Internal-validation rigor** (`scripts/validation/internal_validation.py`, docs §8): bootstrap
+  optimism correction (optimism-corrected AUC 0.884, calibration slope 0.995 — non-overfit) + decision-curve
+  analysis (net benefit across the 0.02–0.50 threshold range) on the 53k pooled cohort.
+- **ELC interpretation principle** (MODEL_CARD §4): biomarkers are evidence (the test), not proof; ELC
+  scores cross-sectional position, and the reversal-vs-slowing question (a longitudinal,
+  intervention-evaluation matter) is out of scope.
 - **Whole-endpoint (ELC) validation** (`scripts/validation/endpoint_validation.py`,
   `scripts/analysis/function_threshold_test.py`, docs §7): the score validated against the endpoint's two
   observable faces — survival (AUC 0.71 raw / 0.88 age-sex-adj, ECE 0.012, n=24,678) and a concurrent
