@@ -86,7 +86,7 @@ Tier 3 = Tier 2 **plus** features that require a **blood draw + lab assay, genot
 array** (`access: lab | genomic | epigenetic`). The testability column states whether each is
 validatable on NHANES today (the genomic block is not — it requires an external genotyped cohort).
 
-### 3a. Lab biomarkers (blood draw + assay, 14) — NHANES-testable
+### 3a. Lab biomarkers (blood draw + assay, 13) — NHANES-testable
 
 Age/sex-adjusted mortality association (rebuilt cohort with the widened panel):
 
@@ -100,11 +100,17 @@ Age/sex-adjusted mortality association (rebuilt cohort with the widened panel):
 | HDL cholesterol | 42,548 | 0.504 | −0.125 | −0.116 | modest |
 | glucose | 23,326 | 0.636 | −0.104 | −0.100 | robust |
 | HbA1c | 48,087 | 0.649 | −0.079 | −0.075 | weak, protective |
+| thyroid TSH (longevity-shifted) | 9,199 | 0.452 | −0.080 | −0.069 | protective adjusted; strengthens to −0.099 at 65+ (thyroid paradox) |
+| testosterone (sex-specific) | 10,693 | 0.579 | −0.040 | −0.035 | weakly protective, confounded → conservative 0.40 weight |
 | LDL cholesterol | 22,032 | 0.493 | +0.025 | +0.018 | **null/inverted** — see §6 |
 
-Seven of nine NHANES-testable lab biomarkers show protective age/sex-adjusted associations robust to
-landmarking (LDL is the documented paradox). The remaining Tier-3 lab features — IL-6, cortisol,
-testosterone, thyroid — are scored from a user's panel and sit outside standard NHANES.
+Nine of eleven NHANES-testable lab biomarkers show protective age/sex-adjusted associations robust to
+landmarking (LDL is the documented paradox). **TSH and testosterone** were added in the 2007–2016 cycles
+that carry those assays: both are weakly protective after adjustment, and TSH's signal concentrates in
+the 65+ stratum exactly as the thyroid paradox of longevity predicts (its sub-0.5 univariate AUC is
+age-confounding — TSH rises with age — not an inverted direction). The two remaining lab features —
+**IL-6 and cortisol** — are not measured in standard NHANES; they carry literature-grounded direction
+(`validation_status: literature_only`) rather than a cohort result.
 
 ### 3b. DNA-methylation clocks (epigenetic) — NHANES-testable (1999–2002 subsample)
 
@@ -126,9 +132,30 @@ The raw unadjusted AUC for acceleration-based clocks is age-confounded; the **ag
 is the correct read and is the strongest in the feature set, consistent with GrimAge being the leading
 mortality clock in the literature (Lu 2019; Belsky 2022).
 
+**Empirical oldest-old anchor (the clock direction, measured not declared).** The corpus is age-floored
+at 100 and NHANES tops out at 80, so the centenarian-favourable clock direction was previously a declared
+assumption. It is now measured on AI-permissible public methylomes containing **verified 89–103-year-olds**
+(GEO GSE30870 + GSE40279; biolearn clock implementations; `epi_oldest_old_anchor.py`). Mean epigenetic age
+acceleration (clock age − chronological) deepens monotonically with survival to extreme age:
+
+| age band | n | mean acceleration (yr) | % biologically younger |
+|---|---:|---:|---:|
+| <60 | 247 | +1.1 | 38% |
+| 60–79 | 309 | −2.8 | 78% |
+| 80–89 | 91 | −6.8 | 96% |
+| 90–99 | 26 | −10.1 | **100%** |
+| 100+ | 3 | −13.7 | **100%** |
+
+All 29 individuals aged 90+ show negative acceleration — survival selection for a slow epigenetic clock.
+The 90+ per-clock centroid (Horvath −12.8, PhenoAge −15.4, SkinBlood −12.2) is the **measured**
+exceptional-longevity molecular profile that anchors the Tier-3 epigenetic layer (`epigenetic_population_anchor`
+in `tier3_model.yaml`). Small-n and cross-sectional; it grounds the *direction*, not yet a calibrated
+within-person trajectory (that needs the longitudinal/interventional methylation milestone).
+
 ### 3c. Genomic variants — NOT NHANES-testable
 
-21 inlined longevity variants + an 80-variant scoreable curated catalogue, plus open longevity
+21 inlined longevity variants (the live genomic panel) with an 80-variant direction-resolved reserve
+catalogue (documented, not scored by the engine), plus open longevity
 **polygenic scores** from the PGS Catalog (`pgs_longevity` PGS000906; `pgs_parental_lifespan`,
 Timmers 2019; trait EFO:0004300) applied when a user's genotype yields the score. The genomic layer is
 literature-grounded (GWAS/PGS Catalog effect directions); validating it on linked individual-level
@@ -277,6 +304,80 @@ not special-case or fix these results. They are reported as a clinical-risk-vs-a
 validity nuance, not removed.
 
 ---
+
+## 7. Whole-endpoint (ELC) validation
+
+The ELC endpoint is the triple **(1) exceptional age attained · (2) full functional independence ·
+(3) high self-reported satisfaction**. NHANES validates two faces of it; the table separates *external*
+from *concurrent* outcomes because they carry different strengths of claim.
+
+| face of the endpoint | outcome | AUC | n | circularity |
+|---|---|---:|---:|---|
+| **Survival** (prospective) | dies in follow-up | **0.71** raw / **0.88** age-sex-adj (ECE 0.012) | 24,678 | none — mortality is not a model input |
+| **Healthspan** (concurrent) | functional independence + good self-rated health | **0.63** (objective lab score) / 0.75 (full) | 5,632 | full score partly circular (below) |
+| Healthspan + depression-controlled | + PHQ-9 < 10 | 0.73 (suggestive) | 172 | small PHQ-9 subsample |
+
+(`validate.py`, `endpoint_validation.py`. Function is graded — see §7a. Depression is a separate control
+axis, not a gate, per Keyes' dual-continua.)
+
+**Circular vs non-circular.** Self-rated health and functional items are model *inputs* and also build the
+healthspan *outcome*, so `score_full → healthspan` (0.75) is partly tautological — shared-method variance
+between a self-report input and a self-report-containing outcome. The honest figures are therefore (a) the
+**objective-only** lab score against the composite (**0.63**, no input↔outcome overlap) and (b) the
+**external** mortality outcome (**0.71 / 0.88**, where nothing is a model input). Validity claims rest on
+these, not on the circular full-score healthspan number.
+
+**Correlate vs driver (the "self-referential clock" guard).** A high objective↔subjective correlation — a
+clinical/omic panel that tracks the subjective endpoint — would be a genuine and exciting biological
+*readout* of wellbeing, but a **correlate, not evidence of causal driving**. Distinguishing a model that
+merely *shifts with* the targets from one that *explains or moves* them requires the non-circular and
+external validation above, plus the multi-domain (omics/genomic/exposome) + longitudinal + causal
+(MR/intervention) programme. The concurrent figures identify who is a healthy ager **now** — a proxy for
+the prospective "reaches exceptional age functional and satisfied" target, which only longitudinal/app
+data can test. ELC is anchored on external outcomes and carries objective domains beyond self-report
+precisely to avoid collapsing into a self-referential clock.
+
+### 7a. Functional bar — graded, from data
+
+Whether the functional bar should be full independence or allow minimal assistance was tested by comparing
+self-rated health between groups (`function_threshold_test.py`, NHANES PFQ ADL/IADL):
+
+| % good self-rated health | full independence | minimal assistance | dependent |
+|---|---:|---:|---:|
+| all ages | 79.6 | 58.9 | 34.4 |
+| 70+ | 83.1 | 66.3 | 40.6 |
+| 80+ | 82.9 | 72.5 | 43.8 |
+
+The full-vs-minimal gap is real but **narrows with age** (21 → 17 → 10 pts), and minimal-assistance 80+
+still rate health good 72.5% of the time. So the endpoint **grades** function rather than gating it:
+**full** = full functional concordance; **minimal assistance** = partial credit (compatible with a
+well-rated life at advanced age); **dependent** (much difficulty / unable) = excluded. Self-rated health is
+the lived-well proxy here; NHANES lacks a validated life-satisfaction/eudaimonic instrument, so the deeper
+wellbeing axis is **app-collected** (SWLS / Ryff purpose / Flourishing Scale, depression-controlled) and
+**MIDUS-grounded** (published scale algorithms + wellbeing↔biomarker associations; microdata not used).
+
+> The healthspan AUC dips slightly with age (0.63 → 0.61 at 75+) from survivor selection / restriction of
+> range: by the oldest ages the community-dwelling sample is a narrower, more robust band, and common
+> biomarkers — reflecting mid-life risk trajectory — lose discriminating power (the same attenuation seen
+> for classic risk factors in the very old).
+
+## 8. Internal validation (optimism-corrected) — calibration layer
+
+Bootstrap optimism correction (200 resamples) of the deployed calibration model (ELC score + age + sex →
+P(death)) on the pooled NHANES cohort (n = 53,255, 9,104 deaths; `internal_validation.py`):
+
+- **Discrimination** — apparent AUC 0.884 → optimism **0.000** → **optimism-corrected AUC 0.884**.
+  Negligible optimism: a 3-parameter model on 53k subjects has little room to overfit.
+- **Calibration slope** — apparent 0.996 → **optimism-corrected 0.995** (1.0 = no shrinkage needed):
+  well-calibrated, not overfit.
+- **Decision-curve analysis** — the model adds **net benefit over treat-all and treat-none across the full
+  0.02–0.50 risk-threshold range**, i.e. useful for flagging elevated-mortality (low-ELC) individuals.
+
+**Scope.** This validates the *calibration layer* (score → outcome) as non-overfit and clinically useful on
+NHANES. It does **not** validate the upstream feature *weights* (literature-grounded; assessed by the
+per-feature association analyses, §3–§5), and it is *internal* (same population) — **external** validation
+on an independent genotyped/longitudinal cohort remains the collaborator-gated step. Per §7, validity is
+anchored on this external mortality outcome, not the circular concurrent self-report.
 
 ## 7. Reproduce
 

@@ -58,3 +58,6 @@ Thumbs.db
 
 # Local-only working docs (strategy/notes; never pushed)
 *.private.md
+
+# User working drafts / separate-project files (never commit)
+*.docx

@@ -1,6 +1,6 @@
 model: centenarian_longevity_phenotype_tier3
 layer: 3
-version: "1.4"
+version: "1.5"
 description: >
   Layer 3 (clinical) adds objectively MEASURED data ON TOP of Layers 1-2. Scientific tier membership
   follows each feature's `access` tag (see access_legend), not the file it lives in: non-invasive
@@ -48,28 +48,33 @@ access_legend:
   microbiome:     "Requires a stool sample + 16S/metagenomic sequencing. TIER 3."
 # TIER 2 (scientific) = self-report quiz + access:anthropometric.  TIER 3 = TIER 2 + access:{lab,genomic,epigenetic}.
 
-# ---- measured biomarkers. `access` sets scientific tier: anthropometric=Tier 2, lab=Tier 3 ----
+# ---- measured biomarkers. `access` sets scientific tier: anthropometric=Tier 2, lab=Tier 3.
+# `validation_status` (see validation_status_legend) records, per feature, whether it is empirically
+# exercised on our NHANES mortality cohort or carries literature-only direction — so every feature is
+# either validated-on-cohort or honestly evidence-tagged, never silently in-between. ----
+validation_status_legend:
+  validated_nhanes: "Has a versioned mapper AND flows through the NHANES cohort builder against the Linked Mortality File (scripts/validation/build_cohort_from_xpt.py); see docs/TIER2_TIER3_EVALUATION.md."
+  literature_only:  "Centenarian-associated direction from the academic corpus; not measured in NHANES, so not yet validated on our cohort. Carries its declared weight, flagged honestly."
 clinical_biomarkers:
   # --- access: lab (TIER 3 — blood draw + assay) ---
-  - {feature: hdl_cholesterol,     access: lab, direction: higher_favorable,  reference: ">=60 mg/dL favourable; <40 adverse",            weight: 0.66, gwas_corroborated: false, basis: measured_clinical, pathway_gene: CETP}
-  - {feature: cholesterol,         access: lab, direction: lower_ldl_favorable, reference: "LDL <100 mg/dL favourable",                    weight: 0.66, gwas_corroborated: false, basis: measured_clinical, pathway_gene: "APOE/APOC1"}
-  - {feature: triglycerides,       access: lab, direction: lower_favorable,   reference: "<150 mg/dL favourable; >200 adverse",           weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: hypertriglyceridemia, access: lab, direction: absent_favorable, reference: "absence favourable",                            weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: c_reactive_protein,  access: lab, direction: lower_favorable,   reference: "<1.0 mg/L low CV risk; >3.0 high",              weight: 0.66, gwas_corroborated: true,  basis: measured_clinical}
-  - {feature: interleukin_6,       access: lab, direction: lower_favorable,   reference: "lower = less inflamm-ageing",                    weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: white_blood_cell,    access: lab, direction: mid_range_favorable, reference: "~4-7 x10^9/L; high adverse (inflammation)",    weight: 0.66, gwas_corroborated: true,  basis: measured_clinical}
-  - {feature: cortisol,            access: lab, direction: lower_favorable,   reference: "lower diurnal load favourable",                  weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: testosterone,        access: lab, direction: sex_specific_normal, reference: "age/sex-appropriate range",                    weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: euthyroid,           access: lab, direction: present_favorable, reference: "normal thyroid function favourable",             weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: telomere_length,     access: lab, direction: longer_favorable,  reference: "longer leukocyte telomere length favourable; short telomeres an adverse ageing phenotype (582 academic-corpus mentions; centenarian-reference hits)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: glucose,             access: lab, direction: lower_favorable,   reference: "ADA fasting glucose: <100 mg/dL normal, 100-125 prediabetes, >=126 diabetes",  weight: 0.66, gwas_corroborated: true,  basis: measured_clinical, pathway_gene: TCF7L2}
-  - {feature: hba1c,               access: lab, direction: lower_favorable,   reference: "ADA HbA1c: <5.7% normal, 5.7-6.4 prediabetes, >=6.5 diabetes",                weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: egfr,                access: lab, direction: higher_favorable,  reference: "KDIGO eGFR: >=90 normal, <60 CKD (CKD-EPI 2021, race-free, from serum creatinine)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: hdl_cholesterol,     access: lab, direction: higher_favorable,  reference: ">=60 mg/dL favourable; <40 adverse",            weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes, pathway_gene: CETP}
+  - {feature: cholesterol,         access: lab, direction: lower_ldl_favorable, reference: "LDL <100 mg/dL favourable",                    weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes, pathway_gene: "APOE/APOC1"}
+  - {feature: triglycerides,       access: lab, direction: lower_favorable,   reference: "<150 mg/dL favourable; >200 adverse",           weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: c_reactive_protein,  access: lab, direction: lower_favorable,   reference: "<1.0 mg/L low CV risk; >3.0 high",              weight: 0.66, gwas_corroborated: true,  basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: interleukin_6,       access: lab, direction: lower_favorable,   reference: "lower = less inflamm-ageing (core inflammaging marker; IL6 GWAS-corroborated)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: literature_only}
+  - {feature: white_blood_cell,    access: lab, direction: mid_range_favorable, reference: "~4-7 x10^9/L; high adverse (inflammation)",    weight: 0.66, gwas_corroborated: true,  basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: cortisol,            access: lab, direction: lower_favorable,   reference: "lower diurnal HPA-axis load favourable",         weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: literature_only}
+  - {feature: testosterone,        access: lab, direction: sex_specific_normal, reference: "Total testosterone, sex-specific reference; low T tracks frailty/mortality but is illness-confounded (conservative, sex-stratified, reduced weight)", weight: 0.40, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: thyroid_tsh,         access: lab, direction: longevity_shifted_high_normal, reference: "Serum TSH; high-normal / mildly-elevated favourable (thyroid paradox of longevity, Atzmon 2009 JCEM; Leiden 85-plus); overt dysfunction at EITHER end adverse", weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: telomere_length,     access: lab, direction: longer_favorable,  reference: "longer leukocyte telomere length favourable; short telomeres an adverse ageing phenotype (582 academic-corpus mentions; centenarian-reference hits)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: glucose,             access: lab, direction: lower_favorable,   reference: "ADA fasting glucose: <100 mg/dL normal, 100-125 prediabetes, >=126 diabetes",  weight: 0.66, gwas_corroborated: true,  basis: measured_clinical, validation_status: validated_nhanes, pathway_gene: TCF7L2}
+  - {feature: hba1c,               access: lab, direction: lower_favorable,   reference: "ADA HbA1c: <5.7% normal, 5.7-6.4 prediabetes, >=6.5 diabetes",                weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: egfr,                access: lab, direction: higher_favorable,  reference: "KDIGO eGFR: >=90 normal, <60 CKD (CKD-EPI 2021, race-free, from serum creatinine)", weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
   # --- access: anthropometric (TIER 2 — non-invasive, consumer/free-app obtainable, assumed true) ---
-  - {feature: grip_strength,       access: anthropometric, direction: higher_favorable,  reference: "higher = less sarcopenia/frailty",               weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: muscle_strength,     access: anthropometric, direction: higher_favorable,  reference: "higher favourable",                              weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: calf_circumference,  access: anthropometric, direction: higher_favorable,  reference: ">=31 cm favourable (less sarcopenia)",           weight: 0.66, gwas_corroborated: false, basis: measured_clinical}
-  - {feature: body_mass_index,     access: anthropometric, direction: u_shaped_normal_favorable, reference: "U-shaped: BMI ~18.5-25 favourable; BOTH obesity (>30) AND underweight (<18.5) adverse. Late-life low BMI signals frailty/sarcopenia, not health (nhanes_body_measures baseline)", weight: 0.33, gwas_corroborated: false, basis: measured_clinical}
+  - {feature: grip_strength,       access: anthropometric, direction: higher_favorable,  reference: "higher = less sarcopenia/frailty",               weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
+  - {feature: muscle_strength,     access: anthropometric, direction: higher_favorable,  reference: "higher favourable",                              weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: literature_only}
+  - {feature: calf_circumference,  access: anthropometric, direction: higher_favorable,  reference: ">=31 cm favourable (less sarcopenia)",           weight: 0.66, gwas_corroborated: false, basis: measured_clinical, validation_status: literature_only}
+  - {feature: body_mass_index,     access: anthropometric, direction: u_shaped_normal_favorable, reference: "U-shaped: BMI ~18.5-25 favourable; BOTH obesity (>30) AND underweight (<18.5) adverse. Late-life low BMI signals frailty/sarcopenia, not health (nhanes_body_measures baseline)", weight: 0.33, gwas_corroborated: false, basis: measured_clinical, validation_status: validated_nhanes}
 
 # Age-related disease status (the escaper/delayer phenotype) is captured at Layer 2 via self-report
 # (q_diabetes, q_hypertension, q_cardiovascular_event, q_cancer_history, q_bone_health,
@@ -103,11 +108,15 @@ genomic_variants:
 
 # Full curated catalogue (not all inlined): data/processed/genomic_panel_curated.csv
 genomic_panel_extended:
+  role: reserve_catalogue
+  scored_by_engine: false   # the live engine loads ONLY the 21 inlined genomic_variants + 2 polygenic_scores;
+                            # this curated set is a documented RESERVE to activate when individual genotype
+                            # data is integrated, and is NOT part of the live Tier-3 feature count.
   source: data/processed/genomic_panel_curated.csv
   derived_from: [data/raw/datasets/gwas_longevity.csv, data/raw/datasets/cent_WGS.txt]
   n_genome_wide_significant: 508
   n_distinct_genes: 426
-  n_interpretable_direction: 80      # scoreable (longevity_associated / adverse)
+  n_interpretable_direction: 80      # direction-resolved (eligible to activate); NOT currently scored
   n_wgs_position_corroborated: 2     # own centenarian-vs-control WGS
   scoring_rule: "favourable genotype = carries the risk allele if effect=longevity_associated, else lacks it. Direction-ambiguous (428 'reported') variants are catalogued but NOT scored until direction is resolved."
   caveats:
@@ -140,7 +149,25 @@ polygenic_scores:
 epigenetic_population_anchor:
   population_baseline: data/raw/datasets/nhanes_methylation.csv   # HorvathAge,HannumAge,SkinBloodAge,PhenoAge,*Mort
   gold_eligible: true
-  status: "anchor available; quantified centenarian-vs-population delta deferred (not invented)"
+  status: "MEASURED — oldest-old epigenetic age acceleration anchored on real public methylomes (no longer declared)"
+  # Empirically measured centenarian/nonagenarian direction. Computed by
+  # scripts/validation/epi_oldest_old_anchor.py on AI-permissible public GEO methylomes
+  # (GSE30870 + GSE40279; biolearn clock implementations) containing verified 89-103-year-olds.
+  # Negative acceleration (biological age < chronological) deepens MONOTONICALLY with survival to
+  # extreme age — directly grounding the lower_favorable direction below.
+  oldest_old_acceleration_gradient:   # mean epigenetic-age acceleration (clock - chronological), years
+    "<60":   1.08
+    "60-79": -2.81
+    "80-89": -6.79
+    "90-99": -10.06    # 26/26 individuals negative
+    "100+":  -13.74    # 3/3 individuals negative
+  longevity_centroid_90plus:          # per-clock mean acceleration — the measured exceptional-longevity profile
+    horvath_2013:           -12.78
+    hannum_2013:            -1.33
+    phenoage_2018:          -15.43
+    horvath_skinblood_2018: -12.23
+  n_verified_90plus: 29
+  provenance: "epi_oldest_old_anchor.py; GEO GSE30870 + GSE40279; small-n, whole blood/PBMC, 450K; AI-permissible public data."
 epigenetic_methylation:
   - {clock: horvath_2013,    tissue: pan_tissue, metric: age_acceleration, direction: lower_favorable, reference: "DNAmAge - chronological < 0 favourable", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
   - {clock: hannum_2013,     tissue: blood,      metric: age_acceleration, direction: lower_favorable, reference: "DNAmAge - chronological < 0 favourable", weight: 0.66, gwas_corroborated: false, basis: epigenetic}
