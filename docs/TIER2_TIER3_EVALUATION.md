@@ -305,6 +305,62 @@ validity nuance, not removed.
 
 ---
 
+## 7. Whole-endpoint (ELC) validation
+
+The ELC endpoint is the triple **(1) exceptional age attained · (2) full functional independence ·
+(3) high self-reported satisfaction**. NHANES validates two faces of it; the table separates *external*
+from *concurrent* outcomes because they carry different strengths of claim.
+
+| face of the endpoint | outcome | AUC | n | circularity |
+|---|---|---:|---:|---|
+| **Survival** (prospective) | dies in follow-up | **0.71** raw / **0.88** age-sex-adj (ECE 0.012) | 24,678 | none — mortality is not a model input |
+| **Healthspan** (concurrent) | functional independence + good self-rated health | **0.63** (objective lab score) / 0.75 (full) | 5,632 | full score partly circular (below) |
+| Healthspan + depression-controlled | + PHQ-9 < 10 | 0.73 (suggestive) | 172 | small PHQ-9 subsample |
+
+(`validate.py`, `endpoint_validation.py`. Function is graded — see §7a. Depression is a separate control
+axis, not a gate, per Keyes' dual-continua.)
+
+**Circular vs non-circular.** Self-rated health and functional items are model *inputs* and also build the
+healthspan *outcome*, so `score_full → healthspan` (0.75) is partly tautological — shared-method variance
+between a self-report input and a self-report-containing outcome. The honest figures are therefore (a) the
+**objective-only** lab score against the composite (**0.63**, no input↔outcome overlap) and (b) the
+**external** mortality outcome (**0.71 / 0.88**, where nothing is a model input). Validity claims rest on
+these, not on the circular full-score healthspan number.
+
+**Correlate vs driver (the "self-referential clock" guard).** A high objective↔subjective correlation — a
+clinical/omic panel that tracks the subjective endpoint — would be a genuine and exciting biological
+*readout* of wellbeing, but a **correlate, not evidence of causal driving**. Distinguishing a model that
+merely *shifts with* the targets from one that *explains or moves* them requires the non-circular and
+external validation above, plus the multi-domain (omics/genomic/exposome) + longitudinal + causal
+(MR/intervention) programme. The concurrent figures identify who is a healthy ager **now** — a proxy for
+the prospective "reaches exceptional age functional and satisfied" target, which only longitudinal/app
+data can test. ELC is anchored on external outcomes and carries objective domains beyond self-report
+precisely to avoid collapsing into a self-referential clock.
+
+### 7a. Functional bar — graded, from data
+
+Whether the functional bar should be full independence or allow minimal assistance was tested by comparing
+self-rated health between groups (`function_threshold_test.py`, NHANES PFQ ADL/IADL):
+
+| % good self-rated health | full independence | minimal assistance | dependent |
+|---|---:|---:|---:|
+| all ages | 79.6 | 58.9 | 34.4 |
+| 70+ | 83.1 | 66.3 | 40.6 |
+| 80+ | 82.9 | 72.5 | 43.8 |
+
+The full-vs-minimal gap is real but **narrows with age** (21 → 17 → 10 pts), and minimal-assistance 80+
+still rate health good 72.5% of the time. So the endpoint **grades** function rather than gating it:
+**full** = full functional concordance; **minimal assistance** = partial credit (compatible with a
+well-rated life at advanced age); **dependent** (much difficulty / unable) = excluded. Self-rated health is
+the lived-well proxy here; NHANES lacks a validated life-satisfaction/eudaimonic instrument, so the deeper
+wellbeing axis is **app-collected** (SWLS / Ryff purpose / Flourishing Scale, depression-controlled) and
+**MIDUS-grounded** (published scale algorithms + wellbeing↔biomarker associations; microdata not used).
+
+> The healthspan AUC dips slightly with age (0.63 → 0.61 at 75+) from survivor selection / restriction of
+> range: by the oldest ages the community-dwelling sample is a narrower, more robust band, and common
+> biomarkers — reflecting mid-life risk trajectory — lose discriminating power (the same attenuation seen
+> for classic risk factors in the very old).
+
 ## 7. Reproduce
 
 ```bash

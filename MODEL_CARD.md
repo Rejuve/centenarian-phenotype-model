@@ -73,7 +73,12 @@ themselves in good health**. Two literal, outcome-based endpoints:
   is among the strongest mortality signals in our own cohort, adj. coef −0.42), together with **functional
   independence**: independence in activities of daily living and instrumental ADL (shopping, cooking,
   finances, medication, transport), corroborated where measured by objective performance — gait speed
-  ≥0.8 m/s and grip strength above the EWGSOP2 sex cut-offs (low: <27 kg men / <16 kg women).
+  ≥0.8 m/s and grip strength above the EWGSOP2 sex cut-offs (low: <27 kg men / <16 kg women). Function is
+  **graded, not binary** — full independence = full credit; minimal assistance = partial credit (compatible
+  with a well-rated life at advanced age, where the full-vs-minimal self-rated-health gap narrows to ~10
+  points by 80+); dependent (much difficulty / unable) = excluded. The deeper satisfaction axis (life
+  evaluation, eudaimonic purpose, flourishing) is app-collected and MIDUS-grounded; see
+  `docs/TIER2_TIER3_EVALUATION.md` §7 for the whole-endpoint validation and the circular-vs-non-circular logic.
 
 "Concordance" is plain agreement with that demonstrated pattern (defined here to distinguish it from the
 survival C-index). The endpoint is **joint** — a profile is concordant when it aligns with reaching

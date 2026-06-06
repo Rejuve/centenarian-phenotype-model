@@ -17,6 +17,13 @@ fields, stamped into every result's `model_version`) and checksummed in
   testosterone −0.040 (weakly protective, confounded → conservative 0.40 weight).
 - **`validation_status` on every Tier-3 biomarker** (`validated_nhanes` | `literature_only`), so each
   feature is either cohort-validated or honestly evidence-tagged — none silently in between.
+- **Whole-endpoint (ELC) validation** (`scripts/validation/endpoint_validation.py`,
+  `scripts/analysis/function_threshold_test.py`, docs §7): the score validated against the endpoint's two
+  observable faces — survival (AUC 0.71 raw / 0.88 age-sex-adj, ECE 0.012, n=24,678) and a concurrent
+  healthspan composite (objective-only AUC 0.63, non-circular; full 0.75 partly circular). Compounding
+  tiers confirmed (full 0.707 > self-report 0.688 > labs 0.658). Functional bar made **graded** (full /
+  minimal-assistance / dependent) from the self-rated-health gap test; depression kept as a separate
+  control axis (Keyes). Documents the circular-vs-non-circular and correlate-vs-driver logic.
 - **Empirical epigenetic oldest-old anchor** (`scripts/validation/epi_oldest_old_anchor.py`,
   `epigenetic_population_anchor` in tier3): the centenarian-favourable clock direction is now MEASURED on
   AI-permissible public methylomes with verified 89–103-year-olds (GEO GSE30870 + GSE40279, biolearn
